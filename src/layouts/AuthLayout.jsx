@@ -1,13 +1,13 @@
 import React from 'react';
 import { Outlet } from 'react-router';
-import Navbar from '../componets/NavBar';
+import NavAuth from '../componets/NavbarAuth';
 import Footer from '../componets/Footer';
 
-const PublicLayout = () => {
+const AuthLayout = () => {
   return (
     <div className='flex flex-col justify-between h-screen'>
-
-      <Navbar/>
+      
+      <NavAuth />
         <main className='h-full w-full overflow-auto'>
           <Outlet/>
         </main>
@@ -17,4 +17,4 @@ const PublicLayout = () => {
   );
 };
 
-export default PublicLayout;
+export default AuthLayout;
