@@ -1,10 +1,9 @@
 import React from 'react';
-import { useAuth0 } from "@auth0/auth0-react";
 import { useUser } from 'context/userContext';
+import Profile from '../../media/profile.jpeg'
 
 
 const Admin = () => {
-  const { user } = useAuth0();
   const { userData } = useUser();
   
   
@@ -37,7 +36,7 @@ const Admin = () => {
                 <div className="flex flex-wrap justify-center">
                   <div  className="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
                     <div className="relative">
-                      <img alt="Perfil" src={user.picture} class="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16"
+                      <img alt="Perfil" src={Profile} class="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16"
                         style={{ maxWidth: "150px" }}/>
                     </div>
                   </div>
@@ -51,19 +50,19 @@ const Admin = () => {
                 </div>
               </div>
               <div className="text-center mt-12">
-                <h3 className="text-4xl font-semibold leading-normal mb-2 text-gray-800">{user.name}</h3>
+                <h3 className="text-4xl font-semibold leading-normal mb-2 text-gray-800">Usuario Prueba</h3>
                 <div className="text-sm leading-normal mt-0 mb-2 text-gray-500 font-bold uppercase">
-                  <i className="fas fa-user-tag mr-2 text-lg text-gray-500"></i>{userData.rol}
+                  <i className="fas fa-user-tag mr-2 text-lg text-gray-500"></i>Administrador
                 </div>
                 <div className="text-xs leading-normal mt-0 mb-2 text-gray-500 font-bold uppercase">
                   <i className="fas fa-info-circle mr-2 text-lg text-gray-500"></i>
                   <span className={userData.estado === 'Autorizado' ? 'relative inline-block m-4 px-2 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full':'relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{userData.estado}</span>
                 </div>
                 <div className="text-sm leading-normal mt-0 mb-2 text-gray-500 font-bold uppercase">
-                  <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>{userData._id}
+                  <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>00000
                 </div>
                 <div className="mb-2 text-gray-700 mt-10">
-                  <i className="fas fa-at mr-2 text-lg text-gray-500"></i>{user.email}
+                  <i className="fas fa-at mr-2 text-lg text-gray-500"></i>correo@ejemplo.com
                 </div>
               </div>
             </div>

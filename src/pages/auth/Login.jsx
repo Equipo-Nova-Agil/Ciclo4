@@ -24,7 +24,7 @@ const Login = () => {
                   </div>
                   <div className="btn-wrapper text-center">
                     <button
-                      className="bg-white active:bg-gray-100 text-gray-800 px-4 py-2 rounded outline-none focus:outline-none mr-1 mb-1 uppercase shadow hover:shadow-md inline-flex items-center font-bold text-xs"
+                      className="bg-white active:bg-gray-100 text-gray-800 px-4 py-2 rounded outline-none focus:outline-none mr-1 mb-1 uppercase shadow hover:shadow-md inline-flex items-center font-bold text-xs transform hover:translate-y-1 transition-transform ease-in duration-200"
                       type="button"
                       >
                       <img alt="Google" class="w-5 mr-1" src={Google}/>Google
@@ -63,15 +63,15 @@ const Login = () => {
                       </label>
                     </div>
                     <div class="text-center mt-1 mb-3">
-                      <button className="bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-full"
+                      <button className="bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-full transform hover:translate-y-1 transition-transform ease-in duration-200"
                         type="button">
                         <Link to='/admin/'>Iniciar Sesión</Link>
                       </button>
                       <div class="mt-2">
-                        <a href="#" className="text-gray-500 hover:text-gray-900"><small>¿Olvidó su contraseña?</small></a>
+                        <a href="#" className="text-gray-500 hover:text-gray-900 "><small>¿Olvidó su contraseña?</small></a>
                         <span class="text-gray-300">|</span>
                         <Link to='/auth/registro'>
-                          <a href="#" className="text-gray-500 hover:text-gray-900"><small>Regístrate</small></a>
+                          <a href="#" className="text-gray-500 hover:text-gray-900 "><small>Regístrate</small></a>
                         </Link>
                       </div>    
                     </div>
