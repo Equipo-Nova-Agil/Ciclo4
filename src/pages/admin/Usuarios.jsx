@@ -41,17 +41,39 @@ return (
       </h2>
     </div>
 
-    <table>
+    <table class="min-w-full leading-normal">
 
       <thead>
         <tr>
-        <th>Nombre</th>
-            <th>Apellidos</th>
-            <th>Correo</th>
-            <th>Identificación</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th>Editar</th>
+
+          <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
+            Nombre
+          </th>
+
+          <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
+            Apellidos
+          </th>
+
+          <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+            Documento
+          </th>
+
+          <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
+            Email
+          </th>
+
+          <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+            Rol
+          </th>
+
+          <th class="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-36">
+            Estado
+          </th>
+
+          <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
+            Editar
+          </th>
+          
         </tr>
       </thead>
       <tbody>
@@ -59,12 +81,12 @@ return (
             data.Usuarios.map((u) => {
               return (
                 <tr key={u._id}>
-                  <td>{u.nombre}</td>
-                  <td>{u.apellido}</td>
-                  <td>{u.correo}</td>
-                  <td>{u.identificacion}</td>
-                  <td>{Enum_Rol[u.rol]}</td>
-                  <td>{Enum_EstadoUsuario[u.estado]}</td>
+                  <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">{u.nombre}</td>
+                  <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-44">{u.apellido}</td>
+                  <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-44">{u.identificacion}</td>
+                  <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-44">{u.correo}</td>
+                  <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">{Enum_Rol[u.rol]}</td>
+                  <td className={Enum_EstadoUsuario[u.estado] === 'Autorizado' ? 'relative inline-block m-4 px-2 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full':'relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{Enum_EstadoUsuario[u.estado]}</td>
                 </tr>
                 );
               })}

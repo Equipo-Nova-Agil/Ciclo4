@@ -65,7 +65,7 @@ const Login = () => {
                     <div class="text-center mt-1 mb-3">
                       <button className="bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-full transform hover:translate-y-1 transition-transform ease-in duration-200"
                         type="button">
-                        <Link to='/admin/'>Iniciar Sesión</Link>
+                        <Link to='/admin'>Iniciar Sesión</Link>
                       </button>
                       <div class="mt-2">
                         <a href="#" className="text-gray-500 hover:text-gray-900 "><small>¿Olvidó su contraseña?</small></a>
