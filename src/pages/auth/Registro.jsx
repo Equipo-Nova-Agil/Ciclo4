@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useEffect}from 'react';
 import { Link } from 'react-router-dom';
+import useFormData from '../../hooks/useFormData'
 import { useMutation } from '@apollo/client';
 import {crearUsuario} from '../../graphql/Usuarios/Mutations.js'
 
 const Registro = () => {
-  // const [agregarUsuario, { data, loading, error }] = useMutation(crearUsuario);
-  // let input;
-  //   if (loading) return 'Creando Registro...';
-  //   if (error) return `Submission error! ${error.message}`;
+  // const {form, formData, updateFormData}= useFormData ();
+  // const [registro, {data: dataMutation, loading: loadingMutation, error: errorMutation}] = useMutation ();
+
+  // const submitForm = (e) =>{
+  //   e.preventDefault ();
+  // };
+
   return (
     <>
     <main>
@@ -33,18 +37,8 @@ const Registro = () => {
                     {/* FORMULARIO */}
                     <div class="flex-auto px-4 pb-3  lg:px-10 py-11 pt-0">
                     
-                      <form>
-                        {/* onSubmit={e => {
-                          e.preventDefault();
-                          agregarUsuario({ 
-                            nombre: { text: input.value },
-                            apellido: { text: input.value },
-                            identificacion: { text: input.value },
-                            correo: { text: input.value },
-                            rol: { text: input.value },
-                          });
-                          input.value = '';
-                          }} */}
+                      <form> 
+                        
 
                         <div class="relative w-full mb-3">
                           <label class="block uppercase text-gray-700 text-xs font-bold mb-2" for="grid-password">Nombre</label>
