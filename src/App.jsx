@@ -22,11 +22,11 @@ import Login from "./pages/auth/Login"
 import Registro from "./pages/auth/Registro"
 
 
-// const httpLink = createHttpLink({
-//   uri: 'http:localhost:4000/graphql'
-// })
+const httpLink = createHttpLink({
+  uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
+})
 const client = new ApolloClient({
-  uri: 'https://servidor-proyectorio.herokuapp.com/graphql',
+  uri: 'http://localhost:4000/graphql',
   cache: new InMemoryCache()
 });
 
@@ -67,9 +67,7 @@ function App() {
             </Router>
             
           </UserContext.Provider>
-        
-      
-
+    
     </ApolloProvider>
   );
 }

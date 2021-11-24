@@ -1,13 +1,13 @@
 import React, { useEffect, useState} from 'react';
-import { useQuery } from '@apollo/client'; 
+import { useQuery, useMutation } from '@apollo/client'; 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactLoading from 'react-loading';
-import {nanoid} from 'nanoid';
-import {obtenerUsuarios} from '../../graphql/Usuarios/Queries.js';
+import { useParams } from 'react-router-dom';
+import { obtenerUsuarios } from '../../graphql/Usuarios/Queries.js';
 import {editarUsuario} from '../../graphql/Usuarios/Mutations.js';
 import { Enum_Rol, Enum_EstadoUsuario } from 'utils/enum';
-import { data } from 'autoprefixer';
+
 
 
 const Usuarios = () => {
@@ -27,7 +27,7 @@ const Usuarios = () => {
                         <h1 className='text-3xl font-extrabold'>Cargando...</h1>
                         <ReactLoading type='bars' color='#11172d' height={467} width={175} />
                       </div>;
-  
+
   return (
     <div className='flex h-full w-full flex-col items-center justify-start p-8'>
       <div className='flex flex-col'>
@@ -43,8 +43,6 @@ const Usuarios = () => {
 
 const TablaUsuarios = () => {
   const {data} = useQuery (obtenerUsuarios);
-  const [busqueda, setBusqueda] = useState(data);
-  
   
   return (
 
@@ -52,7 +50,7 @@ const TablaUsuarios = () => {
       <body class="antialiased font-sans bg-white">
         <div class="container mx-auto px-4 sm:px-8">
           <div class="py-8">
-            <div class="my-2 flex sm:flex-row flex-col">
+            {/* <div class="my-2 flex sm:flex-row flex-col">
               <div class="block relative">
                 <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
                   <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
@@ -61,12 +59,12 @@ const TablaUsuarios = () => {
                   </svg>
                 </span>
                 <input 
-                  // value={busqueda}
-                  // onChange={(e) => setBusqueda(e.target.value)}
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar"
                   class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"/>
               </div>
-            </div>
+            </div> */}
 
             <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
               <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
@@ -109,7 +107,7 @@ const TablaUsuarios = () => {
                     {data &&
                     data.Usuarios.map((usuario) => {
                     return <FilaUsuarios 
-                      key={nanoid()} 
+                      key={usuario._id}
                       usuario={usuario}/>;
                     })}
                   </tbody>
@@ -124,8 +122,9 @@ const TablaUsuarios = () => {
 };
 
 const FilaUsuarios = ({usuario})  => {
-  const [edit, setEdit] = useState(false)
-  const [infoNuevoUsuario, setInfoNuevoUsuario] = useState({
+  const [edit, setEdit] = useState(false);
+  const { _id } = useParams();
+  const [infoNuevaUsuario, setInfoNuevaUsuario] = useState({
     _id: usuario._id,
     nombre: usuario.nombre,
     apellido: usuario.apellido,
@@ -135,7 +134,43 @@ const FilaUsuarios = ({usuario})  => {
     estado: usuario.estado,
   });
 
+  // const {
+  //   data: queryData,
+  //   error: queryError,
+  //   loading: queryLoading,
+  // } = useQuery(editarUsuario, {
+  //   variables: { _id },
+  // });
+
+  // console.log(queryData);
+
+  // const [actualizarUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
   
+  // const submitEdit= (e)=> {
+  //   e.preventDefault();
+  //   console.log(e);
+
+  // useEffect(() => {
+  //   if (mutationData) {
+  //     toast.success('Usuario Modificado Exitosamente');
+  //   }
+  // }, [mutationData]);
+
+  // useEffect(() => {
+  //   if (mutationError) {
+  //     toast.error('Error Modificando Usuario');
+  //   }
+
+  //   if (queryError) {
+  //     toast.error('Error consultando el usuario');
+  //   }
+  // }, [queryError, mutationError]);
+
+  // if (queryLoading) return <div>
+  //                           <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+  //                           <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+  //                         </div>;
+                          
   // const actualizarUsuario = async () => {
   //   //enviar la info al backend
 
@@ -143,12 +178,12 @@ const FilaUsuarios = ({usuario})  => {
   //     usuario._id,
   //     // usuario.picture,
   //     {
-  //       nombre: infoNuevoUsuario.nombre,
-  //       apellido: infoNuevoUsuario.apellido,
-  //       identificacion: infoNuevoUsuario.identificacion,
-  //       correo: infoNuevoUsuario.correo,
-  //       rol: infoNuevoUsuario.rol,
-  //       estado: infoNuevoUsuario.estado,
+  //       nombre: infoNuevaUsuario.nombre,
+  //       apellido: infoNuevaUsuario.apellido,
+  //       identificacion: infoNuevaUsuario.identificacion,
+  //       correo: infoNuevaUsuario.correo,
+  //       rol: infoNuevaUsuario.rol,
+  //       estado: infoNuevaUsuario.estado,
         
   //     },
   //     (response) => {
@@ -175,32 +210,32 @@ const FilaUsuarios = ({usuario})  => {
             <input 
             type="text" 
             className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-            value={infoNuevoUsuario.nombre}
-            onChange={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, nombre: e.target.value })}/>
+            value={infoNuevaUsuario.nombre}
+            onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, nombre: e.target.value })}/>
           </td>
 
           <td className="px-3 py-3  bg-white text-sm text-center w-44">
             <input 
             type="text" 
             className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-            value={infoNuevoUsuario.apellido}
-            onChange={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, apellido: e.target.value })}/>
+            value={infoNuevaUsuario.apellido}
+            onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, apellido: e.target.value })}/>
           </td>
 
           <td className="px-3 py-3  bg-white text-sm text-center w-44">
             <input 
             type="text" 
             className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-            value={infoNuevoUsuario.identificacion}
-            onChange={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, identificacion: e.target.value })}/>
+            value={infoNuevaUsuario.identificacion}
+            onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, identificacion: e.target.value })}/>
           </td>
 
           <td className="px-3 py-3  bg-white text-sm text-center w-44">
             <input 
             type="email" 
             className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-            value={infoNuevoUsuario.correo}
-            onChange={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, correo: e.target.value })}/>
+            value={infoNuevaUsuario.correo}
+            onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, correo: e.target.value })}/>
           </td>
           
           <td className="px-3 py-3  bg-white text-sm text-center w-32">
@@ -209,8 +244,8 @@ const FilaUsuarios = ({usuario})  => {
               className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
               name='rol'
               required
-              onChange ={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, rol: e.target.value })}
-              defaultValue={infoNuevoUsuario.rol}>
+              onChange ={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, rol: e.target.value })}
+              defaultValue={infoNuevaUsuario.rol}>
                 <option disabled value={0}>
                 Seleccione Rol
                 </option>
@@ -226,8 +261,8 @@ const FilaUsuarios = ({usuario})  => {
               className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
               name='estado'
               required
-              onChange ={(e) => setInfoNuevoUsuario({ ...infoNuevoUsuario, estado: e.target.value })}
-              defaultValue={infoNuevoUsuario.estado}>
+              onChange ={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, estado: e.target.value })}
+              defaultValue={infoNuevaUsuario.estado}>
                 <option disabled value={0}>
                 Seleccione Estado
                 </option>
