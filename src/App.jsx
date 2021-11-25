@@ -25,8 +25,10 @@ import Registro from "./pages/auth/Registro"
 const httpLink = createHttpLink({
   uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
 })
+
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql',
+  // uri: 'http://localhost:4000/graphql',
+  uri: 'https://servidor-proyectorio.herokuapp.com/graphql',
   cache: new InMemoryCache()
 });
 

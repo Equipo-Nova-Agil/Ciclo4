@@ -22,16 +22,22 @@ const crearUsuario = gql `
 `;
 
 const editarUsuario = gql `
-    mutation Mutation {
-
-    editarUsuario(
-        _id: $id, 
-        nombre: $nombre, 
-        apellido: $apellido, 
-        identificacion: $identificacion, 
-        correo: $correo, 
-        rol: $rol) 
-        {
+    mutation EditarUsuario (
+        $_id: String!
+        $nombre: String!
+        $apellido: String!
+        $identificacion: String!
+        $correo: String!
+        $rol: Enum_Rol!
+      ){
+        editarUsuario(
+            _id: $_id, 
+            nombre: $nombre, 
+            apellido: $apellido, 
+            identificacion: $identificacion, 
+            correo: $correo, 
+            rol: $rol
+        ) {
             _id
             nombre
             apellido
@@ -39,7 +45,7 @@ const editarUsuario = gql `
             correo
             rol
             estado
-            }
+        }
     }
 `;
 

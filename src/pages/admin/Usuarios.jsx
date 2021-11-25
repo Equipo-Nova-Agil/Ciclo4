@@ -11,6 +11,10 @@ import { Enum_Rol, Enum_EstadoUsuario } from 'utils/enum';
 
 
 const Usuarios = () => {
+
+  
+
+
   const {loading, data, error} = useQuery (obtenerUsuarios);
   
   useEffect(() => {
@@ -38,7 +42,7 @@ const Usuarios = () => {
       <TablaUsuarios/>
       <ToastContainer position='bottom-center' autoClose={4000} />
     </div>
-);
+  );
 };
 
 const TablaUsuarios = () => {
@@ -133,6 +137,19 @@ const FilaUsuarios = ({usuario})  => {
     rol: usuario.rol,
     estado: usuario.estado,
   });
+
+  const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
+
+  const enviarDatosEditadosUsuario = () => {
+    console.log("le di a editar:", infoNuevaUsuario)
+    editUsuario({ 
+      variables: { ...infoNuevaUsuario }
+    }) 
+
+    
+  }
+
+  //console.log("info nueva usuario",infoNuevaUsuario)
 
   // const {
   //   data: queryData,
@@ -292,7 +309,7 @@ const FilaUsuarios = ({usuario})  => {
             {edit? (
               <>
                 <i
-                  onClick={() => setEdit(!edit)}
+                  onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}
                   className="fas fa-check hover:text-green-600"/>
                 <i
                   onClick={() => setEdit(!edit)}
