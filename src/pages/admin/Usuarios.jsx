@@ -1,5 +1,6 @@
 import React, { useEffect, useState} from 'react';
 import { useQuery, useMutation } from '@apollo/client'; 
+import { Dialog} from '@material-ui/core';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactLoading from 'react-loading';
@@ -13,12 +14,10 @@ import { Enum_Rol, Enum_EstadoUsuario } from 'utils/enum';
 const Usuarios = () => {
 
   
-
-
   const {loading, data, error} = useQuery (obtenerUsuarios);
-  
+
   useEffect(() => {
-    console.log('Datos Usuarios Servidor', data);
+      console.log('Datos Usuarios Servidor', data);
   }, [data]);
 
   useEffect(() => {
@@ -102,7 +101,7 @@ const TablaUsuarios = () => {
                       </th>
 
                       <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                        Editar
+                        Acciones
                       </th>
 
                     </tr>
@@ -126,6 +125,7 @@ const TablaUsuarios = () => {
 };
 
 const FilaUsuarios = ({usuario})  => {
+  const [openDialog, setOpenDialog] = useState(false);
   const [edit, setEdit] = useState(false);
   const { _id } = useParams();
   const [infoNuevaUsuario, setInfoNuevaUsuario] = useState({
@@ -146,7 +146,8 @@ const FilaUsuarios = ({usuario})  => {
     console.log("le di a editar:", infoNuevaUsuario)
     editUsuario({ 
       variables: { ...infoNuevaUsuario }
-    })  
+    })
+    if(mutationError){toast.error('Usuario no se pudo editar')} else {toast.success('Usuario editado con éxito')}
   }
 
   const eliminarUser = () => {
@@ -154,77 +155,10 @@ const FilaUsuarios = ({usuario})  => {
       variables: { "_id": infoNuevaUsuario._id }
     });
     console.log("id", infoNuevaUsuario._id)
+    if(mutationErrorDelete){toast.error('Usuario no se pudo eliminar')} else {toast.success('Usuario eliminado con éxito')}
+    setOpenDialog(false);
   }
-
-  //console.log("info nueva usuario",infoNuevaUsuario)
-
-  // const {
-  //   data: queryData,
-  //   error: queryError,
-  //   loading: queryLoading,
-  // } = useQuery(editarUsuario, {
-  //   variables: { _id },
-  // });
-
-  // console.log(queryData);
-
-  // const [actualizarUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
-  
-  // const submitEdit= (e)=> {
-  //   e.preventDefault();
-  //   console.log(e);
-
-  // useEffect(() => {
-  //   if (mutationData) {
-  //     toast.success('Usuario Modificado Exitosamente');
-  //   }
-  // }, [mutationData]);
-
-  // useEffect(() => {
-  //   if (mutationError) {
-  //     toast.error('Error Modificando Usuario');
-  //   }
-
-  //   if (queryError) {
-  //     toast.error('Error consultando el usuario');
-  //   }
-  // }, [queryError, mutationError]);
-
-  // if (queryLoading) return <div>
-  //                           <h1 className='text-3xl font-extrabold'>Cargando...</h1>
-  //                           <ReactLoading type='bars' color='#11172d' height={467} width={175} />
-  //                         </div>;
-                          
-  // const actualizarUsuario = async () => {
-  //   //enviar la info al backend
-
-  //   await editarUsuario(
-  //     usuario._id,
-  //     // usuario.picture,
-  //     {
-  //       nombre: infoNuevaUsuario.nombre,
-  //       apellido: infoNuevaUsuario.apellido,
-  //       identificacion: infoNuevaUsuario.identificacion,
-  //       correo: infoNuevaUsuario.correo,
-  //       rol: infoNuevaUsuario.rol,
-  //       estado: infoNuevaUsuario.estado,
-        
-  //     },
-  //     (response) => {
-  //       console.log(response.data);
-  //       toast.success('Usuario Modificado Exitosamente');
-  //       setEdit(false);
-  //       setEjecutarConsulta(true);
-  //     },
-  //     (error) => {
-  //       toast.error('Error Modificando Usuario');
-  //       console.error(error);
-  //     }
-  //   );
-    
       
-  // };
-       
   return (
     <tr >
       {edit? (
@@ -288,7 +222,7 @@ const FilaUsuarios = ({usuario})  => {
               onChange ={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, estado: e.target.value })}
               defaultValue={infoNuevaUsuario.estado}>
                 <option disabled value={0}>
-                Seleccione Estado
+                    Seleccione Estado
                 </option>
                 <option value="PENDIENTE">Pendiente</option>
                 <option value="AUTORIZADO">Autorizado</option>
@@ -315,23 +249,58 @@ const FilaUsuarios = ({usuario})  => {
           <div className="flex w-24 justify-around text-gray-800 ">
             {edit? (
               <>
-                <i
+                {/* <i 
                   onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}
                   className="fas fa-check hover:text-green-600"/>
                 <i
-                  onClick={() => {setEdit(!edit); eliminarUser();}}
-                  className='fas fa-ban hover:text-red-700'/>
+                  onClick={() => {setEdit(!edit);}}
+                  className='fas fa-ban hover:text-red-700'/> */}
+                <button type="button" title="Editar"  onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}>
+                  <i className="fas fa-check hover:text-green-600"></i>
+                </button>
+                <button type="button" title="Cancelar" onClick={() => {setEdit(!edit);}}>
+                  <i className="fas fa-ban hover:text-red-700"></i>
+                </button>
               </>
             ):(
               <>
-                <i
+                <button type="button" title="Editar"  onClick={() => setEdit(!edit)}>
+                  <i className="fas fa-user-edit hover:text-yellow-600"></i>
+                </button>
+                <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
+                  <i className="fas fa-trash-alt hover:text-red-700"></i>
+                </button>
+                {/* <i
                   onClick={() => setEdit(!edit)}
                   className="fas fa-user-edit hover:text-yellow-600"/>
-                
+                <i
+                  onClick={() => {eliminarUser();}}
+                  className='fas fa-trash-alt hover:text-red-700'/> */}
               </>
             )} 
             
           </div>
+          <Dialog open={openDialog}>
+            <div className='p-8 flex flex-col'>
+              <h1 className='text-gray-900 text-2xl font-bold'>
+                ¿Está seguro de querer eliminar el usuario?
+              </h1>
+              <div className='flex w-full items-center justify-center my-4'>
+                <button
+                  onClick={() => eliminarUser()}
+                  className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
+                >
+                  Sí
+                </button>
+                <button
+                  onClick={() => setOpenDialog(false)}
+                  className='mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md'
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </Dialog>
         </td>
       
     </tr>
