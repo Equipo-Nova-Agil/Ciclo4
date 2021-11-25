@@ -43,4 +43,16 @@ const editarProyecto = gql `
     }
 `;
 
-  export {editarProyecto, crearProyecto};
+const eliminarProyecto = gql`
+    mutation EliminarProyecto (
+        $_id: String!
+    ){
+        eliminarProyecto(
+            _id: $_id
+        ){
+            _id
+            nombre
+        }
+    }
+`
+export {editarProyecto, crearProyecto, eliminarProyecto};
