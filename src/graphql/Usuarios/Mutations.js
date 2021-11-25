@@ -49,4 +49,19 @@ const editarUsuario = gql `
     }
 `;
 
-export {crearUsuario, editarUsuario};
+
+const eliminarUsuario = gql`
+    mutation EliminarUsuario (
+        $_id: String!
+    ){
+        eliminarUsuario(
+            _id: $_id
+        ){
+            _id
+            nombre
+            apellido
+        }
+    }
+`
+
+export {crearUsuario, editarUsuario, eliminarUsuario};

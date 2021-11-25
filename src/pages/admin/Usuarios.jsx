@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ReactLoading from 'react-loading';
 import { useParams } from 'react-router-dom';
 import { obtenerUsuarios } from '../../graphql/Usuarios/Queries.js';
-import {editarUsuario} from '../../graphql/Usuarios/Mutations.js';
+import {editarUsuario, eliminarUsuario} from '../../graphql/Usuarios/Mutations.js';
 import { Enum_Rol, Enum_EstadoUsuario } from 'utils/enum';
 
 
@@ -140,13 +140,20 @@ const FilaUsuarios = ({usuario})  => {
 
   const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
 
+  const [deleteUsuario, { data: mutationDataDelete, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarUsuario);
+
   const enviarDatosEditadosUsuario = () => {
     console.log("le di a editar:", infoNuevaUsuario)
     editUsuario({ 
       variables: { ...infoNuevaUsuario }
-    }) 
+    })  
+  }
 
-    
+  const eliminarUser = () => {
+    deleteUsuario({
+      variables: { "_id": infoNuevaUsuario._id }
+    });
+    console.log("id", infoNuevaUsuario._id)
   }
 
   //console.log("info nueva usuario",infoNuevaUsuario)
@@ -312,7 +319,7 @@ const FilaUsuarios = ({usuario})  => {
                   onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}
                   className="fas fa-check hover:text-green-600"/>
                 <i
-                  onClick={() => setEdit(!edit)}
+                  onClick={() => {setEdit(!edit); eliminarUser();}}
                   className='fas fa-ban hover:text-red-700'/>
               </>
             ):(
