@@ -1,4 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useQuery, useMutation } from '@apollo/client'; 
+import ReactLoading from 'react-loading';
+import { useParams } from 'react-router-dom';
+import { nanoid } from 'nanoid';
+import { obtenerProyectos } from '../graphql/Proyectos/Queries.js';
+import { obtenerUsuarios } from '../graphql/Usuarios/Queries.js';
 
 //imagenes
 import Proyectos from '../media/pedro-miranda-unsplash.jpeg';
@@ -9,7 +15,11 @@ import Asesores4 from '../media/Asesores4-470x470.png';
 
 
 const Index = () => {
-  return <div>
+
+  const {loading:loadingProyectos, data:dataProyect, error:errorUser } = useQuery(obtenerProyectos);
+  const {loading:loadingUser, data:dataUser, error:errorProyect} = useQuery (obtenerUsuarios);
+
+  return <div> 
     
   <body id="inicio" className="text-gray-800 antialiased">
     <main>
@@ -208,87 +218,47 @@ const Index = () => {
           </div>
         </div>
       </section>
+
       <section className="text-gray-600 body-font">
         <div className="container px-5 py-12 mx-auto">
           <div className="flex flex-wrap -m-4">
-            <div className="p-4 lg:w-1/3">
-              <div className="h-full bg-gray-100 bg-opacity-75 px-8 pt-16 pb-24 rounded-lg overflow-hidden text-center relative">
-                <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">CATEGORÍA</h2>
-                <h1 className="title-font sm:text-2xl text-xl font-medium text-gray-900 mb-3">Proyecto de Investigación # 1</h1>
-                <p className="leading-relaxed mb-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quidem modi reprehenderit vitae exercitationem aliquid dolores ullam temporibus...</p>
-                <a className="text-blue-500 inline-flex items-center">Leer más
-                  <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5l7 7-7 7"></path>
-                  </svg>
-                </a>
-                <div className="text-center mt-2 leading-none flex justify-center absolute bottom-0 left-0 w-full py-4">
-                  <span className="text-gray-400 mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
-                    <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>1.2K
-                  </span>
-                  <span className="text-gray-400 inline-flex items-center leading-none text-sm">
-                    <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>
-                    </svg>6
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 lg:w-1/3">
-              <div className="h-full bg-gray-100 bg-opacity-75 px-8 pt-16 pb-24 rounded-lg overflow-hidden text-center relative">
-                <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">CATEGORÍA</h2>
-                <h1 className="title-font sm:text-2xl text-xl font-medium text-gray-900 mb-3">Proyecto de Investigación # 2</h1>
-                <p className="leading-relaxed mb-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quidem modi reprehenderit vitae exercitationem aliquid dolores ullam temporibus...</p>
-                <a className="text-blue-500 inline-flex items-center">Leer más
-                  <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5l7 7-7 7"></path>
-                  </svg>
-                </a>
-                <div className="text-center mt-2 leading-none flex justify-center absolute bottom-0 left-0 w-full py-4">
-                  <span className="text-gray-400 mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
-                    <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>1.2K
-                  </span>
-                  <span className="text-gray-400 inline-flex items-center leading-none text-sm">
-                    <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>
-                    </svg>6
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 lg:w-1/3">
-              <div className="h-full bg-gray-100 bg-opacity-75 px-8 pt-16 pb-24 rounded-lg overflow-hidden text-center relative">
-                <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">CATEGORÍA</h2>
-                <h1 className="title-font sm:text-2xl text-xl font-medium text-gray-900 mb-3">Proyecto de Investigación # 3</h1>
-                <p className="leading-relaxed mb-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quidem modi reprehenderit vitae exercitationem aliquid dolores ullam temporibus...</p>
-                <a className="text-blue-500 inline-flex items-center">Leer más
-                  <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5l7 7-7 7"></path>
-                  </svg>
-                </a>
-                <div className="text-center mt-2 leading-none flex justify-center absolute bottom-0 left-0 w-full py-4">
-                  <span className="text-gray-400 mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
-                    <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>1.2K
-                  </span>
-                  <span className="text-gray-400 inline-flex items-center leading-none text-sm">
-                    <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>
-                    </svg>6
-                  </span>
-                </div>
-              </div>
-            </div>
+              {dataProyect &&
+                dataProyect.Proyectos.map((proyecto) => {
+                  if (proyecto.estado != "INACTIVO") {
+                    return (
+                      <div className="p-4 lg:w-1/3">
+                        <div className="h-full bg-gray-100 bg-opacity-75 px-8 pt-16 pb-24 rounded-lg overflow-hidden text-center relative">
+                          <h1 className="title-font sm:text-2xl text-xl font-medium text-gray-900 mb-3">{proyecto.nombre}</h1>
+                          <h2 className="tracking-widest text-xs title-font font-medium text-gray-400 mb-2">{proyecto.fase}</h2>
+                          <span>
+                            <span className="hover:text-green-600"> <i className="far fa-calendar-alt"></i> {proyecto.fechaInicio.split("T")[0]} </span> - <span className="hover:text-red-600"> <i className="far fa-calendar-alt"></i> {proyecto.fechaFin.split("T")[0]}</span>
+                          </span>
+                          <p className="leading-relaxed mb-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quidem modi reprehenderit vitae exercitationem aliquid dolores ullam temporibus...</p>
+                          <a className="text-blue-500 inline-flex items-center">Leer más
+                            <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M5 12h14"></path>
+                              <path d="M12 5l7 7-7 7"></path>
+                            </svg>
+                          </a>
+                          <div className="text-center mt-2 leading-none flex justify-center absolute bottom-0 left-0 w-full py-4">
+                            <span className="text-gray-400 mr-3 inline-flex items-center leading-none text-sm pr-3 py-1 border-r-2 border-gray-200">
+                              <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                              </svg>1.2K
+                            </span>
+                            <span className="text-gray-400 inline-flex items-center leading-none text-sm">
+                              <svg className="w-4 h-4 mr-1" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>
+                              </svg>6
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }
+                })
+            }
           </div>
         </div>
       </section>
@@ -305,122 +275,42 @@ const Index = () => {
             </div>
           </div>
           <div className="flex flex-wrap">
-            <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-              <div className="px-6">
-                <img
-                  alt="Asesor"
-                  src={Asesores1}
-                  className="shadow-lg rounded-full max-w-full mx-auto asesores"/>
-                <div className="pt-6 text-center">
-                  <h5 className="text-xl font-bold">Asesor</h5>
-                  <p className="mt-1 text-sm text-gray-500 uppercase font-semibold">
-                    Departamento de Ingeniería
-                  </p>
-                  <div className="mt-6">
-                    <button
-                      className="bg-blue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-twitter"></i></button>
-                      <button
-                      className="bg-blue-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-facebook-f"></i></button>
-                      <button
-                      className="bg-pink-500 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-dribbble"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-              <div className="px-6">
-                <img
-                  alt="Asesora"
-                  src={Asesores2}
-                  className="shadow-lg rounded-full max-w-full mx-auto asesores"/>
-                <div className="pt-6 text-center">
-                  <h5 className="text-xl font-bold">Asesora</h5>
-                  <p className="mt-1 text-sm text-gray-500 uppercase font-semibold">
-                    Departamento de Mercadeo
-                  </p>
-                  <div className="mt-6">
-                    <button
-                      className="bg-red-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-google"></i></button>
-                      <button
-                      className="bg-blue-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-facebook-f"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-              <div className="px-6">
-                <img
-                  alt="Asesora"
-                  src={Asesores3}
-                  className="shadow-lg rounded-full max-w-full mx-auto asesores"/>
-                <div className="pt-6 text-center">
-                  <h5 className="text-xl font-bold">Asesora</h5>
-                  <p className="mt-1 text-sm text-gray-500 uppercase font-semibold">
-                    Departamento de Diseño
-                  </p>
-                  <div className="mt-6">
-                    <button
-                      className="bg-red-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-google"></i></button>
-                      <button
-                      className="bg-blue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-twitter"></i></button>
-                      <button
-                      className="bg-gray-800 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-instagram"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-              <div className="px-6">
-                <img
-                  alt="Asesora"
-                  src={Asesores4}
-                  className="shadow-lg rounded-full max-w-full mx-auto asesores"/>
-                <div className="pt-6 text-center">
-                  <h5 className="text-xl font-bold">Asesor</h5>
-                  <p className="mt-1 text-sm text-gray-500 uppercase font-semibold">
-                    Decano y Fundador
-                  </p>
-                  <div className="mt-6">
-                    <button
-                      className="bg-pink-500 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-dribbble"></i></button>
-                      <button
-                      className="bg-red-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-google"></i></button>
-                      <button
-                      className="bg-blue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-twitter"></i></button>
-                      <button
-                      className="bg-gray-800 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                      type="button">
-                      <i className="fab fa-instagram"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              {dataUser &&
+                dataUser.Usuarios.map((usuario) => {
+                  if (usuario.rol == "LIDER") {
+                    return (
+                      <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
+                        <div className="px-6">
+                          <img
+                            alt="Asesor"
+                            src={Asesores1}
+                            className="shadow-lg rounded-full max-w-full mx-auto asesores" />
+                          <div className="pt-6 text-center">
+                            <h5 className="text-xl font-bold"> {usuario.nombre + " " + usuario.apellido} </h5>
+                            <p className="mt-1 text-sm text-gray-500 uppercase font-semibold">
+                              {usuario.rol} 
+                            </p>
+                            <div className="mt-6">
+                              <button
+                                className="bg-blue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
+                                type="button">
+                                <i className="fab fa-twitter"></i></button>
+                              <button
+                                className="bg-blue-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
+                                type="button">
+                                <i className="fab fa-facebook-f"></i></button>
+                              <button
+                                className="bg-pink-500 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
+                                type="button">
+                                <i className="fab fa-dribbble"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }
+                })};
           </div>
         </div>
       </section>
