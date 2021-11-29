@@ -1,10 +1,37 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Google from '../../media/google.svg';
 import { Link } from 'react-router-dom';
+import useFormData from 'hooks/useFormData';
+import { useMutation } from '@apollo/client';
+import {Acceder} from '../../graphql/Autenticacion/Mutations'
 import '../../styles/styles.css'
-
+import { useAuth } from 'context/authContext';
+import {useNavigate} from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { setToken } = useAuth();
+  const { form, formData, updateFormData } = useFormData();
+
+  const [login, { data: dataMutation, loading: mutationLoading, error: mutationError }] =
+    useMutation(Acceder);
+
+  const submitForm = (e) => {
+    e.preventDefault();
+
+    login({
+      variables: formData,
+    });
+  };
+
+  useEffect(() => {
+    if (dataMutation) {
+      if (dataMutation.login.token) {
+        setToken(dataMutation.login.token);
+        navigate('/admin');
+      }
+    }
+  }, [dataMutation, setToken, navigate]);
   return (
     <>
 
@@ -35,7 +62,7 @@ const Login = () => {
                     <div className="text-gray-500 text-center mb-3 font-bold">
                       <small>Inicia con credenciales</small>
                     </div>
-                    <form>
+                    <form onSubmit={submitForm} onChange={updateFormData} ref={form}>
                       <div className="relative w-full mb-3">
                         <label className="block uppercase text-gray-700 text-xs font-bold mb-2" for="grid-password">Correo</label>
                         <input

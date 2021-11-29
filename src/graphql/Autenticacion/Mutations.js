@@ -23,4 +23,22 @@ const Registrarse = gql`
   }
 `;
 
-export { Registrarse };
+const Acceder = gql`
+  mutation Login($correo: String!, $password: String!) {
+    login(correo: $correo, password: $password) {
+      token
+      error
+    }
+  }
+`;
+
+const Actualizar_Token = gql`
+  mutation RefreshToken {
+    refreshToken {
+      token
+      error
+    }
+  }
+`;
+
+export { Registrarse, Acceder, Actualizar_Token };

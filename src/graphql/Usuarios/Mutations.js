@@ -28,15 +28,17 @@ const editarUsuario = gql `
         $apellido: String!
         $identificacion: String!
         $correo: String!
-        $rol: Enum_Rol!
+        # $rol: Enum_Rol!
+        $estado: Enum_EstadoUsuario!
       ){
         editarUsuario(
-            _id: $_id, 
-            nombre: $nombre, 
-            apellido: $apellido, 
-            identificacion: $identificacion, 
-            correo: $correo, 
+            _id: $_id 
+            nombre: $nombre 
+            apellido: $apellido 
+            identificacion: $identificacion 
+            correo: $correo 
             rol: $rol
+            estado: $estado
         ) {
             _id
             nombre

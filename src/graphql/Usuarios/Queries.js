@@ -15,4 +15,18 @@ query Usuarios {
   }
   `;
 
-  export {obtenerUsuarios};
+const obtenerUsuario = gql`
+query Usuario($_id: String!) {
+  Usuario(_id: $_id) {
+    _id
+    nombre
+    apellido
+    correo
+    estado
+    identificacion
+    rol
+  }
+}
+`;
+
+  export {obtenerUsuarios, obtenerUsuario};

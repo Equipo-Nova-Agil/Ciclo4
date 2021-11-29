@@ -4,6 +4,7 @@ import { Dialog} from '@material-ui/core';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactLoading from 'react-loading';
+import PrivateRoute from '../../componets/PrivateRoute';
 import { useParams } from 'react-router-dom';
 import { obtenerUsuarios } from '../../graphql/Usuarios/Queries.js';
 import {editarUsuario, eliminarUsuario} from '../../graphql/Usuarios/Mutations.js';
@@ -32,15 +33,17 @@ const Usuarios = () => {
                       </div>;
 
   return (
-    <div className='flex h-full w-full flex-col items-center justify-start p-8'>
-      <div className='flex flex-col'>
-        <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
-        Administración de Usuarios
-        </h2>
+    // <PrivateRoute roleList={['ADMINISTRADOR']}>
+      <div className='flex h-full w-full flex-col items-center justify-start p-8'>
+        <div className='flex flex-col'>
+          <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
+          Administración de Usuarios
+          </h2>
+        </div>
+        <TablaUsuarios/>
+        <ToastContainer position='bottom-center' autoClose={4000} />
       </div>
-      <TablaUsuarios/>
-      <ToastContainer position='bottom-center' autoClose={4000} />
-    </div>
+    // </PrivateRoute>
   );
 };
 
@@ -112,6 +115,7 @@ const TablaUsuarios = () => {
                     return <FilaUsuarios 
                       key={usuario._id}
                       usuario={usuario}/>;
+                      console.log ('Usuarios', usuario)
                     })}
                   </tbody>
                 </table>
