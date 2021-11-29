@@ -141,6 +141,7 @@ const FilaUsuarios = ({usuario})  => {
     rol: usuario.rol,
     estado: usuario.estado,
   });
+  
 
   const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
 

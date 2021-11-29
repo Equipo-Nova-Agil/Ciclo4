@@ -92,13 +92,13 @@ const TablaProyectos = ({ listaProyectos, setEjecutarConsulta }) => {
   const [proyectosFiltrados, setProyectosFiltrados] = useState(listaProyectos);
   const {data} = useQuery (obtenerProyectos);
 
-  useEffect(() => {
-    setProyectosFiltrados(
-      listaProyectos.filter((elemento) => {
-      return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
-      })
-    );
-  }, [busqueda, listaProyectos]);
+  // useEffect(() => {
+  //   setProyectosFiltrados(
+  //     listaProyectos.filter((elemento) => {
+  //     return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
+  //     })
+  //   );
+  // }, [busqueda, listaProyectos]);
 
 return (
   <div>
