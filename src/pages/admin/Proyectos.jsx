@@ -384,7 +384,7 @@ const FilaProyectos = ({proyecto,setEjecutarConsulta})  => {
           <td
             className={
               proyecto.estado === "ACTIVO"
-                ? "relative inline-block m-4 px-2 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+                ? "relative inline-block m-4 px-5 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
                 : "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
             }
           >
