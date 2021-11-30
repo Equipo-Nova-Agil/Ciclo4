@@ -115,7 +115,7 @@ const TablaUsuarios = () => {
                     return <FilaUsuarios 
                       key={usuario._id}
                       usuario={usuario}/>;
-                      console.log ('Usuarios', usuario)
+                      
                     })}
                   </tbody>
                 </table>
@@ -152,7 +152,7 @@ const FilaUsuarios = ({usuario})  => {
     editUsuario({ 
       variables: { ...infoNuevaUsuario }
     })
-    if(mutationError){toast.error('Usuario no se pudo editar')} else {toast.success('Usuario editado con éxito')}
+    if(mutationError){toast.error('Error Editando Usuario')} else {toast.success('Usuario Editado Exitosamente')}
   }
 
   const eliminarUser = () => {
@@ -160,7 +160,7 @@ const FilaUsuarios = ({usuario})  => {
       variables: { "_id": infoNuevaUsuario._id }
     });
     console.log("id", infoNuevaUsuario._id)
-    if(mutationErrorDelete){toast.error('Usuario no se pudo eliminar')} else {toast.success('Usuario eliminado con éxito')}
+    if(mutationErrorDelete){toast.error('Error Eliminando Usuario')} else {toast.success('Usuario Eliminado Exitosamente')}
     setOpenDialog(false);
   }
       
@@ -243,10 +243,12 @@ const FilaUsuarios = ({usuario})  => {
       <>
           <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-44">{usuario.nombre}</td>
           <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-44">{usuario.apellido}</td>
-          <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-44">{usuario.identificacion}</td>
+          <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">{usuario.identificacion}</td>
           <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-44">{usuario.correo}</td>
           <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">{usuario.rol}</td>
-          <td className={usuario.estado === 'AUTORIZADO' ? 'relative inline-block m-4 px-2 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full':'relative inline-block m-4 px-4 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{usuario.estado}</td>
+          <td className={usuario.estado === 'AUTORIZADO' ? 'relative inline-block mx-0 my-3 px-4 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
+          :usuario.estado === 'PENDIENTE'?('relative inline-block mx-0 my-3 px-6 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
+        :'relative inline-block m-1 px-1 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{usuario.estado}</td>
           
         </>  
         )}

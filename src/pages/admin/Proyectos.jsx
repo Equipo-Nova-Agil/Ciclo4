@@ -40,12 +40,12 @@ const Proyectos = () => {
   }, [mostrarTabla]);
 
   useEffect(() => {
-    console.log("Datos proyectos servidor", data);
+    console.log("Datos Proyectos Servidor", data);
   }, [data]);
 
   useEffect(() => {
     if (error) {
-      toast.error("Error Consultando proyectos");
+      toast.error("Error Consultando Proyectos");
       console.log("Error", error);
     }
   }, [error]);
