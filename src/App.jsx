@@ -51,15 +51,15 @@ function App() {
   const [userData, setUserData] = useState({});
   const [authToken, setAuthToken] = useState('');
 
-  // const setToken = (token) => {
-  //   console.log('Set Token', token);
-  //   setAuthToken(token);
-  //   if (token) {
-  //     localStorage.setItem('token', JSON.stringify(token));
-  //   } else {
-  //     localStorage.removeItem('token');
-  //   }
-  // };
+  const setToken = (token) => {
+    console.log('Set Token', token);
+    setAuthToken(token);
+    if (token) {
+      localStorage.setItem('token', JSON.stringify(token));
+    } else {
+      localStorage.removeItem('token');
+    }
+  };
 
   // useEffect(() => {
   //   if (authToken) {
@@ -79,7 +79,7 @@ function App() {
   return (
 
     <ApolloProvider client={client}>
-      {/* <AuthContext.Provider value={{ authToken, setAuthToken, setToken }}> */}
+      <AuthContext.Provider value={{ authToken, setAuthToken, setToken }}>
         <UserContext.Provider value={{ userData, setUserData }}> 
 
           <Router>
@@ -111,7 +111,7 @@ function App() {
           </Router>
               
         </UserContext.Provider>
-      {/* </AuthContext.Provider> */}
+      </AuthContext.Provider>
     </ApolloProvider>
   );
 }

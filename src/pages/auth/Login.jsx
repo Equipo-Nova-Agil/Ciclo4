@@ -12,7 +12,7 @@ import {useNavigate} from 'react-router-dom';
 
 const Login = () => {
   const navigate = useNavigate();
-  // const { setToken } = useAuth();
+  const { setToken } = useAuth();
   const { form, formData, updateFormData } = useFormData();
 
   const [login, { data: dataMutation, loading: mutationLoading, error: mutationError }] =
@@ -25,15 +25,17 @@ const Login = () => {
       variables: formData,
     });
   };
-
-  // useEffect(() => {
-  //   if (dataMutation) {
-  //     if (dataMutation.login.token) {
-  //       setToken(dataMutation.login.token);
-  //       navigate('/admin');
-  //     }
-  //   }
-  // }, [dataMutation, setToken, navigate]);
+  
+  useEffect(() => {
+    console.log ('Datos Inicio de Sesión', dataMutation);
+    if (dataMutation) {
+      if (dataMutation.login.token){
+        setToken(dataMutation.login.token);
+      localStorage.setItem('token', dataMutation.login.token);
+      navigate('/admin');
+    }
+  }
+  },[dataMutation, setToken, navigate])
   return (
     <>
 
