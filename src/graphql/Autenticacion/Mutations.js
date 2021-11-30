@@ -18,7 +18,10 @@ const Registrarse = gql`
       rol: $rol
       password: $password
       
-    ) 
+    ) {
+      token
+      error
+    }
   }
 `;
 

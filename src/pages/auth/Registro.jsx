@@ -24,8 +24,23 @@ const Registro = () => {
   };
 
   useEffect(() => {
-    console.log ('Datos Registros', dataMutation)
+    console.log ('Datos Registro', dataMutation);
+    if (dataMutation) {
+      if (dataMutation.registro.token){
+      localStorage.setItem('token', dataMutation.registro.token);
+      navigate('/admin');
+    }
+  }
   },[dataMutation])
+
+  // useEffect(() => {
+  //   if (dataMutation) {
+  //     if (dataMutation.registro.token) {
+  //       setToken(dataMutation.registro.token);
+  //       navigate('/admin');
+  //     }
+  //   }
+  // }, [dataMutation, setToken, navigate]);
 
   
 

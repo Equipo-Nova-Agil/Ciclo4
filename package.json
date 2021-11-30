@@ -2,7 +2,7 @@
   "name": "proyectorio",
   "version": "0.1.0",
   "repository": "https://github.com/Equipo-Nova-Agil/Ciclo-4.git",
-  "author": "Ezequiel López Ríos <lopezriosezequiel@gmail.com>",
+  "author": "Equipo Nova Ágil: Carlos, John, Ángela, Luis, Dubhan y Ezequiel",
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.4.17",
