@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import Google from '../../media/google.svg';
 import { Link } from 'react-router-dom';
+import Input from '../../componets/Input';
+import ButtonLoading from '../../componets/ButtonLoading';
 import useFormData from 'hooks/useFormData';
 import { useMutation } from '@apollo/client';
 import {Acceder} from '../../graphql/Autenticacion/Mutations'
@@ -10,7 +12,7 @@ import {useNavigate} from 'react-router-dom';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setToken } = useAuth();
+  // const { setToken } = useAuth();
   const { form, formData, updateFormData } = useFormData();
 
   const [login, { data: dataMutation, loading: mutationLoading, error: mutationError }] =
@@ -24,14 +26,14 @@ const Login = () => {
     });
   };
 
-  useEffect(() => {
-    if (dataMutation) {
-      if (dataMutation.login.token) {
-        setToken(dataMutation.login.token);
-        navigate('/admin');
-      }
-    }
-  }, [dataMutation, setToken, navigate]);
+  // useEffect(() => {
+  //   if (dataMutation) {
+  //     if (dataMutation.login.token) {
+  //       setToken(dataMutation.login.token);
+  //       navigate('/admin');
+  //     }
+  //   }
+  // }, [dataMutation, setToken, navigate]);
   return (
     <>
 
@@ -62,25 +64,25 @@ const Login = () => {
                     <div className="text-gray-500 text-center mb-3 font-bold">
                       <small>Inicia con credenciales</small>
                     </div>
+
                     <form onSubmit={submitForm} onChange={updateFormData} ref={form}>
                       <div className="relative w-full mb-3">
                         <label className="block uppercase text-gray-700 text-xs font-bold mb-2" for="grid-password">Correo</label>
-                        <input
-                          type="email"
-                          autoComplete="email"
-                          requiredName
-                          class="border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full"
+                        <Input 
+                          name='correo' 
+                          type='text' 
+                          className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full'
                           placeholder="Ejemplo: tucorreo@mail.com"
-                          />
+                          required={true} />
                       </div>
                       <div className="relative w-full mb-3">
                         <label className="block uppercase text-gray-700 text-xs font-bold mb-2" for="grid-password">Contraseña</label>
-                        <input
-                          type="password"
-                          required
-                          className="border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full"
+                        <Input 
+                          name='password' 
+                          type='password' 
+                          className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full'
                           placeholder="Escribe aquí tu contraseña"
-                          />
+                          required={true} />
                       </div>
                       <div>
                         <label className="inline-flex items-center cursor-pointer">
@@ -89,15 +91,16 @@ const Login = () => {
                         </label>
                       </div>
                       <div class="text-center mt-1 mb-3">
-                        <button className="bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-full transform hover:translate-y-1 transition-transform ease-in duration-200"
-                          type="button">
-                          <Link to='/admin'>Iniciar Sesión</Link>
-                        </button>
+                        <ButtonLoading
+                          disabled={Object.keys(formData).length === 0}
+                          loading={mutationLoading}
+                          text='Iniciar Sesión'/>  
+                        
                         <div class="mt-2">
                           <a href="#" className="text-gray-500 hover:text-gray-900 "><small>¿Olvidó su contraseña?</small></a>
                           <span class="text-gray-300">|</span>
                           <Link to='/auth/registro'>
-                            <a href="#" className="text-gray-500 hover:text-gray-900 "><small>Regístrate</small></a>
+                            <a href="#" className="text-gray-500 hover:text-blue-600 "><small>Regístrate</small></a>
                           </Link>
                         </div>    
                       </div>

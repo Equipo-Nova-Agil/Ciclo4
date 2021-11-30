@@ -3,17 +3,17 @@ import { nanoid } from 'nanoid';
 
 const DropDown = ({ label, name, defaultValue = '', required, options }) => {
   const [selectedValue, setSelectedValue] = useState(defaultValue);
-  const optionsSelect = [['', 'Seleccione una opción', true], ...Object.entries(options)];
+  const optionsSelect = [['', 'Seleccione Una Opción', true], ...Object.entries(options)];
   useEffect(() => {
     setSelectedValue(defaultValue);
   }, [defaultValue]);
   return (
-    <label htmlFor={name} className='flex flex-col my-3'>
+    <label htmlFor={name}>
       <span>{label}</span>
       <select
         required={required}
         name={name}
-        className='input'
+        className="border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm text-centershadow focus:outline-none focus:ring w-full"
         value={selectedValue}
         onChange={(e) => setSelectedValue(e.target.value)}
       >
