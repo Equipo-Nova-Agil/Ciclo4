@@ -9,7 +9,7 @@ import ReactLoading from 'react-loading';
 const Inscripciones = () => {
 
     const {data, loading, error} = useQuery(obtenerIncripciones)
-    const [edit, setEdit] = useState(true);
+    const [edit, setEdit] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
 
     const [infoInscripción, setInfoInscripción] = useState({
@@ -19,7 +19,9 @@ const Inscripciones = () => {
         fechaIngreso: Inscripciones.fechaIngreso,
         fechaEgreso: Inscripciones.fechaEgreso,
         // proyecto: Inscripciones.proyecto.nombre,
-      });
+    });
+
+    const [copyData, setCopyData] = useState([])
     
 
     const holakeri = () => {
@@ -27,7 +29,20 @@ const Inscripciones = () => {
     }
 
     useEffect(() => {
+      if (data){
         console.log('Datos inscripciones Servidor', data);
+        // JSON.parse(JSON.stringify(data.Inscripciones))
+        const updatedCopyData = data.Inscripciones.map((i) => ({
+          _id: i._id,
+          estado: i.estado,
+          nombreEstudiante: i.estudiante.nombre,
+          fechaIngreso: i.fechaIngreso,
+          fechaEgreso: i.fechaEgreso,
+          nombreProyecto: i.proyecto.nombre,
+        }))
+        setEdit(updatedCopyData.map(() => false))
+        setCopyData(updatedCopyData)
+      }
     }, [data]);
   
     useEffect(() => {
@@ -45,6 +60,22 @@ const Inscripciones = () => {
         console.log("hola", i.estudiante.nombre)
     }
 
+    const setRow = (index, fieldName) => (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const currentCopy = copyData
+      currentCopy[index][fieldName] = e.target.value
+      console.log({index, fieldName, e, currentCopy})
+      setCopyData(currentCopy)
+    }
+
+    const handleEditChange = (index, newValue) => () => {
+      setEdit((currentEdit) => currentEdit.map((value, idx) => {
+        return index !== idx ?value :newValue
+      }))
+    }
+
+    console.log(copyData)
                         
     return (
         <div>
@@ -95,18 +126,19 @@ const Inscripciones = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.Inscripciones.map((i) => (
-                        <tr key={i._id}>
-                            {edit?(
-                                <>
-                            <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.estado}</td>
-                            <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.estudiante.nombre}</td>
+                    {copyData.map((i, index) => {
+                      console.log({edit, index, i})
+                      if (!edit[index]){
+                        return (
+                          <tr key={i._id}>
+                          <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.estado}</td>
+                            <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.nombreEstudiante}</td>
                             <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.fechaIngreso}</td>
                             <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.fechaEgreso}</td>
-                            <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.proyecto.nombre}</td>
+                            <td className="px-3 py-3  bg-white text-sm text-center w-44">{i.nombreProyecto}</td>
                             <td className="px-3 py-3  bg-white text-sm text-center w-44">{i._id}</td>
                             <td className="flex px-3 py-3 justify-evenly bg-white text-sm w-44">
-                                <button type="button" title="Editar" onClick={() => {setEdit(!edit); prueba(i);}}>
+                                <button type="button" title="Editar" onClick={handleEditChange(index, true)}>
                                     <i className="fas fa-user-edit hover:text-yellow-600"></i>
                                 </button>
                                 <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
@@ -134,81 +166,82 @@ const Inscripciones = () => {
                                 </div>
                                 </div>
                             </Dialog>
-                                </>
-                            ):(
-                                <>
-                                <td className="px-3 py-3  bg-white text-sm text-center w-44">
-                                <form>
-                                    <select
-                                    className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-                                    name='rol'
-                                    required
-                                    onChange ={(e) => setInfoInscripción({ ...infoInscripción, rol: e.target.value })}
-                                    defaultValue={i.estado}>
-                                        <option disabled value={0}>
-                                        Seleccione Rol
-                                        </option>
-                                        <option value="ACEPTADO">Aceptado</option>
-                                        <option value="RECHAZADO">Rechazado</option>
-                                        <option value="PENDIENTE">Pendiente</option>
-                                    </select>
-                                </form>
-                                </td>
-                      
-                                <td className="px-3 py-3  bg-white text-sm text-center w-44">
-                                  <input 
-                                  type="text" 
-                                  className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-                                  value={i.estudiante.nombre}
-                                  onChange={(e) => setInfoInscripción({ ...infoInscripción, nombre: e.target.value })}
-                                  />
-                                </td>
-                      
-                                <td className="px-3 py-3  bg-white text-sm text-center w-44">
-                                  <input 
-                                  type="text" 
-                                  className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-                                  value={i.fechaIngreso}
-                                  onChange={(e) => setInfoInscripción({ ...infoInscripción, fechaIngreso: e.target.value })}
-                                  />
-                                </td>
-                      
-                                <td className="px-3 py-3  bg-white text-sm text-center w-44">
-                                  <input 
-                                  type="text" 
-                                  className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-                                  value={i.fechaEgreso}
-                                  onChange={(e) => setInfoInscripción({ ...infoInscripción, fechaEgreso: e.target.value })}
-                                  />
-                                </td>
-                                <td className="px-3 py-3  bg-white text-sm text-center w-44">
-                                  <input 
-                                  type="text" 
-                                  className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-                                  value={i.proyecto.nombre}
-                                  onChange={(e) => setInfoInscripción({ ...infoInscripción, proyecto: e.target.value })}
-                                  />
-                                </td>
-                                <td className="px-3 py-3  bg-white text-sm text-center w-44">
-                                  <input 
-                                  type="text" 
-                                  className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-                                  value={i._id}
-                                  onChange={(e) => setInfoInscripción({ ...infoInscripción, _id: e.target.value })}
-                                  />
-                                </td>
-                                <td className="flex px-3 py-3 justify-evenly bg-white text-sm w-44">
-                                <button type="button" title="Editar"  onClick={() => {setEdit(!edit); holakeri();}}>
-                                <i className="fas fa-check hover:text-green-600"></i>
-                                </button>
-                                <button type="button" title="Cancelar" onClick={() => {setEdit(!edit);}}>
-                                <i className="fas fa-ban hover:text-red-700"></i>
-                                </button>
-                                </td>
-                                  </>
-                            )}
-                        </tr>
-                    ))}                                 
+                          </tr>
+                        )
+                      }
+                       return (
+                         <tr key={i._id}>
+                           <td className="px-3 py-3  bg-white text-sm text-center w-44">
+                                
+                                <select
+                                className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+                                name='estado'
+                                required
+                                onChange ={setRow(index, "estado")}
+                                defaultValue={i.estado}>
+                                    <option disabled value={0}>
+                                    Seleccione Rol
+                                    </option>
+                                    <option value="ACEPTADO">Aceptado</option>
+                                    <option value="RECHAZADO">Rechazado</option>
+                                    <option value="PENDIENTE">Pendiente</option>
+                                </select>
+                            
+                            </td>
+                  
+                            <td className="px-3 py-3  bg-white text-sm text-center w-44">
+                              <input 
+                              type="text" 
+                              className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+                              value={i.nombreEstudiante}
+                              onChange={setRow(index, "nombreEstudiante")}
+                              />
+                            </td>
+                  
+                            {/* <td className="px-3 py-3  bg-white text-sm text-center w-44">
+                              <input 
+                              type="text" 
+                              className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+                              value={i.fechaIngreso}
+                              onChange={(e) => setInfoInscripción({ ...infoInscripción, fechaIngreso: e.target.value })}
+                              />
+                            </td>
+                  
+                            <td className="px-3 py-3  bg-white text-sm text-center w-44">
+                              <input 
+                              type="text" 
+                              className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+                              value={i.fechaEgreso}
+                              onChange={(e) => setInfoInscripción({ ...infoInscripción, fechaEgreso: e.target.value })}
+                              />
+                            </td>
+                            <td className="px-3 py-3  bg-white text-sm text-center w-44">
+                              <input 
+                              type="text" 
+                              className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+                              value={i.nombreProyecto}
+                              onChange={(e) => setInfoInscripción({ ...infoInscripción, proyecto: e.target.value })}
+                              />
+                            </td>
+                            <td className="px-3 py-3  bg-white text-sm text-center w-44">
+                              <input 
+                              type="text" 
+                              className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+                              value={i._id}
+                              onChange={(e) => setInfoInscripción({ ...infoInscripción, _id: e.target.value })}
+                              />
+                            </td>
+                            <td className="flex px-3 py-3 justify-evenly bg-white text-sm w-44">
+                            <button type="button" title="Editar"  onClick={handleEditChange(index, !edit[index])}>
+                            <i className="fas fa-check hover:text-green-600"></i>
+                            </button>
+                            <button type="button" title="Cancelar" onClick={handleEditChange(index, false)}>
+                            <i className="fas fa-ban hover:text-red-700"></i>
+                            </button>
+                            </td> */}
+                         </tr>
+                       )
+                    })}                                 
                   </tbody>
                 </table>
               </div>
