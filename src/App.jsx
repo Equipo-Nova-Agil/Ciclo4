@@ -22,6 +22,7 @@ import Avances from "pages/admin/Avances";
 import Login from "./pages/auth/Login"
 import Registro from "./pages/auth/Registro"
 import ErrorAuth from './pages/auth/ErrorAuth';
+import CambiarPassword from './pages/auth/CambiarPassword'
 
 
 const httpLink = createHttpLink({
@@ -97,6 +98,7 @@ function App() {
                 <Route path='proyectos' element={<Proyectos/>}/>
                 <Route path='inscripciones' element={<Inscripciones/>}/>
                 <Route path='avances' element={<Avances/>}/>
+                <Route path='cambiarpassword' element={<CambiarPassword/>}/>
               </Route>
 
               <Route path='/auth' element={<AuthLayout/>}>

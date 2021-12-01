@@ -2,7 +2,7 @@ import React from 'react';
 import Logo from '../media/logo.png';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from 'context/authContext';
-// import PrivateComponent from 'components/PrivateComponent';
+import PrivateComponent from '../componets/PrivateComponent';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -30,14 +30,14 @@ const Sidebar = () => {
             </Link> 
           </li>
           <li>
-            {/* <PrivateComponent roleList={['ADMINISTRADOR']}> */}
+            <PrivateComponent roleList={['ADMINISTRADOR']}>
               <Link to='/admin/Usuarios' >
                 <a href="#" className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
                   <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-200"><i className="fas fa-users"></i></span>
                   <span className="text-sm font-medium">Usuarios</span>
                 </a>
               </Link>
-              {/* </PrivateComponent>   */}
+              </PrivateComponent>  
           </li>
           <li>
           {/* <PrivateComponent roleList={['ADMINISTRADOR','LIDER','ESTUDIANTE']}>   */}

@@ -10,6 +10,7 @@ import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router';
 import { useAuth } from 'context/authContext';
 
+
 const Registro = () => {
   const { setToken } = useAuth();
   const navigate = useNavigate();
