@@ -21,30 +21,30 @@ import Inscripciones from "pages/admin/Inscripciones";
 import Avances from "pages/admin/Avances";
 import Login from "./pages/auth/Login"
 import Registro from "./pages/auth/Registro"
+import ErrorAuth from './pages/auth/ErrorAuth';
 
 
-// const httpLink = createHttpLink({
-//   // uri: 'http://localhost:4000/graphql',
+const httpLink = createHttpLink({
+  uri: 'http://localhost:4000/graphql',
 // uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
-// });
+});
 
-// const authLink = setContext((_, { headers }) => {
-//   // get the authentication token from local storage if it exists
-//   const token = JSON.parse(localStorage.getItem('token'));
-//   // return the headers to the context so httpLink can read them
-//   return {
-//     headers: {
-//       ...headers,
-//       authorization: token ? `Bearer ${token}` : '',
-//     },
-//   };
-// });
+const authLink = setContext((_, { headers }) => {
+  // get the authentication token from local storage if it exists
+  const token = JSON.parse(localStorage.getItem('token'));
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : '',
+    },
+  };
+});
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  // uri: 'https://servidor-proyectorio.herokuapp.com/graphql',
-  uri: 'http://localhost:4000/graphql'
-  // link: authLink.concat(httpLink),
+  // uri: 'http://localhost:4000/graphql'
+  link: authLink.concat(httpLink),
 });
 
 function App() {
@@ -61,19 +61,20 @@ function App() {
     }
   };
 
-  // useEffect(() => {
-  //   if (authToken) {
-  //     const decoded = jwt_decode(authToken);
-  //     setUserData({
-  //       _id: decoded._id,
-  //       nombre: decoded.nombre,
-  //       apellido: decoded.apellido,
-  //       identificacion: decoded.identificacion,
-  //       correo: decoded.correo,
-  //       rol: decoded.rol,
-  //     });
-  //   }
-  // }, [authToken]);
+  useEffect(() => {
+    if (authToken) {
+      const decoded = jwt_decode(authToken);
+      setUserData({
+        _id: decoded._id,
+        nombre: decoded.nombre,
+        apellido: decoded.apellido,
+        identificacion: decoded.identificacion,
+        correo: decoded.correo,
+        rol: decoded.rol,
+        estado: decoded.estado,
+      });
+    }
+  }, [authToken]);
 
 
   return (
@@ -102,6 +103,7 @@ function App() {
                 <Route path='' element={<Login/>}/>
                 <Route path='login' element={<Login/>}/>
                 <Route path='registro' element={<Registro/>}/>
+                <Route path='errorauth' element={<ErrorAuth/>}/>
               </Route>
 
               <Route path='*' element={<Error404/>}/>

@@ -5,7 +5,8 @@ import Profile from '../../media/profile.jpeg'
 
 const Perfil = () => {
   const { userData } = useUser();
-  // const [edit, setEdit] = useState(false)
+  console.log(userData.nombre)
+  const [edit, setEdit] = useState(false)
   
   return <div>
     <section className="relative block" style={{ height: "500px" }}>
@@ -61,24 +62,25 @@ const Perfil = () => {
         <div className="text-center mt-12">
 
           {/* Nombre */}
-          <h3 className="text-4xl font-semibold leading-normal mb-2 pb-2 text-gray-800">Usuario Prueba</h3>
+          <h3 className="text-4xl font-semibold leading-normal mb-2 pb-2 text-gray-800">{userData.nombre+' '+userData.apellido}</h3>
           {/* Documento */}
           <div className="text-gray-700 mt-0 mb-0 uppercase">
-            <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>00000
+            <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>{userData.identificacion}
           </div>
           {/* Correo */}
           <div className="text-gray-700 mt-0 mb-2">
-            <i className="fas fa-at mr-2 text-lg text-gray-500"></i>correo@ejemplo.com
+            <i className="fas fa-at mr-2 text-lg text-gray-500"></i>{userData.correo}
           </div>
           {/* Rol */}
           <div className="text-gray-700 mt-8 mb-2">
-            <i className="fas fa-user-tag mr-2 text-md text-gray-500 font-bold"></i>Administrador
+            <i className="fas fa-user-tag mr-2 text-md text-gray-500 font-bold"></i>{userData.rol}
           </div>
           {/* Estado */}
           <div className="text-gray-700 mt-0 mb-2 uppercase">
             <i className="fas fa-info-circle mr-2 text-md text-gray-500"></i>
-            <span className='relative inline-block p-2  leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'>Autorizado</span>
-            {/* <span className={userData.estado === 'Autorizado' ? 'relative inline-block m-4 px-2 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full':'relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{userData.estado}</span> */}
+            <span className={userData.estado === 'AUTORIZADO' ? 'relative inline-block m-4 px-2 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
+            :userData.estado === 'PENDIENTE'?('relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
+            :'relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{userData.estado}</span>
           </div>
           {/* Opción Cambiar Contraseña */}
           <div className="text-sm leading-normal mt-8 mb-6 text-gray-500 font-bold uppercase">

@@ -30,8 +30,7 @@ const Login = () => {
     console.log ('Datos Inicio de Sesión', dataMutation);
     if (dataMutation) {
       if (dataMutation.login.token){
-        setToken(dataMutation.login.token);
-      localStorage.setItem('token', dataMutation.login.token);
+      setToken(dataMutation.login.token);
       navigate('/admin');
     }
   }
