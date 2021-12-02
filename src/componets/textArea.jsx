@@ -4,7 +4,7 @@ const textArea = ({ label, name, rows, cols, required, placeholder, className })
   return (
     <label htmlFor={name} >
       <span>{label}</span>
-      <input
+      <textarea
         required={required}
         rows={rows}
         cols={cols}

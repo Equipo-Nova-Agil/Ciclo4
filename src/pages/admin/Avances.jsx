@@ -5,8 +5,11 @@ import { ToastContainer, toast } from "react-toastify";
 import { obtenerAvances } from '../../graphql/Avances/Queries.js';
 import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
 import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
-import {crearAvance} from '../../graphql/Avances/Mutations'
+import {crearAvance, editarAvance, eliminarAvance} from '../../graphql/Avances/Mutations'
 import useFormData from 'hooks/useFormData';
+import Input from '../../componets/Input';
+import TextArea from '../../componets/textArea';
+import ButtonLoading from "componets/ButtonLoading.jsx";
 import ReactLoading from 'react-loading';
 import PrivateComponent from '../../componets/PrivateComponent'
 
@@ -175,6 +178,8 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
   const [edit, setEdit] = useState(false);
   const {data: dataUsuarios} = useQuery (obtenerUsuarios);
   const {data: dataProyectos} = useQuery (obtenerProyectos);
+  const [modificarAvance, { data: mutacionEditar, loading: mutationLoading, error: mutationError }] = useMutation(editarAvance);
+  const [borrarAvance, { data: mutacionEliminar, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarAvance);
   
   const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
   console.log('Lista Estudiantes', listaEstudiantes);
@@ -188,6 +193,25 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
     descripcion: avance.descripcion,
     creadoPor: avance.creadoPor,    
   });
+
+  const actualizarAvance = () => {
+    console.log("Le Di a Editar Avance:", infoNuevoAvance)
+    modificarAvance({ 
+      variables: { ...infoNuevoAvance }
+    })
+    if(mutationError){toast.error('Error Editando Avance')} 
+    else {toast.success('Avance Editado Exitosamente')}
+  }
+
+  const suprimirAvance = () => {
+    borrarAvance({
+      variables: { "_id": infoNuevoAvance._id }
+    });
+    console.log("id", infoNuevoAvance._id)
+    if(mutationErrorDelete){toast.error('Error Eliminando Avance')} 
+    else {toast.success('Avance Eliminado Exitosamente')}
+    
+  }
   
 
   return (
@@ -215,7 +239,7 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
              return (
                <option
                  key={nanoid()}
-                 value={p._id}
+                 value={JSON.stringify(p._id)}
                >{p.nombre}</option>
              );
            })}
@@ -243,7 +267,7 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
              return (
                <option
                  key={nanoid()}
-                 value={p._id}
+                 value={JSON.stringify(p._id)}
                >{p.nombre}</option>
              );
            })}
@@ -258,7 +282,7 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
       ) :(
       <>
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance._id.slice(20)}</td>
-          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.fecha}</td>
+          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.fecha.slice(0, -14)}</td>
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.proyecto.nombre}</td>
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.descripcion}</td>
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.creadoPor.nombre}</td>
@@ -270,7 +294,7 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
               {edit? (
                 <>
                   <i
-                    // onClick={() => actualizarAvance()} 
+                    title="Editar"  onClick={() => { actualizarAvance();setEdit(!edit);}} 
                     className="fas fa-check hover:text-green-600"/>
                   <i
                     onClick={() => setEdit(!edit)}
@@ -284,7 +308,7 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
                 
                     
                   <i
-                      // onClick={() => borrarAvance()}
+                      onClick={() => suprimirAvance()}
                       class="fas fa-trash text-gray-600 hover:text-red-500"/>
                 </>
               )} 
@@ -327,46 +351,56 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
       <h2 className='text-2xl font-extrabold pb-4 text-gray-800'>Nuevo Avance</h2>
       <form onSubmit={submitForm} onChange={updateFormData} ref={form} className='flex flex-col justify-center text-center pb-10'>
         
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='fecha'>
+        <label className='flex flex-col py-2 text-gray-800 font-bold' for='fecha'>
           Fecha del Avance
-          <input
-            name='fecha'
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 '
-            type='date'
-            required/>
         </label>
+        <Input
+        name='fecha' 
+        type='date' 
+        className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-white rounded text-sm text-center shadow-md focus:outline-none focus:ring w-full'
+        required />
         
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='proyecto'>
-        Proyecto
-          <select
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
-            name='proyecto'
-            required
-            defaultValue={0}>
-            <option disabled value={0}>
-              Elija una Opción
-            </option>
-            {listaProyectos.map((p) => {
-              return <option key={nanoid()}  value={p._id}>{p.nombre}</option>;
+        <label className='flex flex-col mt-2 py-2 text-gray-800 font-bold' for='proyecto'>
+          Proyecto
+        </label>
+        <select
+          className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-400 bg-white rounded text-sm text-center shadow focus:outline-none focus:ring w-full'
+          name='proyecto'
+          required
+          defaultValue={0}>
+          <option disabled value={0}>
+            Elija una Opción
+          </option>
+          {listaProyectos.map((p) => {
+            return <option key={nanoid()}  value={p._id}>{p.nombre}</option>;
             })}
-          </select>
+        </select>
+        
+        <label className='flex flex-col mt-2 py-2 font-bold text-gray-800' for='descripcion'>
+        Descripción del Avance
         </label>
+        <TextArea
+        name='descripcion'
+        className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-white rounded text-sm text-center shadow-lg focus:outline-none focus:ring w-full'
+        rows="5"
+        cols="30"
+        required={true}/>
+
         
         
-        
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='precio'>    
+        {/* <label className='flex flex-col py-2 text-gray-800' htmlFor='descripcion'>    
           Descripción del Avance
           <input
             name='descripcion'
             className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
             type='text'
             required/>
-        </label>
+        </label> */}
         
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='creadoPor'>
+        <label className='flex flex-col py-2 text-gray-800 font-bold' htmlFor='creadoPor'>
         Creador del Avance
           <select
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+            className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-white rounded text-sm text-center shadow-lg focus:outline-none focus:ring w-full'
             name='creadoPor'
             required
             defaultValue={0}>
@@ -374,16 +408,16 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
               Elija una Opción
             </option>
             {listaEstudiantes.map((e) => {
-              return <option key={nanoid()}  value={e._id}>{`${e.nombre}`}</option>;
+              return <option key={nanoid()}  value={e._id}>{e.nombre}</option>;
             })}
           </select>
         </label>
-        <button
-          type='submit'
-          className='col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-700'
-        >
-          Guardar Avance
-        </button>
+        <ButtonLoading
+          disabled={Object.keys(formData).length === 0}
+          loading={false}
+          className='fondo1 text-white active:bg-gray-700 text-sm font-bold mt-5 px-6 py-3 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-full transform hover:translate-y-1 transition-transform ease-in duration-200'
+          text='Crear Avance'/>
+        
       </form>
     </div>
   );
