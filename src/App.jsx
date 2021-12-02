@@ -17,7 +17,7 @@ import Error404 from "pages/Error404";
 import Usuarios from './pages/admin/Usuarios';
 import Proyectos from './pages/admin/Proyectos';
 import Perfil from "pages/admin/Perfil";
-import Inscripciones from "pages/admin/Inscripciones";
+import Inscripciones from "pages/admin/Inscripciones/index";
 import Avances from "pages/admin/Avances";
 import Login from "./pages/auth/Login"
 import Registro from "./pages/auth/Registro"
