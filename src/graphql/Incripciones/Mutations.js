@@ -34,14 +34,7 @@ mutation AprobarInscripcion(
       id: $aprobarInscripcionId
       ) {
       _id
-      proyecto {
-        _id
-        nombre
-      }
-      estudiante {
-        _id
-        nombre
-      }
+      
       fechaIngreso
       fechaEgreso
       estado
@@ -50,3 +43,14 @@ mutation AprobarInscripcion(
 `;
 
 export { crearInscripcion, aprobarInscripcion };
+
+
+// ESTO DE LO QUITE DE DONDE DEVUELVE LOS DATOS PORQUE ME DABA ERROR
+// proyecto {
+//   _id
+//   nombre
+// }
+// estudiante {
+//   _id
+//   nombre
+// }

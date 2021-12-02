@@ -38,6 +38,7 @@ function InscriptionRowForm(props) {
 
   const onSubmit = () => {
     console.log(typeof(info._id))
+    console.log("respuesta mutationData: ",mutationData)
     onOk(info);
     aprobarInscrip({ 
       variables: { aprobarInscripcionId: info._id }
