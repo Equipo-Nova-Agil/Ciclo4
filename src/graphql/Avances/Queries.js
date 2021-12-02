@@ -7,7 +7,7 @@ query Avances {
     _id
     fecha
     descripcion
-    observaciones
+    # observaciones
     proyecto {
       _id
       nombre

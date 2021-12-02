@@ -17,7 +17,7 @@ const Registrarse = gql`
       correo: $correo
       rol: $rol
       password: $password
-      estado: $estado
+      # estado: $estado
       
     ) {
       token

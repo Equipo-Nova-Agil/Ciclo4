@@ -1,14 +1,42 @@
 import React, { useEffect, useState} from 'react';
-import { useUser } from 'context/userContext';
 import Profile from '../../media/profile.jpeg';
-import { Link} from 'react-router-dom';
+import { useUser } from 'context/userContext';
+import { useQuery, useMutation } from '@apollo/client';
+import { Link, useParams} from 'react-router-dom';
+import {editarUsuario} from '../../graphql/Usuarios/Mutations.js';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Input from '../../componets/Input';
 
 
 const Perfil = () => {
-  const { userData } = useUser();
-  console.log(userData.nombre)
-  const [edit, setEdit] = useState(false)
+  const { userData} = useUser();
+  const [edit, setEdit] = useState(false);
+  const { _id } = useParams();
+
+  
+  
+  const [infoNuevaUsuario, setInfoNuevaUsuario] = useState({
+    _id: userData._id,
+    nombre: userData.nombre,
+    apellido: userData.apellido,
+    identificacion: userData.identificacion,
+    estado: userData.estado,
+    rol: userData.rol,
+    correo: userData.correo,
+  });
+
+  const [modificarUsuario, { data: dataMutation, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
+  const actualizarUsuario = () => {
+    console.log("le di a editar:", infoNuevaUsuario)
+    modificarUsuario({ 
+      variables: { ...infoNuevaUsuario }
+      
+      
+    })
+    if(mutationError){toast.error('Error Editando Usuario')} 
+    else {toast.success('Usuario Editado Exitosamente')}
+  }
   
   return <div>
     {edit? (
@@ -43,7 +71,7 @@ const Perfil = () => {
               <i className="fas fa-ban justify-self-end pr-1"/>
             </button>
 
-            <button className='flex mt-2 float-right  text-gray-500 hover:text-green-600'>
+            <button className='flex mt-2 float-right  text-gray-500 hover:text-green-600'onClick={() => {actualizarUsuario();setEdit(!edit)}}>
               <i className="fas fa-check justify-self-end pl-2"/>
             </button>
             
@@ -71,12 +99,26 @@ const Perfil = () => {
         <div className="text-center mt-12">
 
           {/* Nombre */}
-          {/* <h3 className="text-4xl font-semibold leading-normal mb-2 pb-2 text-gray-800">{userData.nombre+' '+userData.apellido}</h3> */}
+          <div className='flex flex-col'>
           <Input 
             name='nombre' 
             type='text' 
+            className='border-0 px-1 py-1 mb-2 placeholder-gray-400 text-gray-700 bg-white rounded text-4xl shadow focus:outline-none focus:ring w-56'
+            defaultValue={userData.nombre}
+            
+            onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, nombre: e.target.value })}/>
+          
+          {/* Apellido */}
+          <Input 
+            name='apellido' 
+            type='text' 
             className='border-0 px-1 py-1 placeholder-gray-400 text-gray-700 bg-white rounded text-4xl shadow focus:outline-none focus:ring w-56'
-            defaultValue={userData.nombre}/>
+            defaultValue={userData.apellido}
+            onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, apellido: e.target.value })}/>
+
+          </div>
+          
+
           {/* Documento */}
           <div className="text-gray-700 mt-2 mb-0 uppercase">
             <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>
@@ -84,7 +126,8 @@ const Perfil = () => {
               name='identificacion' 
               type='text' 
               className='border-0 px-0 py-0 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-48'
-              defaultValue={userData.identificacion}/>
+              defaultValue={userData.identificacion}
+              onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, identificacion: e.target.value })}/>
           </div>
           {/* Correo */}
           <div className="text-gray-700 mt-0 mb-2">
@@ -93,7 +136,8 @@ const Perfil = () => {
               name='correo' 
               type='email' 
               className='border-0 px-0 py-0 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-48'
-              defaultValue={userData.correo}/>
+              defaultValue={userData.correo}
+              onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, correo: e.target.value })}/>
           </div>
           {/* Rol */}
           <div className="text-gray-700 mt-8 mb-0">
@@ -174,7 +218,9 @@ const Perfil = () => {
         <div className="text-center mt-12">
 
           {/* Nombre */}
-          <h3 className="text-4xl font-semibold leading-normal mb-2 pb-2 text-gray-800">{userData.nombre+' '+userData.apellido}</h3>
+          <h3 className="text-4xl font-semibold leading-normal mb-0 pb-0 text-gray-800">{userData.nombre}</h3>
+          {/* Apellido */}
+          <h3 className="text-4xl font-semibold leading-normal mt-0 mb-2 pb-2 text-gray-800">{userData.apellido}</h3>
           {/* Documento */}
           <div className="text-gray-700 mt-0 mb-0 uppercase">
             <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>{userData.identificacion}
