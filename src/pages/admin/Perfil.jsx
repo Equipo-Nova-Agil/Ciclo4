@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from 'react';
 import Profile from '../../media/profile.jpeg';
 import { useUser } from 'context/userContext';
-import { useQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { Link, useParams} from 'react-router-dom';
 import {editarUsuario} from '../../graphql/Usuarios/Mutations.js';
 import { ToastContainer, toast } from 'react-toastify';
@@ -13,9 +13,9 @@ const Perfil = () => {
   const { userData} = useUser();
   const [edit, setEdit] = useState(false);
   const { _id } = useParams();
+  
+  
 
-  
-  
   const [infoNuevaUsuario, setInfoNuevaUsuario] = useState({
     _id: userData._id,
     nombre: userData.nombre,
@@ -25,6 +25,10 @@ const Perfil = () => {
     rol: userData.rol,
     correo: userData.correo,
   });
+  console.log('infoNuevaUsuario', infoNuevaUsuario)
+ 
+  
+  
 
   const [modificarUsuario, { data: dataMutation, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
   const actualizarUsuario = () => {
@@ -34,11 +38,16 @@ const Perfil = () => {
       
       
     })
-    if(mutationError){toast.error('Error Editando Usuario')} 
-    else {toast.success('Usuario Editado Exitosamente')}
+    if (actualizarUsuario){
+      setInfoNuevaUsuario (infoNuevaUsuario);
+    }
+    if(mutationError){toast.error('Error Editando Perfil')} 
+    else {toast.success('Perfil Editado Exitosamente')}
   }
   
+  
   return <div>
+    
     {edit? (
       <>
     <section className="relative block" style={{ height: "500px" }}>
@@ -104,7 +113,7 @@ const Perfil = () => {
             name='nombre' 
             type='text' 
             className='border-0 px-1 py-1 mb-2 placeholder-gray-400 text-gray-700 bg-white rounded text-4xl shadow focus:outline-none focus:ring w-56'
-            defaultValue={userData.nombre}
+            defaultValue={infoNuevaUsuario.nombre}
             
             onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, nombre: e.target.value })}/>
           
@@ -113,7 +122,7 @@ const Perfil = () => {
             name='apellido' 
             type='text' 
             className='border-0 px-1 py-1 placeholder-gray-400 text-gray-700 bg-white rounded text-4xl shadow focus:outline-none focus:ring w-56'
-            defaultValue={userData.apellido}
+            defaultValue={infoNuevaUsuario.apellido}
             onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, apellido: e.target.value })}/>
 
           </div>
@@ -126,7 +135,7 @@ const Perfil = () => {
               name='identificacion' 
               type='text' 
               className='border-0 px-0 py-0 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-48'
-              defaultValue={userData.identificacion}
+              defaultValue={infoNuevaUsuario.identificacion}
               onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, identificacion: e.target.value })}/>
           </div>
           {/* Correo */}
@@ -136,7 +145,7 @@ const Perfil = () => {
               name='correo' 
               type='email' 
               className='border-0 px-0 py-0 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-48'
-              defaultValue={userData.correo}
+              defaultValue={infoNuevaUsuario.correo}
               onChange={(e) => setInfoNuevaUsuario({ ...infoNuevaUsuario, correo: e.target.value })}/>
           </div>
           {/* Rol */}
@@ -213,21 +222,26 @@ const Perfil = () => {
             </div>
 
           </div>
-        
+
+          
+    
+
         {/* INFORMACIÓN USURIO */}
+        
+
         <div className="text-center mt-12">
 
           {/* Nombre */}
-          <h3 className="text-4xl font-semibold leading-normal mb-0 pb-0 text-gray-800">{userData.nombre}</h3>
+          <h3 className="text-4xl font-semibold leading-normal mb-0 pb-0 text-gray-800">{infoNuevaUsuario.nombre}</h3>
           {/* Apellido */}
-          <h3 className="text-4xl font-semibold leading-normal mt-0 mb-2 pb-2 text-gray-800">{userData.apellido}</h3>
+          <h3 className="text-4xl font-semibold leading-normal mt-0 mb-2 pb-2 text-gray-800">{infoNuevaUsuario.apellido}</h3>
           {/* Documento */}
           <div className="text-gray-700 mt-0 mb-0 uppercase">
-            <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>{userData.identificacion}
+            <i className="fas fa-id-card mr-2 text-md text-gray-500"></i>{infoNuevaUsuario.identificacion}
           </div>
           {/* Correo */}
           <div className="text-gray-700 mt-0 mb-2">
-            <i className="fas fa-at mr-2 text-lg text-gray-500"></i>{userData.correo}
+            <i className="fas fa-at mr-2 text-lg text-gray-500"></i>{infoNuevaUsuario.correo}
           </div>
           {/* Rol */}
           <div className="text-gray-700 mt-8 mb-0">

@@ -145,7 +145,7 @@ const TablaAvances = ({ listaAvances, setEjecutarConsulta }) => {
                         Creado Por
                     </th>
                     
-                    {/* <PrivateComponent roleList={['Administrador']}> */}
+                    {/* <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}> */}
                     <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
                         Acciones
                     </th> 
@@ -347,7 +347,7 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
               Elija una Opción
             </option>
             {listaProyectos.map((p) => {
-              return <option key={nanoid()}  value={p._id}>{`${p.nombre}`}</option>;
+              return <option key={nanoid()}  value={p._id}>{p.nombre}</option>;
             })}
           </select>
         </label>
