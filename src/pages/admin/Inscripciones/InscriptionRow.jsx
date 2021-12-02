@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery, useMutation } from '@apollo/client'; 
+import { aprobarInscripcion } from '../../../graphql/Incripciones/Mutations';
 
 function ReadOnlyInscriptionRow({ user, onEdit, onCancel, setOpenDialog }) {
   return (
@@ -13,16 +15,16 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel, setOpenDialog }) {
         <button type="button" title="Editar" onClick={onEdit}>
             <i className="fas fa-user-edit hover:text-yellow-600"></i>
         </button>
-            <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
+        {/* <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
             <i className="fas fa-trash-alt hover:text-yellow-600"></i>
-            </button>
+        </button> */}
         </td>
     </tr>
   );
 }
 
 function InscriptionRowForm(props) {
-  const { onOk, onCancel, user } = props;
+  const { onOk, onCancel, user, setOpenDialog } = props;
   const [info, setInfo] = useState({ ...user });
 
   const handleChange = (fieldName) => (e) => {
@@ -32,14 +34,36 @@ function InscriptionRowForm(props) {
     }));
   };
 
+  const [ aprobarInscrip , { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(aprobarInscripcion);
+
   const onSubmit = () => {
-    console.log(info)
+    console.log(typeof(info._id))
     onOk(info);
+    aprobarInscrip({ 
+      variables: { aprobarInscripcionId: info._id }
+    })
   };
+
+
+
 
   return (
     <tr>
-      <td>
+      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.estado}</td>
+      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
+      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.fechaIngreso}</td>
+      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.fechaEgreso}</td>
+      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
+      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user._id}</td>
+      <td className="flex px-3 py-3 justify-evenly bg-white text-sm w-44">
+          <button type="button" title="Aceptar inscripción"  onClick={onSubmit}>
+            <i className="fas fa-check hover:text-green-600"></i>
+          </button>
+          <button type="button" title="Rechazar inscripción" onClick={onCancel}>
+            <i className="fas fa-skull-crossbones hover:text-red-700"></i>
+          </button>
+      </td>
+      {/* <td>
         <select
             className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
             name='estado'
@@ -53,7 +77,14 @@ function InscriptionRowForm(props) {
                     <option value="ACEPTADO">Aceptado</option>
                     <option value="RECHAZADO">Rechazado</option>
                     <option value="PENDIENTE">Pendiente</option>
-        </select>
+        </select> */}
+      {/* <td>
+        <input
+          onChange={handleChange("estado")}
+          value={info.estado}
+          className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+        />
+      </td>
         
       </td>
       <td>
@@ -83,7 +114,7 @@ function InscriptionRowForm(props) {
             <button type="button" title="Cancelar" onClick={onCancel}>
             <i className="fas fa-ban hover:text-red-700"></i>
             </button>
-      </td> 
+      </td>  */}
      
     </tr>
   );
