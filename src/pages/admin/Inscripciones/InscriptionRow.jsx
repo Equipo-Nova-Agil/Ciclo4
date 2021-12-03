@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from '@apollo/client'; 
 import { aprobarInscripcion } from '../../../graphql/Incripciones/Mutations';
 
+
 function ReadOnlyInscriptionRow({ user, onEdit, onCancel, setOpenDialog }) {
   return (
     <tr>
@@ -12,18 +13,15 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel, setOpenDialog }) {
       <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.fechaEgreso}</td>
 
       <td className={
-        user.estado === 'PENDIENTE' ? 
-          'relative mx-0 my-1 px-1 py-1 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
-        : user.estado === 'ACEPTADO'? (
-          'relative mx-0 my-1 px-4 py-1 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
-        : 'relative mx-0 my-1 px-1 py-1 leading-tight bg-red-700 text-white text-center text-sm font-semibold opacity-80 rounded-full'
-      }>{user.estado}
-      </td>
+        user.estado === 'ACEPTADO' 
+          ? 'flex justify-center my-3 px-4 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
+        :user.estado === 'PENDIENTE' 
+          ?('flex justify-center my-3 px-6 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
+          :'flex justify-center my-3 px-4 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{user.estado}
+        </td>
 
 
-      {/* <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.estado}</td> */}
-
-      <td className="flex px-3 py-3 justify-evenly bg-white text-sm w-44">
+      <td className="px-3 py-3 text-center bg-white text-sm w-44">
         <button type="button" title="Editar" onClick={onEdit}>
             <i className="fas fa-user-edit hover:text-yellow-600"></i>
         </button>
@@ -63,17 +61,23 @@ function InscriptionRowForm(props) {
 
   return (
     <tr>
-      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user._id}</td>
+      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
       <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
       <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
       <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.fechaIngreso}</td>
       <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.fechaEgreso}</td>
-      <td className="px-3 py-3  bg-white text-sm text-center w-44">{user.estado}</td>
-      <td className="flex px-3 py-3 justify-evenly bg-white text-sm w-44">
-          <button type="button" title="Aceptar inscripción"  onClick={onSubmit}>
+      <td className={
+        user.estado === 'ACEPTADO' 
+          ? 'flex justify-center my-3 px-4 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
+        :user.estado === 'PENDIENTE' 
+          ?('flex justify-center my-3 px-6 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
+          :'flex justify-center my-3 px-1 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{user.estado}
+        </td>
+      <td className="px-3 py-3 text-center bg-white text-sm w-44">
+          <button className="mr-5" type="button" title="Aceptar inscripción"  onClick={onSubmit}>
             <i className="fas fa-check hover:text-green-600"></i>
           </button>
-          <button type="button" title="Rechazar inscripción" onClick={onCancel}>
+          <button className="ml-5" type="button" title="Rechazar inscripción" onClick={onCancel}>
             <i className="fas fa-skull-crossbones hover:text-red-700"></i>
           </button>
       </td>

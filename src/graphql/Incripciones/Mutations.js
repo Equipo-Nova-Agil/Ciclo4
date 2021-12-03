@@ -42,6 +42,22 @@ mutation AprobarInscripcion(
   }
 `;
 
+const rechazarInscripcion = gql `
+mutation RechazarInscripcion(
+    $rechazarInscripcionId: String!
+    ){
+    rechazarInscripcion(
+      id: $rechazarInscripcionId
+      ) {
+      _id
+      
+      fechaIngreso
+      fechaEgreso
+      estado
+    }
+  }
+`;
+
 export { crearInscripcion, aprobarInscripcion };
 
 
