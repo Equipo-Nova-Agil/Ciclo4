@@ -48,16 +48,19 @@ function InscriptionRowForm(props) {
   const [ aprobarInscrip , { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(aprobarInscripcion);
 
   const onSubmit = () => {
-    console.log(typeof(info._id))
-    console.log("respuesta mutationData: ",mutationData)
+    //console.log(typeof(info._id))
     onOk(info);
     aprobarInscrip({ 
       variables: { aprobarInscripcionId: info._id }
     })
   };
 
-
-
+  const reject = () => {
+    console.log("Estoy en reject")
+    setOpenDialog(true)
+    onOk(info);
+  }
+  
 
   return (
     <tr>
@@ -77,7 +80,7 @@ function InscriptionRowForm(props) {
           <button className="mr-5" type="button" title="Aceptar inscripción"  onClick={onSubmit}>
             <i className="fas fa-check hover:text-green-600"></i>
           </button>
-          <button className="ml-5" type="button" title="Rechazar inscripción" onClick={onCancel}>
+          <button className="ml-5" type="button" title="Rechazar inscripción" onClick={reject}>
             <i className="fas fa-skull-crossbones hover:text-red-700"></i>
           </button>
       </td>

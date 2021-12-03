@@ -7,7 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import ReactLoading from 'react-loading';
 import InscriptionRow from './InscriptionRow'
 
-//const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
+// TRAER LA MUTACIÓN DE RECHAZAR INSCRIPCION ACÁ Y ACTIVARLA CUANDO EN EL DIALOG SE LE DE OK
 
 
 const HEADERS = [
@@ -104,7 +104,8 @@ const Inscripciones = () => {
             user={item}
             onEdit={handleEditChange(index, !edit[index])}
             onOk={handleEditInscription(index)}
-            onCancel={handleEditChange(index, false)}
+            //onCancel={handleEditChange(index, false)}
+            onCancel={handleEditChange(index, !edit[index])}
             setOpenDialog={setOpenDialog}
           />
         ))}
@@ -113,11 +114,11 @@ const Inscripciones = () => {
     <Dialog open={openDialog}>
       <div className='p-8 flex flex-col'>
       <h1 className='text-gray-900 text-2xl font-bold'>
-          ¿Está seguro de querer eliminar la inscripción?
+          ¿Está seguro de querer rechazar la inscripción?
       </h1>
       <div className='flex w-full items-center justify-center my-4'>
           <button
-          onClick={() => setOpenDialog(false)}
+          onClick={() => {setOpenDialog(false); console.log("rechazada")}}
           className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
           >
           Sí
