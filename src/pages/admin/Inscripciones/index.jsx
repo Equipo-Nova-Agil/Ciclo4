@@ -11,12 +11,12 @@ import InscriptionRow from './InscriptionRow'
 
 
 const HEADERS = [
-  "Estado", 
+  "Id",
+  "Proyecto",
   "Estudiante",
   "Fecha Ingreso",
   "Fecha Egreso",
-  "Proyecto",
-  "Id",
+  "Estado", 
   "Acciones"
 ];
 
