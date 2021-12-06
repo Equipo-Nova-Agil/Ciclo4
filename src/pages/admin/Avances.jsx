@@ -181,9 +181,9 @@ const FilaAvances = ({avance})  => {
   const [borrarAvance, { data: mutacionEliminar, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarAvance);
   const { _id } = useParams();
   
-  const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
+  const listaEstudiantes = dataUsuarios && dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
   console.log('Lista Estudiantes', listaEstudiantes);
-  const listaProyectos = dataProyectos.Proyectos.filter(p => (p.fase === 'INICIADO')||(p.fase ==='DESARROLLO'));
+  const listaProyectos = dataProyectos && dataProyectos.Proyectos.filter(p => (p.fase === 'INICIADO')||(p.fase ==='DESARROLLO'));
   console.log('Lista Proyectos', listaProyectos);
     
   const [infoNuevoAvance, setInfoNuevoAvance] = useState({
