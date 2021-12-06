@@ -16,6 +16,7 @@ import Index from './pages/Index';
 import Error404 from "pages/Error404";
 import Usuarios from './pages/admin/Usuarios';
 import Proyectos from './pages/admin/Proyectos';
+import ViedProyectos from './pages/admin/ViedProyectos';
 import Perfil from "pages/admin/Perfil";
 import Inscripciones from "pages/admin/Inscripciones";
 import Avances from "pages/admin/Avances";
@@ -27,7 +28,7 @@ import CambiarPassword from './pages/auth/CambiarPassword'
 
 const httpLink = createHttpLink({
   uri: 'http://localhost:4000/graphql',
-// uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
+  //uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -96,6 +97,7 @@ function App() {
                 <Route path='' element={<Perfil/>}/>
                 <Route path='usuarios' element={<Usuarios/>}/>
                 <Route path='proyectos' element={<Proyectos/>}/>
+                <Route path='viedProyectos/:_id' element={<ViedProyectos />} />
                 <Route path='inscripciones' element={<Inscripciones/>}/>
                 <Route path='avances' element={<Avances/>}/>
                 <Route path='cambiarpassword' element={<CambiarPassword/>}/>
