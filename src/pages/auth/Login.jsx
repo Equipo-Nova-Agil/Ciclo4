@@ -9,6 +9,7 @@ import {Acceder} from '../../graphql/Autenticacion/Mutations'
 import '../../styles/styles.css'
 import { useAuth } from 'context/authContext';
 import {useNavigate} from 'react-router-dom';
+import { ToastContainer, toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -30,11 +31,14 @@ const Login = () => {
     console.log ('Datos Inicio de Sesión', dataMutation);
     if (dataMutation) {
       if (dataMutation.login.token){
-      setToken(dataMutation.login.token);
-      navigate('/admin');
+        setToken(dataMutation.login.token);
+        navigate('/admin');
+      }
     }
-  }
-  },[dataMutation, setToken, navigate])
+    if (mutationError) {
+      toast.error('Contraseña Incorrecta');
+    }
+  },[dataMutation, setToken, mutationError, navigate])
   return (
     <>
 

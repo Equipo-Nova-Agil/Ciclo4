@@ -30,16 +30,27 @@ const aprobarInscripcion = gql `
 mutation AprobarInscripcion(
     $aprobarInscripcionId: String!
     ){
-    aprobarInscripcion(id: $aprobarInscripcionId) {
+    aprobarInscripcion(
+      id: $aprobarInscripcionId
+      ) {
       _id
-      proyecto {
-        _id
-        nombre
-      }
-      estudiante {
-        _id
-        nombre
-      }
+      
+      fechaIngreso
+      fechaEgreso
+      estado
+    }
+  }
+`;
+
+const rechazarInscripcion = gql `
+mutation RechazarInscripcion(
+    $rechazarInscripcionId: String!
+    ){
+    rechazarInscripcion(
+      id: $rechazarInscripcionId
+      ) {
+      _id
+      
       fechaIngreso
       fechaEgreso
       estado

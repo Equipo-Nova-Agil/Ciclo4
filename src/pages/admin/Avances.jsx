@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { nanoid } from 'nanoid';
 import { useQuery, useMutation } from '@apollo/client';
+import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
+import { Dialog} from '@material-ui/core';
 import { obtenerAvances } from '../../graphql/Avances/Queries.js';
 import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
 import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
@@ -15,51 +17,35 @@ import PrivateComponent from '../../componets/PrivateComponent'
 
 const Avances = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
-  const [avances, setAvances] = useState([]);
   const [textoBoton, setTextoBoton] = useState('Nuevo Avance');
-  const [ejecutarConsulta, setEjecutarConsulta] = useState(true);
-  const {loading, data: dataAvances, error} = useQuery (obtenerAvances);
-
-  useEffect(() => {
-      console.log('Datos Avances Servidor', dataAvances);
-  }, [dataAvances]);
-
-  useEffect(() => {
-    console.log('consulta', ejecutarConsulta);
-    if (ejecutarConsulta) {
-          setAvances(dataAvances);
-          setEjecutarConsulta(false);
-        }
-  }, [ejecutarConsulta]);
-  console.log('Avances', dataAvances)
-
-  useEffect(() => {
-    //obtener lista de avances desde el backend
-    if (mostrarTabla) {
-      setEjecutarConsulta(true);
-    }
-  }, [mostrarTabla]);
-
+  const {loading: loadingAvances, data: dataAvances, error:errorAvances} = useQuery (obtenerAvances);
+  
   useEffect(() => {
     if (mostrarTabla) {
       setTextoBoton('Nuevo Avance');
-      
     } else {
       setTextoBoton('Todos Los Avances');
-      
     }
   }, [mostrarTabla]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error('Error Consultando Avances');
-    }
-  }, [error]);
 
-  if (loading) return <div>
+  useEffect(() => {
+      console.log('Datos Avances Desde El Backend', dataAvances);
+  }, [dataAvances]);
+
+
+  useEffect(() => {
+    if (errorAvances) {
+      toast.error('Error Consultando Usuarios');
+    }
+  }, [errorAvances]);
+
+  if (loadingAvances) return <div>
                         <h1 className='text-3xl font-extrabold'>Cargando...</h1>
                         <ReactLoading type='bars' color='#11172d' height={467} width={175} />
                       </div>;
+
+
     return (
       <div className='flex h-full w-full flex-col items-center justify-start p-8'>
         <div className='flex flex-col'>
@@ -75,31 +61,42 @@ const Avances = () => {
         </button>
         </div>
         {mostrarTabla ? (
-        <TablaAvances listaAvances={avances} setEjecutarConsulta={setEjecutarConsulta} />
+        <TablaAvances/>
         ) : (
           <FormularioCreacionAvances
             setMostrarTabla={setMostrarTabla}
-            listaAvances={avances}
-            setAvances={setAvances}
           />
         )}
-        <ToastContainer position='bottom-center' autoClose={3000} />
+        
+        {/* <ToastContainer position='bottom-center' autoClose={3000} /> */}
       </div>
+      
     );
   };
 
-const TablaAvances = ({ listaAvances, setEjecutarConsulta }) => {
+const TablaAvances = ({ setEjecutarConsulta }) => {
   const {data:dataAvances} = useQuery (obtenerAvances);
   const [busqueda, setBusqueda] = useState('');
+  const listaAvances = dataAvances.Avances;
   const [avancesFiltrados, setAvancesFiltrados] = useState(listaAvances);
-  
-  // useEffect(() => {
-  //   setAvancesFiltrados(
-  //   listaAvances.filter((elemento) => {
-  //       return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
-  //       })
-  //     );
-  //   }, [busqueda, listaAvances]);
+  useEffect(() => {    
+
+    console.log('ListaAvances', listaAvances);
+  })
+  const listaAvancesArray = dataAvances;
+  // Object.values(listaAvances);
+  console.log('Avances Array', listaAvancesArray)
+
+
+  useEffect(() => {
+    setAvancesFiltrados(
+    listaAvances.filter((elemento) => {
+        return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
+        })
+      );
+      console.log('Avances Filtrados', avancesFiltrados)
+    }, [busqueda, listaAvances]);
+    console.log('AvancesFiltrados', avancesFiltrados)
 
   return (
   <div>
@@ -147,20 +144,21 @@ const TablaAvances = ({ listaAvances, setEjecutarConsulta }) => {
                     <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
                         Creado Por
                     </th>
-                    
-                    {/* <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}> */}
+                    <th class="px-1 py-1 m-0 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
+                        Observaciones
+                    </th>
+                    <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
                     <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
                         Acciones
                     </th> 
-                    {/* </PrivateComponent> */}
+                    </PrivateComponent>
                   </tr>
                 </thead>
                 <tbody>
-                {dataAvances.Avances.map((avance) => {
+                {avancesFiltrados.map((avance) => {
                     return <FilaAvances 
-                      key={avance._id} 
-                      avance={avance}
-                      setEjecutarConsulta={setEjecutarConsulta}/>;
+                      key={nanoid()} 
+                      avance={avance}/>;
                   })}
                 </tbody>
               </table>
@@ -174,12 +172,14 @@ const TablaAvances = ({ listaAvances, setEjecutarConsulta }) => {
   );
 }; 
 
-const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
+const FilaAvances = ({avance})  => {
   const [edit, setEdit] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const {data: dataUsuarios} = useQuery (obtenerUsuarios);
   const {data: dataProyectos} = useQuery (obtenerProyectos);
   const [modificarAvance, { data: mutacionEditar, loading: mutationLoading, error: mutationError }] = useMutation(editarAvance);
   const [borrarAvance, { data: mutacionEliminar, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarAvance);
+  const { _id } = useParams();
   
   const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
   console.log('Lista Estudiantes', listaEstudiantes);
@@ -199,8 +199,6 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
     modificarAvance({ 
       variables: { ...infoNuevoAvance }
     })
-    if(mutationError){toast.error('Error Editando Avance')} 
-    else {toast.success('Avance Editado Exitosamente')}
   }
 
   const suprimirAvance = () => {
@@ -219,8 +217,7 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
       {edit? (
         <>
         
-          <td className='text-center'>{infoNuevoAvance._id.slice(20)}
-          </td>
+          <td className='text-center'>{infoNuevoAvance._id.slice(20)}</td>
           <td><input 
             type="date" 
             className="bg-gray-50 border border-gray-600 p-1 text-center rounded-lg m-1 w-full"
@@ -239,7 +236,7 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
              return (
                <option
                  key={nanoid()}
-                 value={JSON.stringify(p._id)}
+                 value={p._id}
                >{p.nombre}</option>
              );
            })}
@@ -263,16 +260,19 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
               name='creadoPor'
               onChange ={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, creadoPor: e.target.value })}
               defaultValue={infoNuevoAvance.creadoPor}>
-                {listaEstudiantes.map((p) => {
+                {listaEstudiantes.map((e) => {
              return (
                <option
                  key={nanoid()}
-                 value={JSON.stringify(p._id)}
-               >{p.nombre}</option>
+                 value={e._id}
+               >{e.nombre}</option>
              );
            })}
             </select>
             </label> 
+          </td>
+          <td className='text-center'>
+            Observaciones
           </td>
             
             
@@ -286,50 +286,74 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.proyecto.nombre}</td>
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.descripcion}</td>
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.creadoPor.nombre}</td>
+          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800 m-0">
+            <button
+              type="button"
+              title="Ver Detalles">
+              <i className="fa fa-eye hover:text-blue-600"></i>
+            </button>
+          </td>
       </>  
         )}
-          {/* <PrivateComponent roleList={['Administrador']}> */}
+      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
         <td>
             <div className="flex w-full justify-around text-gray-600 ">
               {edit? (
                 <>
-                  <i
-                    title="Editar"  onClick={() => { actualizarAvance();setEdit(!edit);}} 
-                    className="fas fa-check hover:text-green-600"/>
-                  <i
-                    onClick={() => setEdit(!edit)}
-                    className='fas fa-ban hover:text-yellow-700'/>
-                </>
-              ):(
-                <>
-                  <i
-                    onClick={() => setEdit(!edit)}
-                    className="fas fa-edit hover:text-yellow-600"/>
-                
-                    
-                  <i
-                      onClick={() => suprimirAvance()}
-                      class="fas fa-trash text-gray-600 hover:text-red-500"/>
-                </>
-              )} 
-              
-            </div>
+                <button type="button" title="Editar"  onClick={() => {setEdit(!edit); actualizarAvance();}}>
+                  <i className="fas fa-check hover:text-green-600"></i>
+                </button>
+                <button type="button" title="Cancelar" onClick={() => {setEdit(!edit);}}>
+                  <i className="fas fa-ban hover:text-red-700"></i>
+                </button>
+              </>
+            ):(
+              <>
+                <button type="button" title="Editar"  onClick={() => setEdit(!edit)}>
+                  <i className="fas fa-user-edit hover:text-yellow-600"></i>
+                </button>
+                <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
+                  <i className="fas fa-trash-alt hover:text-red-700"></i>
+                </button>
+              </>
+            )} 
             
-
+          </div>
+          <Dialog open={openDialog}>
+            <div className='p-8 flex flex-col'>
+              <h1 className='text-gray-900 text-2xl font-bold'>
+                ¿Seguro que desea eliminar este avance?
+              </h1>
+              <div className='flex w-full items-center justify-center my-4'>
+                <button
+                  onClick={() => {suprimirAvance();setOpenDialog(false)}}
+                  className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
+                >
+                  Sí
+                </button>
+                <button
+                  onClick={() => setOpenDialog(false)}
+                  className='mx-2 px-3 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md'
+                >
+                  No
+                </button>
+              </div>
+            </div> 
+          </Dialog>
         </td>
-          {/* </PrivateComponent> */}
-      
+      </PrivateComponent>
     </tr>
 
   );
 };
+
 
 const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }) => {
   const { form, formData, updateFormData } = useFormData();
   const {data: dataUsuarios} = useQuery (obtenerUsuarios);
   const {data: dataProyectos} = useQuery (obtenerProyectos);
   const [nuevoAvance, { data: dataMutation, loading: loadingMutation, error: errorMutation }] =useMutation(crearAvance);
-
+  
   const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
   console.log('Lista Estudiantes', listaEstudiantes);
   const listaProyectos = dataProyectos.Proyectos.filter(p => (p.fase === 'INICIADO')||(p.fase ==='DESARROLLO'));
@@ -338,10 +362,14 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
   const submitForm = (e) => {
     e.preventDefault();
     nuevoAvance({ variables: formData });
+    toast.success('Avance Creado Exitosamente');
+    setMostrarTabla(true);
   };
 
+  
+
   useEffect(() => {
-    console.log ('Datos Nuevo Avance', dataMutation);
+    console.log ('Datos Mutación Avance', dataMutation);
   },[dataMutation])
     
   
@@ -357,14 +385,14 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
         <Input
         name='fecha' 
         type='date' 
-        className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-white rounded text-sm text-center shadow-md focus:outline-none focus:ring w-full'
+        className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm text-center shadow-md focus:outline-none focus:ring w-full'
         required />
         
         <label className='flex flex-col mt-2 py-2 text-gray-800 font-bold' for='proyecto'>
           Proyecto
         </label>
         <select
-          className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-400 bg-white rounded text-sm text-center shadow focus:outline-none focus:ring w-full'
+          className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-400 bg-gray-200 rounded text-sm text-center shadow focus:outline-none focus:ring w-full'
           name='proyecto'
           required
           defaultValue={0}>
@@ -372,7 +400,10 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
             Elija una Opción
           </option>
           {listaProyectos.map((p) => {
-            return <option key={nanoid()}  value={p._id}>{p.nombre}</option>;
+            return( <option key={nanoid()}  value={p._id}>
+                    {p.nombre}
+                  </option>
+                  );
             })}
         </select>
         
@@ -381,29 +412,19 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
         </label>
         <TextArea
         name='descripcion'
-        className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-white rounded text-sm text-center shadow-lg focus:outline-none focus:ring w-full'
-        rows="5"
-        cols="30"
+        className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200 rounded text-sm shadow-lg focus:outline-none focus:ring w-full'
+        rows="8"
+        cols="32"
         required={true}/>
 
-        
-        
-        {/* <label className='flex flex-col py-2 text-gray-800' htmlFor='descripcion'>    
-          Descripción del Avance
-          <input
-            name='descripcion'
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
-            type='text'
-            required/>
-        </label> */}
         
         <label className='flex flex-col py-2 text-gray-800 font-bold' htmlFor='creadoPor'>
         Creador del Avance
           <select
-            className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-white rounded text-sm text-center shadow-lg focus:outline-none focus:ring w-full'
+            className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200 rounded text-sm text-center shadow-lg focus:outline-none focus:ring w-full'
             name='creadoPor'
             required
-            defaultValue={0}>
+            value={0}>
             <option disabled value={0}>
               Elija una Opción
             </option>

@@ -256,12 +256,6 @@ const FilaUsuarios = ({usuario})  => {
           <div className="flex w-24 justify-around text-gray-800 ">
             {edit? (
               <>
-                {/* <i 
-                  onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}
-                  className="fas fa-check hover:text-green-600"/>
-                <i
-                  onClick={() => {setEdit(!edit);}}
-                  className='fas fa-ban hover:text-red-700'/> */}
                 <button type="button" title="Editar"  onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}>
                   <i className="fas fa-check hover:text-green-600"></i>
                 </button>
@@ -277,12 +271,6 @@ const FilaUsuarios = ({usuario})  => {
                 <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
                   <i className="fas fa-trash-alt hover:text-red-700"></i>
                 </button>
-                {/* <i
-                  onClick={() => setEdit(!edit)}
-                  className="fas fa-user-edit hover:text-yellow-600"/>
-                <i
-                  onClick={() => {eliminarUser();}}
-                  className='fas fa-trash-alt hover:text-red-700'/> */}
               </>
             )} 
             

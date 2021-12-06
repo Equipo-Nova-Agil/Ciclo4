@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import Profile from '../../media/profile.jpeg';
+import Profile from '../../media/profile.jpg';
 import { useUser } from 'context/userContext';
 import { useMutation } from '@apollo/client';
 import { Link, useParams} from 'react-router-dom';
@@ -56,7 +56,7 @@ const Perfil = () => {
           <div className="absolute top-0 w-full h-full bg-center bg-cover">
             <span className=" w-full h-full  opacity-50 "></span>
           </div>
-          <div className="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden" style={{ height: "70px" }}>
+          <div className="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden" style={{ height: "20px" }}>
             <svg className="absolute bottom-0 overflow-hidden"
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="none"

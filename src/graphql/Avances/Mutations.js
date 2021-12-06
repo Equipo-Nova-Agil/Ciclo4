@@ -60,12 +60,10 @@ const editarAvance = gql `
 
 const eliminarAvance = gql `
     mutation EliminarAvance (
-        $_id: String!
-        $descripcion: String!) 
+        $_id: String!) 
         {
         eliminarAvance(
-            _id: $_id
-            descripcion: $descripcion)
+            _id: $_id)
             {
             _id
             fecha
