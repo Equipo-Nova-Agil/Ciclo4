@@ -1,5 +1,6 @@
 import React, { useEffect, useState} from 'react';
-import { useQuery, useMutation } from '@apollo/client'; 
+import { useQuery, useMutation } from '@apollo/client';
+import { nanoid } from 'nanoid'; 
 import { Dialog} from '@material-ui/core';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -41,7 +42,7 @@ const Usuarios = () => {
           </h2>
         </div>
         <TablaUsuarios/>
-        <ToastContainer position='bottom-center' autoClose={4000} />
+        {/* <ToastContainer position='bottom-center' autoClose={4000} /> */}
       </div>
     // </PrivateRoute>
   );
@@ -49,6 +50,17 @@ const Usuarios = () => {
 
 const TablaUsuarios = () => {
   const {data} = useQuery (obtenerUsuarios);
+  const listaUsuarios = data.Usuarios;
+  const [busqueda, setBusqueda] = useState('');
+  const [usuariosFiltrados, setUsuariosFiltrados] = useState(listaUsuarios);
+
+  useEffect(() => {
+    setUsuariosFiltrados(
+    listaUsuarios.filter((elemento) => {
+        return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
+        })
+      );
+    }, [busqueda, listaUsuarios]);
   
   return (
 
@@ -56,7 +68,9 @@ const TablaUsuarios = () => {
       <body class="antialiased font-sans bg-white">
         <div class="container mx-auto px-4 sm:px-8">
           <div class="py-8">
-            {/* <div class="my-2 flex sm:flex-row flex-col">
+
+            {/* BUSCADOR */}
+            <div class="my-2 mx-2 flex sm:flex-row flex-col">
               <div class="block relative">
                 <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
                   <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
@@ -70,8 +84,9 @@ const TablaUsuarios = () => {
                   placeholder="Buscar"
                   class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"/>
               </div>
-            </div> */}
+            </div>
 
+            {/* HEADERS TABLA */}
             <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
               <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
                 
@@ -110,10 +125,9 @@ const TablaUsuarios = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data &&
-                    data.Usuarios.map((usuario) => {
+                    {usuariosFiltrados.map((usuario) => {
                     return <FilaUsuarios 
-                      key={usuario._id}
+                      key={nanoid()}
                       usuario={usuario}/>;
                       
                     })}
@@ -143,9 +157,9 @@ const FilaUsuarios = ({usuario})  => {
   });
   
 
-  const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
+  const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario, {refetchQueries:[{ query: obtenerUsuarios }]});
 
-  const [deleteUsuario, { data: mutationDataDelete, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarUsuario);
+  const [deleteUsuario, { data: mutationDataDelete, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarUsuario, {refetchQueries:[{ query: obtenerUsuarios }]});
 
   const enviarDatosEditadosUsuario = () => {
     console.log("le di a editar:", infoNuevaUsuario)

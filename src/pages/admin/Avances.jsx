@@ -1,19 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactLoading from 'react-loading';
 import { nanoid } from 'nanoid';
-import { useQuery, useMutation } from '@apollo/client';
 import { useParams } from 'react-router-dom';
+import { useQuery, useMutation } from '@apollo/client';
 import { ToastContainer, toast } from "react-toastify";
 import { Dialog} from '@material-ui/core';
-import { obtenerAvances } from '../../graphql/Avances/Queries.js';
+
+//QUERIES & MUTATUIONS
+import {obtenerAvances} from '../../graphql/Avances/Queries.js';
 import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
 import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
 import {crearAvance, editarAvance, eliminarAvance} from '../../graphql/Avances/Mutations'
-import useFormData from 'hooks/useFormData';
+
+//COMPONETS
 import Input from '../../componets/Input';
 import TextArea from '../../componets/textArea';
+import useFormData from 'hooks/useFormData';
 import ButtonLoading from "componets/ButtonLoading.jsx";
-import ReactLoading from 'react-loading';
-import PrivateComponent from '../../componets/PrivateComponent'
+import PrivateComponent from '../../componets/PrivateComponent';
+
 
 const Avances = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
@@ -79,15 +84,7 @@ const TablaAvances = ({ setEjecutarConsulta }) => {
   const [busqueda, setBusqueda] = useState('');
   const listaAvances = dataAvances.Avances;
   const [avancesFiltrados, setAvancesFiltrados] = useState(listaAvances);
-  useEffect(() => {    
-
-    console.log('ListaAvances', listaAvances);
-  })
-  const listaAvancesArray = dataAvances;
-  // Object.values(listaAvances);
-  console.log('Avances Array', listaAvancesArray)
-
-
+  
   useEffect(() => {
     setAvancesFiltrados(
     listaAvances.filter((elemento) => {
@@ -352,7 +349,8 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
   const { form, formData, updateFormData } = useFormData();
   const {data: dataUsuarios} = useQuery (obtenerUsuarios);
   const {data: dataProyectos} = useQuery (obtenerProyectos);
-  const [nuevoAvance, { data: dataMutation, loading: loadingMutation, error: errorMutation }] =useMutation(crearAvance);
+  const {data: dataAvances}= useQuery (obtenerAvances);
+  const [nuevoAvance, { data: dataMutation, loading: loadingMutation, error: errorMutation }] =useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
   
   const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
   console.log('Lista Estudiantes', listaEstudiantes);
