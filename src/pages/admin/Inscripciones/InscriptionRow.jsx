@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { aprobarInscripcion } from '../../../graphql/Incripciones/Mutations';
 
 
-function ReadOnlyInscriptionRow({ user, onEdit, onCancel, setOpenDialog }) {
+function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
   return (
     <tr>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
@@ -25,9 +25,6 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel, setOpenDialog }) {
         <button type="button" title="Editar" onClick={onEdit}>
             <i className="fas fa-user-edit hover:text-yellow-600"></i>
         </button>
-        {/* <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
-            <i className="fas fa-trash-alt hover:text-yellow-600"></i>
-        </button> */}
         </td>
     </tr>
   );
@@ -35,7 +32,7 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel, setOpenDialog }) {
 
 
 function InscriptionRowForm(props) {
-  const { onOk, onCancel, user, setOpenDialog } = props;
+  const { onOk, onCancel, user, onReject } = props;
   const [info, setInfo] = useState({ ...user });
 
   const handleChange = (fieldName) => (e) => {
@@ -47,6 +44,7 @@ function InscriptionRowForm(props) {
 
   const [ aprobarInscrip , { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(aprobarInscripcion);
 
+
   const onSubmit = () => {
     //console.log(typeof(info._id))
     onOk(info);
@@ -55,12 +53,8 @@ function InscriptionRowForm(props) {
     })
   };
 
-  const reject = () => {
-    console.log("Estoy en reject")
-    setOpenDialog(true)
-    onOk(info);
-  }
-  
+
+
 
   return (
     <tr>
@@ -80,7 +74,7 @@ function InscriptionRowForm(props) {
           <button className="mr-5" type="button" title="Aceptar inscripción"  onClick={onSubmit}>
             <i className="fas fa-check hover:text-green-600"></i>
           </button>
-          <button className="ml-5" type="button" title="Rechazar inscripción" onClick={reject}>
+          <button className="ml-5" type="button" title="Rechazar inscripción" onClick={() => onReject(info)}>
             <i className="fas fa-skull-crossbones hover:text-red-700"></i>
           </button>
       </td>

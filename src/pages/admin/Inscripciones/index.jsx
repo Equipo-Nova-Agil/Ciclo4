@@ -6,8 +6,7 @@ import { Dialog} from '@material-ui/core';
 import { ToastContainer, toast } from 'react-toastify';
 import ReactLoading from 'react-loading';
 import InscriptionRow from './InscriptionRow'
-
-// TRAER LA MUTACIÓN DE RECHAZAR INSCRIPCION ACÁ Y ACTIVARLA CUANDO EN EL DIALOG SE LE DE OK
+import { rechazarInscripcion } from '../../../graphql/Incripciones/Mutations';
 
 
 const HEADERS = [
@@ -25,6 +24,7 @@ const Inscripciones = () => {
   const [edit, setEdit] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [copyData, setCopyData] = useState([])
+  const [selectedInfo, setSelectedInfo] = useState(null)
 
   const handleEditChange = (index, value) => () => {
     setEdit((currentEditList) =>
@@ -37,6 +37,25 @@ const Inscripciones = () => {
       })
     );
   };
+
+  // TRAER LA MUTACIÓN DE RECHAZAR INSCRIPCION ACÁ Y ACTIVARLA CUANDO EN EL DIALOG SE LE DE OK
+  const [ rechazararInscrip , { data: mutationDataRechazar, loading: mutationLoadingRechazar, error: mutationErrorRechazar }] = useMutation(rechazarInscripcion);
+
+  const inscripcionRechazada = () => {
+    console.log("info 1", selectedInfo)
+
+    console.log("tipo de dato id", typeof(selectedInfo._id))
+    rechazararInscrip({ 
+      variables: { rechazarInscripcionId: selectedInfo._id }
+    })
+  
+  }
+
+  const onReject = (info) => {
+    setOpenDialog(true)
+    setSelectedInfo(info)
+  }
+
 
   const handleEditInscription = (index) => (newInfo) => {
     setCopyData((currentCopyData) =>
@@ -51,6 +70,16 @@ const Inscripciones = () => {
 
     handleEditChange(index, false)();
   };
+
+  const resetEdit = () => {
+    setEdit((currentEdit) => Array(currentEdit.length).fill(false))
+  }
+
+  useEffect(() => {
+    if (!openDialog){
+      resetEdit()
+    }
+  }, [openDialog])
 
 
   useEffect(() => {
@@ -106,7 +135,7 @@ const Inscripciones = () => {
             onOk={handleEditInscription(index)}
             //onCancel={handleEditChange(index, false)}
             onCancel={handleEditChange(index, !edit[index])}
-            setOpenDialog={setOpenDialog}
+            onReject={onReject}
           />
         ))}
       </tbody>
@@ -118,7 +147,7 @@ const Inscripciones = () => {
       </h1>
       <div className='flex w-full items-center justify-center my-4'>
           <button
-          onClick={() => {setOpenDialog(false); console.log("rechazada")}}
+          onClick={() => {inscripcionRechazada();setOpenDialog(false);}}
           className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
           >
           Sí

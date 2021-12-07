@@ -58,7 +58,7 @@ mutation RechazarInscripcion(
   }
 `;
 
-export { crearInscripcion, aprobarInscripcion };
+export { crearInscripcion, aprobarInscripcion, rechazarInscripcion };
 
 
 // ESTO DE LO QUITE DE DONDE DEVUELVE LOS DATOS PORQUE ME DABA ERROR
