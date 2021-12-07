@@ -2,17 +2,17 @@ import { gql} from '@apollo/client';
 
 const obtenerUsuarios = gql `
 
-query Usuarios{
-    Usuarios {
-      _id
+query Usuarios($filtro: FiltroUsuarios) {
+  Usuarios(filtro: $filtro) {
+    _id
       nombre
       apellido
       identificacion
       correo
       rol
       estado
-    }
   }
+}
   `;
 
 const obtenerUsuario = gql`

@@ -16,15 +16,25 @@ import {crearAvance, editarAvance, eliminarAvance} from '../../graphql/Avances/M
 import Input from '../../componets/Input';
 import TextArea from '../../componets/textArea';
 import useFormData from 'hooks/useFormData';
+import DropDown from "componets/Dropdown.jsx";
 import ButtonLoading from "componets/ButtonLoading.jsx";
 import PrivateComponent from '../../componets/PrivateComponent';
 
 
 const Avances = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
+  const [mostrarObservaciones, setMostrarObservaciones] = useState(false);
   const [textoBoton, setTextoBoton] = useState('Nuevo Avance');
   const {loading: loadingAvances, data: dataAvances, error:errorAvances} = useQuery (obtenerAvances);
   
+  useEffect(() => {
+    if (mostrarObservaciones) {
+      setMostrarTabla(false);
+    } else {
+      setMostrarTabla(true);
+    }
+  }, [mostrarObservaciones]);
+
   useEffect(() => {
     if (mostrarTabla) {
       setTextoBoton('Nuevo Avance');
@@ -57,6 +67,9 @@ const Avances = () => {
           <h2 className='text-3xl pt-12 pb-8 font-extrabold fuenteColor'>
           Gestión de Avances
           </h2>
+          {mostrarObservaciones & !mostrarTabla ? (
+          <></>
+        ) : (
           <button
           onClick={() => {
             setMostrarTabla(!mostrarTabla);
@@ -64,8 +77,11 @@ const Avances = () => {
           className={`shadow-md fondo1 text-gray-200 font-bold p-2 rounded m-6  self-center hover:bg-gray-800`}>
           {textoBoton}
         </button>
+        )}
         </div>
-        {mostrarTabla ? (
+        {mostrarObservaciones & !mostrarTabla ? (
+          <Observaciones/>
+          ) : mostrarTabla ? (
         <TablaAvances/>
         ) : (
           <FormularioCreacionAvances
@@ -73,12 +89,14 @@ const Avances = () => {
           />
         )}
         
-        {/* <ToastContainer position='bottom-center' autoClose={3000} /> */}
       </div>
       
     );
   };
 
+const Observaciones = ()=> {
+  <div>Observaciones</div>
+};
 const TablaAvances = ({ setEjecutarConsulta }) => {
   const {data:dataAvances} = useQuery (obtenerAvances);
   const [busqueda, setBusqueda] = useState('');
@@ -169,13 +187,13 @@ const TablaAvances = ({ setEjecutarConsulta }) => {
   );
 }; 
 
-const FilaAvances = ({avance})  => {
+const FilaAvances = ({avance, mostrarObservaciones,setMostrarObservaciones})  => {
   const [edit, setEdit] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const {data: dataUsuarios} = useQuery (obtenerUsuarios);
   const {data: dataProyectos} = useQuery (obtenerProyectos);
-  const [modificarAvance, { data: mutacionEditar, loading: mutationLoading, error: mutationError }] = useMutation(editarAvance);
-  const [borrarAvance, { data: mutacionEliminar, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarAvance);
+  const [modificarAvance, { data: mutacionEditar, loading: mutationLoading, error: mutationError }] = useMutation(editarAvance, {refetchQueries:[{ query: obtenerAvances }]});
+  const [borrarAvance, { data: mutacionEliminar, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarAvance, {refetchQueries:[{ query: obtenerAvances }]});
   const { _id } = useParams();
   
   const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
@@ -196,16 +214,34 @@ const FilaAvances = ({avance})  => {
     modificarAvance({ 
       variables: { ...infoNuevoAvance }
     })
-  }
+  };
 
   const suprimirAvance = () => {
     borrarAvance({
       variables: { "_id": infoNuevoAvance._id }
     });
     console.log("id", infoNuevoAvance._id)
-    if(mutationErrorDelete){toast.error('Error Eliminando Avance')} 
-    else {toast.success('Avance Eliminado Exitosamente')}
+    if(mutationErrorDelete){
+      toast.error('Error Eliminando Avance', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
+    }
+    else {
+      toast.success('Avance Eliminado Exitosamente', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
+    };
+  };
+
+  const verObservaciones =()=> {
     
+    setMostrarObservaciones(true);
   }
   
 
@@ -286,7 +322,8 @@ const FilaAvances = ({avance})  => {
           <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800 m-0">
             <button
               type="button"
-              title="Ver Detalles">
+              title="Ver Detalles"
+              onClick={() => {mostrarObservaciones(true);}}>
               <i className="fa fa-eye hover:text-blue-600"></i>
             </button>
           </td>
@@ -347,28 +384,32 @@ const FilaAvances = ({avance})  => {
 
 const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }) => {
   const { form, formData, updateFormData } = useFormData();
-  const {data: dataUsuarios} = useQuery (obtenerUsuarios);
-  const {data: dataProyectos} = useQuery (obtenerProyectos);
-  const {data: dataAvances}= useQuery (obtenerAvances);
+  const {data: dataUsuarios, loading: loadingUsuarios} = useQuery (obtenerUsuarios);
+  const {data: dataProyectos, loading: loadingProyectos} = useQuery (obtenerProyectos);
   const [nuevoAvance, { data: dataMutation, loading: loadingMutation, error: errorMutation }] =useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
   
+  useEffect(() => {
+    if ((loadingUsuarios)||(loadingProyectos)) return <div>
+        <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+        <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+      </div>;
+  });
+
   const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
-  console.log('Lista Estudiantes', listaEstudiantes);
   const listaProyectos = dataProyectos.Proyectos.filter(p => (p.fase === 'INICIADO')||(p.fase ==='DESARROLLO'));
-  console.log('Lista Proyectos', listaProyectos);
   
   const submitForm = (e) => {
     e.preventDefault();
     nuevoAvance({ variables: formData });
-    toast.success('Avance Creado Exitosamente');
+    toast.success('Avance Creado Exitosamente', 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    });
     setMostrarTabla(true);
   };
 
-  
-
-  useEffect(() => {
-    console.log ('Datos Mutación Avance', dataMutation);
-  },[dataMutation])
     
   
 
@@ -386,9 +427,9 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
         className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm text-center shadow-md focus:outline-none focus:ring w-full'
         required />
         
-        <label className='flex flex-col mt-2 py-2 text-gray-800 font-bold' for='proyecto'>
+        <label className='flex flex-col mt-2 py-2 text-gray-800 font-bold' htmlFor='proyecto'>
           Proyecto
-        </label>
+        
         <select
           className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-400 bg-gray-200 rounded text-sm text-center shadow focus:outline-none focus:ring w-full'
           name='proyecto'
@@ -404,6 +445,7 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
                   );
             })}
         </select>
+        </label>
         
         <label className='flex flex-col mt-2 py-2 font-bold text-gray-800' for='descripcion'>
         Descripción del Avance
@@ -418,11 +460,12 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
         
         <label className='flex flex-col py-2 text-gray-800 font-bold' htmlFor='creadoPor'>
         Creador del Avance
+        
           <select
             className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200 rounded text-sm text-center shadow-lg focus:outline-none focus:ring w-full'
             name='creadoPor'
             required
-            value={0}>
+            defaultValue={0}>
             <option disabled value={0}>
               Elija una Opción
             </option>
@@ -433,7 +476,7 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
         </label>
         <ButtonLoading
           disabled={Object.keys(formData).length === 0}
-          loading={false}
+          loading={loadingMutation}
           className='fondo1 text-white active:bg-gray-700 text-sm font-bold mt-5 px-6 py-3 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-full transform hover:translate-y-1 transition-transform ease-in duration-200'
           text='Crear Avance'/>
         
