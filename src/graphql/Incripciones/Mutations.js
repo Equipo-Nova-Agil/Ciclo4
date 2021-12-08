@@ -34,7 +34,6 @@ mutation AprobarInscripcion(
       id: $aprobarInscripcionId
       ) {
       _id
-      
       fechaIngreso
       fechaEgreso
       estado
@@ -50,7 +49,6 @@ mutation RechazarInscripcion(
       id: $rechazarInscripcionId
       ) {
       _id
-      
       fechaIngreso
       fechaEgreso
       estado

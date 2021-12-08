@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import { useQuery, useMutation } from '@apollo/client'; 
 import { obtenerIncripciones } from '../../../graphql/Incripciones/Queries';
-import 'react-toastify/dist/ReactToastify.css';
 import { Dialog} from '@material-ui/core';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ReactLoading from 'react-loading';
 import InscriptionRow from './InscriptionRow'
 import { rechazarInscripcion } from '../../../graphql/Incripciones/Mutations';
@@ -42,9 +42,6 @@ const Inscripciones = () => {
   const [ rechazararInscrip , { data: mutationDataRechazar, loading: mutationLoadingRechazar, error: mutationErrorRechazar }] = useMutation(rechazarInscripcion);
 
   const inscripcionRechazada = () => {
-    console.log("info 1", selectedInfo)
-
-    console.log("tipo de dato id", typeof(selectedInfo._id))
     rechazararInscrip({ 
       variables: { rechazarInscripcionId: selectedInfo._id }
     })
@@ -55,6 +52,20 @@ const Inscripciones = () => {
     setOpenDialog(true)
     setSelectedInfo(info)
   }
+
+  useEffect(() => {
+    if (mutationDataRechazar){
+      toast.success("La inscripción se rechazó correctamente")
+      console.log("mutationDataRechazar:", mutationDataRechazar)
+    }
+  }, [mutationDataRechazar])
+
+  useEffect(() => {
+    if (mutationErrorRechazar){
+      toast.error("Hay un error rechazando la inscripción")
+      console.log("mutationErrorRechazar:", mutationErrorRechazar)
+    }
+  }, [mutationErrorRechazar])
 
 
   const handleEditInscription = (index) => (newInfo) => {
@@ -85,6 +96,7 @@ const Inscripciones = () => {
   useEffect(() => {
     if (data){
       console.log('Datos inscripciones Servidor', data);
+
       const updatedCopyData = data.Inscripciones.map((i) => ({
         _id: i._id,
         estado: i.estado,

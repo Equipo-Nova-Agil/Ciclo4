@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from '@apollo/client'; 
 import { aprobarInscripcion } from '../../../graphql/Incripciones/Mutations';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
@@ -9,7 +11,7 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaIngreso}</td>
+      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaIngreso.slice(0, -14)}</td>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaEgreso}</td>
 
       <td className={
@@ -46,14 +48,25 @@ function InscriptionRowForm(props) {
 
 
   const onSubmit = () => {
-    //console.log(typeof(info._id))
     onOk(info);
     aprobarInscrip({ 
       variables: { aprobarInscripcionId: info._id }
     })
   };
 
+  useEffect(() => {
+    if (mutationData){
+      toast.success("Se aprobó correctamente")
+      console.log("mutationData:", mutationData)
+    }
+  }, [mutationData])
 
+  useEffect(() => {
+    if (mutationError){
+      toast.error("Hay un error aprobando la inscripción")
+      console.log("mutationError:", mutationError)
+    }
+  }, [mutationError])
 
 
   return (
@@ -61,7 +74,7 @@ function InscriptionRowForm(props) {
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaIngreso}</td>
+      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaIngreso.slice(0, -14)}</td>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaEgreso}</td>
       <td className={
         user.estado === 'ACEPTADO' 
