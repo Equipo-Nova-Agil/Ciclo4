@@ -72,19 +72,26 @@ query Proyecto($_id: String!) {
 const obtenerProyectos = gql`
   query Proyectos {
     Proyectos {
+    _id
+    nombre
+    presupuesto
+    fechaInicio
+    fechaFin
+    estado
+    fase
+    lider {
       _id
       nombre
-      presupuesto
-      fechaInicio
-      fechaFin
-      estado
-      fase
-      lider {
-        nombre
-        apellido
-      }
+      apellido
+      correo
+    }
+    objetivos {
+      _id
+      descripcion
+      tipo
     }
   }
+}
 `;
 
 export { obtenerProyectos, obtenerProyecto };

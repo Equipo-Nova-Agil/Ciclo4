@@ -21,25 +21,51 @@ const crearProyecto = gql`
   }
 `;
 
-const editarProyecto = gql`
-  mutation Mutation {
-    editarProyecto(
-      nombre: $nombre
-      apellido: $apellido
-      identificacion: $identificacion
-      correo: $correo
-      rol: $rol
-    ) {
+const editarProyecto = gql `
+mutation EditarProyecto(
+  $_id: String!, 
+  $nombre: String!,
+  $fechaInicio: Date!, 
+  $fechaFin: Date!, 
+  $lider: String!,
+  $presupuesto: Float!, 
+  $fase: Enum_FaseProyecto!,
+  $estado: Enum_EstadoProyecto!
+  ) 
+  {
+  editarProyecto(
+    _id: $_id, 
+    nombre: $nombre, 
+    fechaInicio: $fechaInicio, 
+    fechaFin: $fechaFin, 
+    lider: $lider, 
+    presupuesto: $presupuesto, 
+    fase: $fase, 
+    estado: $estado
+    ) 
+    {
       _id
       nombre
-      apellido
-      identificacion
-      correo
-      rol
+      presupuesto
+      fechaInicio
+      fechaFin
       estado
-    }
+      fase
+      lider {
+        _id
+        nombre
+        apellido
+        correo
+      }
+      objetivos {
+        _id
+        descripcion
+        tipo
+      }
   }
+}
 `;
+
 
 const eliminarProyecto = gql`
   mutation EliminarProyecto($_id: String) {
