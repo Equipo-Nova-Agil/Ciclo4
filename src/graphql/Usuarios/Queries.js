@@ -28,18 +28,18 @@ const obtenerUsuario = gql`
   }
 `;
 
-const obtenerUsuariosPorRol = gql`
-  query UsuariosPorRol($rol: String!) {
-    UsuariosPorRol(rol: $rol) {
-      _id
+const obtenerUsuariosPorFiltro = gql`
+query Usuarios($filtro: FiltroUsuarios) {
+  Usuarios(filtro: $filtro) {
+    _id
       nombre
       apellido
       identificacion
       correo
       rol
       estado
-    }
   }
+}
 `;
 
-export { obtenerUsuarios, obtenerUsuario, obtenerUsuariosPorRol };
+export { obtenerUsuarios, obtenerUsuario, obtenerUsuariosPorFiltro};
