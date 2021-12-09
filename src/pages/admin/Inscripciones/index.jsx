@@ -173,6 +173,7 @@ const Inscripciones = () => {
       </div>
       </div>
   </Dialog>
+  <ToastContainer />
     </div>
   );
 

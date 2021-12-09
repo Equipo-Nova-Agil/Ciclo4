@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
+
   return (
     <tr>
       <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
@@ -28,6 +29,7 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
             <i className="fas fa-user-edit hover:text-yellow-600"></i>
         </button>
         </td>
+        {/* <ToastContainer /> */}
     </tr>
   );
 }
@@ -143,7 +145,6 @@ function InscriptionRowForm(props) {
             <i className="fas fa-ban hover:text-red-700"></i>
             </button>
       </td>  */}
-     
     </tr>
   );
 }
