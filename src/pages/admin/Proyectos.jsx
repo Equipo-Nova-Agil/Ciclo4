@@ -1,37 +1,54 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useQuery, useMutation } from '@apollo/client'; 
-import { useUser } from 'context/userContext';
-import { Dialog} from '@material-ui/core';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Link } from 'react-router-dom';
-import ReactLoading from 'react-loading';
-import { useParams } from 'react-router-dom';
-import { nanoid } from 'nanoid';
-import  PrivateComponent from '../../componets/PrivateComponent.jsx'
-import { obtenerProyectos } from '../../graphql/Proyectos/Queries.js';
-import { crearProyecto, eliminarProyecto} from '../../graphql/Proyectos/Mutations.js';
-import { obtenerUsuariosPorRol } from 'graphql/Usuarios/Queries.js';
-
-
+import React, { useEffect, useState, useRef } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import { useUser } from "context/userContext";
+import { Dialog } from "@material-ui/core";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router-dom";
+import ReactLoading from "react-loading";
+import { useParams } from "react-router-dom";
+import { nanoid } from "nanoid";
+import PrivateComponent from "../../componets/PrivateComponent.jsx";
+import { obtenerProyectos } from "../../graphql/Proyectos/Queries.js";
+import {
+  crearProyecto,
+  editarProyecto,
+  eliminarProyecto,
+} from "../../graphql/Proyectos/Mutations.js";
+import { obtenerUsuariosPorFiltro } from "../../graphql/Usuarios/Queries.js";
+import { crearInscripcion } from "../../graphql/Incripciones/Mutations.js";
+import useFormData from '../../hooks/useFormData'
 
 const Proyectos = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
   const [proyectos, setProyectos] = useState([]);
-  const [textoBoton, setTextoBoton] = useState('Nuevo Proyecto');
+  const [textoBoton, setTextoBoton] = useState("Nuevo Proyecto");
   const [ejecutarConsulta, setEjecutarConsulta] = useState(true);
 
   const { userData } = useUser();
 
   //LISTADO PROYECTOS
-  const { loading: loadingProyectos, data: dataProyectos, error: errorProyectos } = useQuery(obtenerProyectos);
+  const {
+    loading: loadingProyectos,
+    data: dataProyectos,
+    error: errorProyectos,
+  } = useQuery(obtenerProyectos);
   //LISTADO LIDERES
-  const {loading: loadLideres, data: dataLideres, error: errorLideres } = useQuery(obtenerUsuariosPorRol, {variables: { "rol": "LIDER"}});
+  const {
+    loading: loadLideres,
+    data: dataLideres,
+    error: errorLideres,
+  } = useQuery(obtenerUsuariosPorFiltro, {
+    variables: {
+      filtro: { rol: 'LIDER', estado: 'AUTORIZADO' },
+    },
+  });
+
 
   useEffect(() => {
     if (ejecutarConsulta && dataProyectos) {
       setProyectos(dataProyectos);
-      console.log(JSON.stringify(setProyectos))
+      console.log(JSON.stringify(setProyectos));
       setEjecutarConsulta(false);
     }
     if (errorProyectos) {
@@ -62,22 +79,21 @@ const Proyectos = () => {
     }
   }, [errorProyectos]);
 
-if (loadingProyectos)
-  return (
-    <div>
-      <h1 className="text-3xl font-extrabold">Cargando...</h1>
-      <ReactLoading type="bars" color="#11172d" height={467} width={175} />
-    </div>
-  );
+  if (loadingProyectos)
+    return (
+      <div>
+        <h1 className="text-3xl font-extrabold">Cargando...</h1>
+        <ReactLoading type="bars" color="#11172d" height={467} width={175} />
+      </div>
+    );
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-start p-8">
       <div>
         <h2 className="text-3xl pt-12 pb-8 font-extrabold">
           Administración de Proyectos
-          {userData.rol}
         </h2>
-        {/* <PrivateComponent roleList={["LIDER"]}> */}
+        <PrivateComponent roleList={["LIDER"]}>
           <button
             onClick={() => {
               setMostrarTabla(!mostrarTabla);
@@ -86,151 +102,286 @@ if (loadingProyectos)
           >
             {textoBoton}
           </button>
-        {/* </PrivateComponent> */}
+        </PrivateComponent>
       </div>
       {mostrarTabla ? (
         <TablaProyectos
           listaProyectos={proyectos}
           setEjecutarConsulta={setEjecutarConsulta}
+          datosUsuario={userData}
         />
       ) : (
         <FormularioCreacionProyectos
           setMostrarTabla={setMostrarTabla}
           listaProyectos={proyectos}
           setProyectos={setProyectos}
+          lidera={userData.nombre +" "+userData.apellido}
         />
       )}
       <ToastContainer position="bottom-center" autoClose={3000} />
     </div>
   );
-  };
+};
 
- //==================================TABLA PROYECTOS================================== 
-const TablaProyectos = ({ listaProyectos, setEjecutarConsulta }) => {
-  const [busqueda, setBusqueda] = useState('');
+//==================================TABLA PROYECTOS==================================
+const TablaProyectos = ({
+  listaProyectos,
+  setEjecutarConsulta,
+  datosUsuario,
+}) => {
+  const [busqueda, setBusqueda] = useState("");
   const [proyectosFiltrados, setProyectosFiltrados] = useState(listaProyectos);
-  const {data:dataProyectos} = useQuery (obtenerProyectos);
+  const { data: dataProyectos } = useQuery(obtenerProyectos);
 
-return (
-  <div>
-    {/* TABLA PROYECTOS */}
-    <body class="antialiased font-sans bg-white">
-      <div class="container mx-auto px-4 sm:px-8">
-        <div class="py-8">
-          {/* BUSCADOR */}
-          <div class="my-2 mx-2 flex sm:flex-row flex-col">
-            <div class="block relative">
-              <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
-                <svg
-                  viewBox="0 0 24 24"
-                  class="h-4 w-4 fill-current text-gray-500"
-                >
-                  <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
-                </svg>
-              </span>
-              <input
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar"
-                class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
-              />
+  return (
+    <div>
+      {/* TABLA PROYECTOS */}
+      <body className="antialiased font-sans bg-white">
+        <div className="container mx-auto px-4 sm:px-8">
+          <div className="py-8">
+            {/* BUSCADOR */}
+            <div className="my-2 mx-2 flex sm:flex-row flex-col">
+              <div className="block relative">
+                <span className="h-full absolute inset-y-0 left-0 flex items-center pl-2">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 fill-current text-gray-500"
+                  >
+                    <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
+                  </svg>
+                </span>
+                <input
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  placeholder="Buscar"
+                  className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* HEADERS TABLA */}
-          <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-            <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
-              <table class="min-w-full leading-normal">
-                <thead>
-                  <tr>
-                    <th hidden class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-20">
-                      <i class="fas fa-passport"></i>
-                    </th>
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                      Proyecto
-                    </th>
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                      Presupuesto
-                    </th>
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                      Inicio
-                    </th>
+            {/* HEADERS TABLA */}
+            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+              <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                <table className="min-w-full leading-normal">
+                  <thead>
+                    <tr>
+                      <th
+                        hidden
+                        className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-20"
+                      >
+                        <i className="fas fa-passport"></i>
+                      </th>
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                        Proyecto
+                      </th>
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                        Presupuesto
+                      </th>
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                        Inicio
+                      </th>
 
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                      Fin
-                    </th>
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                        Fin
+                      </th>
 
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                      Líder
-                    </th>
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                        Líder
+                      </th>
 
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                      Fase
-                    </th>
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                        Fase
+                      </th>
 
-                    <th class="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                      Estado
-                    </th>
+                      <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                        Estado
+                      </th>
 
-                    <th class="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
+                      <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
 
-                {/* ARRAY TABLA */}
-                <tbody>
-                  {/* {proyectosFiltrado.Proyectos.map((proyecto) => {
+                  {/* ARRAY TABLA */}
+                  <tbody>
+                    {/* {proyectosFiltrado.Proyectos.map((proyecto) => {
                     return <FilaProyectos 
                       key={nanoid()} 
                       proyecto={proyecto}
                       setEjecutarConsulta={setEjecutarConsulta}/>;
                     })} */}
 
-                  {dataProyectos &&
-                    dataProyectos.Proyectos.map((proyecto) => {
-                      return (
-                        <FilaProyectos key={proyecto._id} proyecto={proyecto} />
-                      );
-                    })}
-                </tbody>
-              </table>
+                    {dataProyectos &&
+                      dataProyectos.Proyectos.map((proyecto) => {
+                        return (
+                          <FilaProyectos
+                            key={proyecto._id}
+                            proyecto={proyecto}
+                            usuario={datosUsuario._id}
+                          />
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </body>
-  </div>
-);
+      </body>
+    </div>
+  );
 };
 
- //==================================FILA PROYECTOS================================== 
-const FilaProyectos = ({proyecto,setEjecutarConsulta})  => {
-  const [openDialog, setOpenDialog] = useState(false);
+//==================================FILA PROYECTOS==================================
+const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
   const [edit, setEdit] = useState(false);
-  const { _id } = useParams();
+  const [openDialogEditar, setOpenDialogEditar] = useState(false);
+  const [openDialogEliminar, setOpenDialogEliminar] = useState(false);
+  const [openDialogAprobarProyecto, setOpenDialogAprobarProyecto] =
+    useState(false);
+  const [openDialogInscribirse, setOpenDialogInscribirse] = useState(false);
+
+  //const { _id } = useParams();
   const [infoNuevoProyecto, setInfoNuevoProyecto] = useState({
     _id: proyecto._id,
     nombre: proyecto.nombre,
     presupuesto: proyecto.presupuesto,
     fechaInicio: proyecto.fechaInicio,
     fechaFin: proyecto.fechaFin,
-    //lider: proyecto.lider,
-    fase: proyecto.fase,
     estado: proyecto.estado,
+    fase: proyecto.fase,
+    lider: proyecto.lider,
+    objetivos: proyecto.objetivos,
   });
 
-  const [deleteProyecto, { data: mutationDataDelete, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarProyecto);
+  const [
+    deleteProyecto,
+    {
+      data: mutationDataDelete,
+      loading: mutationLoadingDelete,
+      error: mutationErrorDelete,
+    },
+  ] = useMutation(eliminarProyecto);
 
   const eliminarElProyecto = () => {
     deleteProyecto({
-      variables: { "_id": infoNuevoProyecto._id }
+      variables: { _id: infoNuevoProyecto._id },
     });
-    console.log("id", infoNuevoProyecto._id)
-    if(mutationErrorDelete){toast.error('Proyecto no se pudo eliminar')} else {toast.success('Proyecto eliminado con éxito')}
-    setOpenDialog(false);
-  }
-      
+    console.log("id", infoNuevoProyecto._id);
+    if (mutationErrorDelete) {
+      toast.error("Proyecto no se pudo eliminar");
+    } else {
+      toast.success("Proyecto eliminado con éxito");
+    }
+    setOpenDialogEliminar(false);
+  };
+
+  const [
+    editProyecto,
+    {
+      data: mutationDataEdit,
+      loading: mutationLoadingEdit,
+      error: mutationErrorEdit,
+    },
+  ] = useMutation(editarProyecto);
+
+  //EDITAR ESTADO
+  const editarEstadoProyecto = () => {
+    let lidera = infoNuevoProyecto.lider._id;
+    //delete infoNuevoProyecto.lider
+    let estadito;
+    if (proyecto.estado == "ACTIVO") {
+      console.log("Estamos en inactivar proyecto", infoNuevoProyecto);
+      estadito = "INACTIVO";
+    } else {
+      console.log("Estamos en activar proyecto", infoNuevoProyecto);
+      estadito = "ACTIVO";
+    }
+
+    editProyecto({
+      //variables: { ...infoNuevoProyecto, lidera}
+      variables: {
+        _id: infoNuevoProyecto._id,
+        nombre: infoNuevoProyecto.nombre,
+        fechaInicio: infoNuevoProyecto.fechaInicio,
+        fechaFin: infoNuevoProyecto.fechaFin,
+        lider: lidera,
+        presupuesto: infoNuevoProyecto.presupuesto,
+        fase: infoNuevoProyecto.fase,
+        estado: estadito,
+      },
+    });
+
+    if (mutationErrorEdit) {
+      toast.error("Proyecto no se pudo editar");
+      console.log("error,", mutationErrorEdit);
+    } else {
+      toast.success("Proyecto editado con éxito");
+    }
+    setOpenDialogAprobarProyecto(false);
+  };
+
+  //EDITAR FASE
+  const editarFaseProyecto = () => {
+    console.log("Estamos en cambio de fase del proyecto", infoNuevoProyecto);
+    let lidera = infoNuevoProyecto.lider._id;
+    let estadito;
+    if (proyecto.fase == "TERMINADO") {
+      estadito = "INACTIVO";
+    } else {
+      estadito = infoNuevoProyecto.estado;
+    }
+    editProyecto({
+      //variables: { ...infoNuevoProyecto}
+      variables: {
+        _id: infoNuevoProyecto._id,
+        nombre: infoNuevoProyecto.nombre,
+        fechaInicio: infoNuevoProyecto.fechaInicio,
+        fechaFin: infoNuevoProyecto.fechaFin,
+        lider: lidera,
+        presupuesto: infoNuevoProyecto.presupuesto,
+        fase: infoNuevoProyecto.fase,
+        estado: estadito,
+      },
+    });
+
+    if (mutationErrorEdit) {
+      toast.error("Proyecto no se pudo editar");
+      console.log("error,", mutationErrorEdit);
+    } else {
+      toast.success("Proyecto editado con éxito");
+    }
+    setOpenDialogAprobarProyecto(false);
+  };
+
+  //CREAR INSCRIPCION
+  const [
+    inscribirProyecto,
+    {
+      data: mutationDataInscripcion,
+      loading: mutationLoadingInscripcion,
+      error: mutationErrorInscripcion,
+    },
+  ] = useMutation(crearInscripcion);
+
+  const inscribirseEnProyecto = () => {
+    inscribirProyecto({
+      variables: {
+        proyecto: infoNuevoProyecto._id,
+        estudiante: usuario,
+        estado: "PENDIENTE",
+      },
+    });
+    console.log("id", infoNuevoProyecto._id);
+    if (mutationErrorInscripcion) {
+      toast.error("No se pudo enviar la inscripción");
+    } else {
+      toast.success("Inscripción enviada");
+    }
+    setOpenDialogInscribirse(false);
+  };
+
   return (
     <tr>
       <td
@@ -255,13 +406,38 @@ const FilaProyectos = ({proyecto,setEjecutarConsulta})  => {
         {proyecto.lider.nombre} {proyecto.lider.apellido}
       </td>
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
-        {proyecto.fase}
+        {edit ? (
+          <select
+            className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
+            name="rol"
+            required={true} 
+
+            onChange={(e) =>
+              setInfoNuevoProyecto({
+                ...infoNuevoProyecto,
+                fase: e.target.value,
+              })
+            }
+            defaultValue={infoNuevoProyecto.fase}
+          >
+            <option disabled value={0}>
+              Seleccione fase
+            </option>
+            <option value="INICIADO">Iniciado</option>
+            <option value="DESARROLLO">Desarrollo</option>
+            <option value="TERMINADO">Terminado</option>
+            <option value="NULO">Nulo</option>
+          </select>
+        ) : (
+          proyecto.fase
+        )}
       </td>
       <td
         className={
           proyecto.estado === "ACTIVO"
             ? "relative inline-block m-4 px-5 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
-            : "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+            : proyecto.fase!="TERMINADO" ? "relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full" :
+            "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
         }
       >
         {proyecto.estado}
@@ -269,24 +445,139 @@ const FilaProyectos = ({proyecto,setEjecutarConsulta})  => {
 
       <td>
         <div className="flex w-24 justify-around text-gray-800 ">
-          <Link to={`/admin/viedProyectos/${proyecto._id}`} title="Ver mas detalles">
-            <i className="fa fa-eye hover:text-blue-600"></i>
-          </Link>
+          {edit ? (
+            <>
+              <button
+                type="button"
+                title="Editar"
+                onClick={() => {
+                  setEdit(!edit);
+                  editarFaseProyecto();
+                }}
+              >
+                <i className="fas fa-check hover:text-green-600"></i>
+              </button>
+              <button
+                type="button"
+                title="Cancelar"
+                onClick={() => {
+                  setEdit(!edit);
+                }}
+              >
+                <i className="fas fa-ban hover:text-red-700"></i>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to={`/admin/viedProyectos/${proyecto._id}`}
+                title="Ver mas detalles"
+              >
+                <i className="fa fa-eye hover:text-blue-600"></i>
+              </Link>
+              <PrivateComponent roleList={["ADMINISTRADOR"]}>
+                {proyecto.fase != "TERMINADO" ? (
+                  <button
+                    type="button"
+                    title="Editar"
+                    onClick={() => setEdit(!edit)}
+                  >
+                    <i className="fas fa-edit hover:text-yellow-600"></i>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    title="Inactivar proyecto"
+                    onClick={() => setOpenDialogEditar(true)}
+                  >
+                    <i className="fas fa-edit hover:text-red-600"></i>
+                  </button>
+                )}
 
-          <button
-            type="button"
-            title="Eliminar"
-            onClick={() => setOpenDialog(true)}
-          >
-            <i className="fas fa-trash-alt hover:text-red-700"></i>
-          </button>
+                {proyecto.fase != "TERMINADO" ? (
+                  proyecto.estado != "ACTIVO" ? (
+                    <button
+                      type="button"
+                      title="Activar proyecto"
+                      onClick={() => setOpenDialogAprobarProyecto(true)}
+                    >
+                      <i className="fas fa-thumbs-up hover:text-green-700"></i>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      title="Inactivar proyecto"
+                      onClick={() => setOpenDialogAprobarProyecto(true)}
+                    >
+                      <i className="fas fa-thumbs-down hover:text-red-700"></i>
+                    </button>
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    title="Activar proyecto"
+                    onClick={() => setOpenDialogAprobarProyecto(true)}
+                  >
+                    <i className="fas fa-thumbs-up hover:text-red-700"></i>
+                  </button>
+                )}
+              </PrivateComponent>
+              <PrivateComponent roleList={["ESTUDIANTE"]}>
+                {proyecto.estado === "ACTIVO" &&
+                proyecto.fase != "TERMINADO" ? (
+                  <button
+                    type="button"
+                    title="Inscribirse"
+                    onClick={() => setOpenDialogInscribirse(true)}
+                  >
+                    <i className="fas fa-folder-plus hover:text-green-700"></i>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    title="Inscribirse"
+                    onClick={() => setOpenDialogInscribirse(true)}
+                  >
+                    <i className="fas fa-folder-plus hover:text-red-700"></i>
+                  </button>
+                )}
+              </PrivateComponent>
+              <PrivateComponent roleList={["LIDER"]}>
+                <button
+                  type="button"
+                  title="Eliminar"
+                  onClick={() => setOpenDialogEliminar(true)}
+                >
+                  <i className="fas fa-trash-alt hover:text-red-700"></i>
+                </button>
+              </PrivateComponent>
+            </>
+          )}
         </div>
-        <Dialog open={openDialog}>
+        <Dialog open={openDialogEditar}>
+          <div className="p-8 flex flex-col">
+            <h1 className="text-gray-900 text-2xl font-bold">
+              El proyecto "{proyecto.nombre}"{" "}
+              <span className="text-red-600">no puede ser editado.</span>
+            </h1>
+            <div className="flex w-full items-center justify-center my-4">
+              <button
+                onClick={() => setOpenDialogEditar(false)}
+                className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </Dialog>
+        <Dialog open={openDialogEliminar}>
           <div className="p-8 flex flex-col">
             {proyecto.fase != "TERMINADO" ? (
               <>
                 <h1 className="text-gray-900 text-2xl font-bold">
-                  ¿Está seguro de querer eliminar el proyecto "{proyecto.nombre}
+                  ¿Está seguro de querer{" "}
+                  <span className="text-red-600">eliminar</span> el proyecto "
+                  {proyecto.nombre}
                   "?
                 </h1>
                 <div className="flex w-full items-center justify-center my-4">
@@ -297,7 +588,7 @@ const FilaProyectos = ({proyecto,setEjecutarConsulta})  => {
                     Sí
                   </button>
                   <button
-                    onClick={() => setOpenDialog(false)}
+                    onClick={() => setOpenDialogEliminar(false)}
                     className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
                   >
                     No
@@ -307,11 +598,12 @@ const FilaProyectos = ({proyecto,setEjecutarConsulta})  => {
             ) : (
               <>
                 <h1 className="text-gray-900 text-2xl font-bold">
-                  El proyecto "{proyecto.nombre}" no puede ser eliminado.
+                  El proyecto "{proyecto.nombre}"{" "}
+                  <span className="text-red-600">no puede ser eliminado.</span>
                 </h1>
                 <div className="flex w-full items-center justify-center my-4">
                   <button
-                    onClick={() => setOpenDialog(false)}
+                    onClick={() => setOpenDialogEliminar(false)}
                     className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
                   >
                     Cerrar
@@ -321,210 +613,352 @@ const FilaProyectos = ({proyecto,setEjecutarConsulta})  => {
             )}
           </div>
         </Dialog>
+        <Dialog open={openDialogAprobarProyecto}>
+          <div className="p-8 flex flex-col">
+            <>
+              {proyecto.fase != "TERMINADO" ? (
+                proyecto.estado == "ACTIVO" ? (
+                  <h1 className="text-gray-900 text-2xl font-bold">
+                    Está seguro de querer{" "}
+                    <span className="text-red-600">inactivar</span> el proyecto
+                    "{proyecto.nombre}"
+                  </h1>
+                ) : (
+                  <h1 className="text-gray-900 text-2xl font-bold">
+                    Está seguro de querer{" "}
+                    <span className="text-green-600">activar</span> el proyecto
+                    "{proyecto.nombre}"
+                  </h1>
+                )
+              ) : (
+                <h1 className="text-gray-900 text-2xl font-bold">
+                  <span className="text-red-600">No se puede activar</span> el
+                  proyecto "{proyecto.nombre}"
+                </h1>
+              )}
+
+              <div className="flex w-full items-center justify-center my-4">
+                {proyecto.fase != "TERMINADO" && (
+                  <button
+                    onClick={() => {
+                      editarEstadoProyecto();
+                    }}
+                    className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
+                  >
+                    Sí
+                  </button>
+                )}
+                <button
+                  onClick={() => setOpenDialogAprobarProyecto(false)}
+                  className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                >
+                  {proyecto.fase != "TERMINADO" ? "No" : "Cerrar"}
+                </button>
+              </div>
+            </>
+          </div>
+        </Dialog>
+        <Dialog open={openDialogInscribirse}>
+          <div className="p-8 flex flex-col">
+            <>
+              {proyecto.estado != "INACTIVO" ? (
+                <h1 className="text-gray-900 text-2xl font-bold">
+                  ¿Está seguro de querer{" "}
+                  <span className="text-green-600">inscribirse</span> en el
+                  proyecto "{proyecto.nombre}"?
+                </h1>
+              ) : (
+                <h1 className="text-gray-900 text-2xl font-bold">
+                  El proyecto "{proyecto.nombre}"
+                  <span className="text-red-600"> no acepta inscripciones</span>{" "}
+                  en este momento
+                </h1>
+              )}
+
+              <div className="flex w-full items-center justify-center my-4">
+                {proyecto.estado != "INACTIVO" && proyecto.fase != "TERMINADO" && (
+                  <button
+                    onClick={() => inscribirseEnProyecto()}
+                    className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
+                  >
+                    Sí
+                  </button>
+                )}
+                <button
+                  onClick={() => setOpenDialogInscribirse(false)}
+                  className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                >
+                  {proyecto.estado != "INACTIVO" && proyecto.fase != "TERMINADO"
+                    ? "No"
+                    : "Cerrar"}
+                </button>
+              </div>
+            </>
+          </div>
+        </Dialog>
       </td>
     </tr>
   );
 };
 
- //==================================FORMULARIO================================== 
-const FormularioCreacionProyectos = ({ setMostrarTabla, listaProyectos, setProyectos }) => {
-  const form = useRef(null);
-  const {loading: loadLideres, data: dataLideres, error: errorLideres } = useQuery(obtenerUsuariosPorRol, {variables: { "rol": "LIDER"}});
+//==================================FORMULARIO==================================
+const FormularioCreacionProyectos = ({
+  setMostrarTabla,
+  lidera
+}) => {
+  const { userData } = useUser();
+  // const form = useRef(null);
+  const { form, formData, updateFormData } = useFormData();
 
-  const submitForm = async (e) => {
-    e.preventDefault();
-    const fd = new FormData(form.current);
+  //los lideres
+  const {
+    loading: loadLideres,
+    data: dataLideres,
+    error: errorLideres,
+  } = useQuery(obtenerUsuariosPorFiltro, {
+    variables: {
+      filtro: { rol: 'LIDER', estado: 'AUTORIZADO' },
+    },
+  });
 
-    const nuevoProyecto = {};
+  //no se esta usando
+  useEffect(() => {
+    console.log(dataLideres);
+    if (dataLideres) {
+      const lu = {};
+      dataLideres.Usuarios.forEach((elemento) => {
+        lu[elemento._id] = elemento.correo;
+      });
+      //setListaUsuarios(lu);
+    }
+  }, [dataLideres]);
+
+const [createProyecto, { data: mutationDataCreate, loading: mutationLoadingCreate, error: mutationErrorCreate }] =
+useMutation(crearProyecto);
+
+const submitForm = (e) => {
+  e.preventDefault();
+var contObjetivos=0;
+var Objetivos = []
+const fd = new FormData(form.current);
+fd.delete("objetivoEspecífico");
+  const nuevoProyecto = {};
     fd.forEach((value, key) => {
-      nuevoProyecto[key] = value;
-    });
-
-    await crearProyecto(
+      if(key.includes("objetivoGeneral"))
       {
-        nombre: nuevoProyecto.nombre,
-        objetivosGenerales: nuevoProyecto.objetivosGenerales,
-        objetivosEspecificos: nuevoProyecto.objetivosEspecificos,
-        presupuesto: nuevoProyecto.presupuesto,
-        fechaInicio: nuevoProyecto.fechaInicio,
-        fechaFin: nuevoProyecto.fechaFin,
-        lider: nuevoProyecto.lider,
-        fase: nuevoProyecto.fase,
-        estado: nuevoProyecto.estado,
-      },
-      (response) => {
-        console.log(response.data);
-        toast.success('Proyecto Creado Exitosamente');
-        setMostrarTabla(true);
-      },
-      (error) => {
-        console.error(error);
-        toast.error('Error Creando Proyecto');
+        Objetivos[contObjetivos]={"tipo":"GENERAL","descripcion":value};
+        contObjetivos++;
       }
-    );
-    setMostrarTabla(true);
-  };
+      else 
+      {
+        if(key.includes("ObjetivoEspecifico_"))
+            {
+              Objetivos[contObjetivos]={"tipo":"ESPECIFICO","descripcion":value};
+              contObjetivos++;
+            }
+            else{
+              nuevoProyecto[key] = value;
+            }
+            nuevoProyecto[key] = value;
+      }
+    });
     
+  if(Objetivos.length>1)
+  {
+    createProyecto({
+        variables: {
+          nombre: nuevoProyecto.nombre,
+          presupuesto: parseFloat(nuevoProyecto.presupuesto),
+          fechaInicio: nuevoProyecto.fechaInicio,
+          fechaFin: nuevoProyecto.fechaFin,
+          estado: "INACTIVO",
+          fase: "NULO",
+          lider: userData._id,
+          objetivos: Object.values(Objetivos),
+        },
+      });
+  }
+  else
+  {
+    toast.error("El proyecto no fue creado, posible causa los objetivos especificos");
+  }
+};
+
+useEffect(() => {
+  console.log('Mutación creacion', mutationDataCreate);
+  if (mutationDataCreate) {
+    toast.success("El proyecto fue creado");
+    setMostrarTabla(true);
+  }
+},[mutationDataCreate]);
+
+
+if (loadLideres) return <div>...Construyendo formulario</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="container mx-auto items-center justify-center">
       <h2 className="text-2xl font-extrabold pb-4 text-gray-800">
         Nuevo Proyecto
       </h2>
-      <form class="w-full max-w-lg" ref={form} onSubmit={submitForm}>
-        <div class="flex flex-wrap -mx-3 mb-6">
-          <div class="w-full px-3">
+      <form ref={form} onSubmit={submitForm}>
+        <div
+          className="flex flex-wrap -mx-3 mt-4"
+          style={{ backgroundColor: "#212D5B" }}
+        >
+          <div className="w-full px-3">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
               for="grid-password"
+              style={{ backgroundColor: "#212D5B" }}
             >
               Nombre del Proyecto
             </label>
             <input
-              class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              name="proyecto"
-              id="proyecto"
+              className="appearance-none block w-full bg-gray-200 text-black border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              name="nombre"
               type="text"
               placeholder="Escribe aquí el Nombre del Proyecto"
-              required
-            />
-          </div>
-        </div>
-        <div className="flex-row text-center text-gray-700 text-xs font-bold mb-2">OBJETIVOS</div>
-        <div class="flex flex-wrap -mx-3 mb-6">
-          <div class="w-full px-3">
-            <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-first-name"
-            >
-              Objetivo General
-            </label>
-            <textarea
-              class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-              name="objetivoGeneral"
-              id="objetivoGeneral"
-              placeholder="Escribe aquí el Objetivo General del proyecto"
-              required
+              required={true} 
             />
           </div>
         </div>
 
-        <div class="flex flex-wrap -mx-3 mb-6">
-          <div class="w-full px-3">
-            <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-last-name"
-            >
-              Objetivos Específicos
-            </label>
-            {/* <textarea
-              class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              name="objetivosEspecíficos"
-              id="objetivosEspecíficos"
-              placeholder="Escribe aquí los Objetivos Específicos"
-              required
-            /> */}
-            <TablaObjetivos/>
+        <div className="-mx-3 mt-4 mb-2" style={{ backgroundColor: "#212D5B" }}>
+          <p
+            className="flex-row uppercase text-center text-white font-bold pt-2 pb-2 mt-2 "
+            style={{ backgroundColor: "#212D5B" }}
+          >
+            OBJETIVOS
+          </p>
+          <div className="flex flex-wrap -mx-3 pl-5 pr-5 pt-1 mb-2">
+            <div className="w-full bg-white px-3">
+              <label className="block uppercase tracking-wide text-black font-bold pt-2 pb-2">
+                General
+              </label>
+              <textarea
+                className="appearance-none block w-full bg-gray-200 text-black border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                name="objetivoGeneral"
+                placeholder="Escribe aquí el Objetivo General del proyecto"
+                defaultValue={""}
+                required={true} 
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 pl-5 pr-5 pt-2 pb-4">
+            <div className="w-full bg-white px-3">
+              <label className="block uppercase tracking-wide text-black font-bold pt-2 pb-2">
+                Específicos
+              </label>
+              <TablaObjetivos />
+            </div>
           </div>
         </div>
 
-        <div class="flex flex-wrap -mx-3 mb-6">
-          <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+        <div
+          className="flex flex-wrap -mx-3 mt-4"
+          style={{ backgroundColor: "#212D5B" }}
+        >
+          <div className="w-full md:w-1/3 px-3 pb-4 mb-4 md:mb-0">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-city"
+              className="block uppercase tracking-wide text-center text-white font-bold mt-2 mb-2"
+              style={{ backgroundColor: "#212D5B" }}
             >
               Presupuesto
             </label>
             <input
-              class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              className="appearance-none block w-full bg-gray-200 text-black border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               name="presupuesto"
-              id="presupuesto"
               type="number"
-              min={100000}
-              max={20000000}
+              min={1}
               placeholder="Ej: 2000000"
-              requerid
+              required={true} 
             />
           </div>
-          <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+          <div className="w-full md:w-1/3 px-3 pb-4 mb-4 md:mb-0">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-state"
+              className="block uppercase tracking-wide text-center text-white font-bold mt-2 mb-2"
+              style={{ backgroundColor: "#212D5B" }}
             >
               Fecha de Inicio
             </label>
             <input
               type="date"
               name="fechaInicio"
-              id="fechaInicio"
               type="date"
-              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              requerid
+              className="block appearance-none w-full bg-gray-200 border border-red-500 text-black py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              required={true} 
             />
           </div>
-          <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+          <div className="w-full md:w-1/3 px-3 pb-4 mb-4 md:mb-0">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-zip"
+              className="block uppercase tracking-wide text-center text-white font-bold mt-2 mb-2"
+              style={{ backgroundColor: "#212D5B" }}
             >
               Fecha de Terminación
             </label>
             <input
               type="date"
               name="fechaFin"
-              id="fechaFin"
-              class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              requerid
+              className="appearance-none block w-full bg-gray-200 text-black border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              required={true} 
             />
           </div>
         </div>
 
-        <div class="flex flex-wrap -mx-3 mb-6">
-          <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+        <div className="flex flex-wrap -mx-3 mt-4 hidden" style={{ backgroundColor: "#212D5B" }} hidden>
+          <div className="w-full px-3">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              for="grid-city"
+              className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
+              style={{ backgroundColor: "#212D5B" }}
             >
               Líder del Proyecto
             </label>
-            <select
+            <span className="block appearance-none w-full bg-gray-200 border border-green-500 text-black py-3 px-4 pr-8 mb-3 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+              {lidera}
+            </span>
+            {/* <select
               name="lider"
-              id="lider"
-              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              className="block appearance-none w-full bg-gray-200 border border-gray-200 text-black py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               defaultValue=""
-              requerid
+               required={true} 
             >
               <option disabled value="">
                 Seleccione un lider
               </option>
-              {/* vendedores.filter((ventor) => ventor._id === datosFormulario.vendedor)[0] */}
-              {/* dataLideres.UsuariosPorRol.map((el) */}
               {dataLideres &&
-                dataLideres.UsuariosPorRol.map((el) => {
-                  if(el.estado==="AUTORIZADO")
-                  return (
-                    <option
-                      key={nanoid()}
-                      value={el._id}
-                    >{`${el.nombre} ${el.apellido}`}</option>
-                  );
+                dataLideres.Usuarios.map((el) => {
+                  if (el.estado === "AUTORIZADO")
+                    return (
+                      <option
+                        key={nanoid()}
+                        value={el._id}
+                      >{`${el.nombre} ${el.apellido}`}</option>
+                    );
                 })}
-            </select>
+            </select> */}
           </div>
-          <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+        </div>
+
+        <div
+          className="flex flex-wrap -mx-3 mt-4 mb-6 hidden"
+          style={{ backgroundColor: "#212D5B" }}
+          hidden
+        >
+          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
               for="grid-zip"
             >
               Fase del proyecto
             </label>
-            <select
+            <span className="block appearance-none w-full bg-gray-200 border border-green-500 text-black mb-3 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+              {"NULO"}
+            </span>
+            {/* <select
               name="fase"
-              id="fase"
-              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              className="block appearance-none w-full bg-gray-200 border border-red-500 text-black py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               defaultValue={0}
-              requerid
+               required={true} 
             >
               <option disabled value={0}>
                 Seleccione Una Opción
@@ -532,43 +966,39 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, listaProyectos, setProye
               <option>Iniciado</option>
               <option>En Desarrollo</option>
               <option>Terminado</option>
-            </select>
+            </select> */}
           </div>
-          <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
             <label
-              class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
               for="grid-zip"
             >
               Estado del Proyecto
             </label>
-            <select
+            <span className="block appearance-none w-full bg-gray-200 border border-green-500 text-black mb-3 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+              {"INACTIVO"}
+            </span>
+            {/* <select
               name="estado"
-              id="estado"
-              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              className="block appearance-none w-full bg-gray-200 border border-red-500 text-black py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               defaultValue={0}
-              requerid
+               required={true} 
             >
               <option disabled value={0}>
                 Seleccione Una Opción
               </option>
               <option>Activo</option>
               <option>Inactivo</option>
-            </select>
+            </select> */}
           </div>
         </div>
 
-        {/* <button
-          type='submit'
-          className='col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-600'
-        >
-          Crear Proyecto
-        </button> */}
-        <div class="md:flex md:items-center mb-8">
-          <div class="md:w-1/3"></div>
-          <div class="md:w-2/3">
+        <div className="md:flex md:items-center mt-8 mb-8">
+          <div className="md:w-1/3"></div>
+          <div className="md:w-2/3">
             <button
               type="submit"
-              class="col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-600"
+              className="col-span-2 py-3 fondo1 font-bold text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-600"
             >
               Crear Proyecto
             </button>
@@ -579,86 +1009,136 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, listaProyectos, setProye
   );
 };
 
-//==================================TABLA OBJETIVOS ESPECIFICOS================================== 
-const TablaObjetivos = ({ objEspecificos, setObjEspecificos,setObjEspecificosTabla}) => {
-  const [objEspecificosAAgregar, setObjEspecificosAAgregar] = useState({});
+//==================================TABLA OBJETIVOS ESPECIFICOS==================================
+const TablaObjetivos = ({
+  setObjEspecificosTabla,
+}) => {
   const [filasTabla, setFilasTabla] = useState([]);
 
-  useEffect(() => {
-    // setObjEspecificosTabla(filasTabla)
-    setObjEspecificosTabla={filasTabla}
-  }, [filasTabla, setObjEspecificosTabla]);
-
-  const agregarNuevoObjEspecificos = () => {
-    if (JSON.stringify(objEspecificosAAgregar).length <= 2) { console.log("No se ha seleccionado objEspecificos") }
-    if (JSON.stringify(objEspecificosAAgregar).length>2) {
-      setFilasTabla([...filasTabla, objEspecificosAAgregar]);
-      //setObjEspecificos(objEspecificos.filter((v) => v._id !== objEspecificosAAgregar._id));//si se desea eliminar el objEspecificos del select
-      setObjEspecificosAAgregar({});
-     }
+  const agregarNuevoObjEspecificos = (objetivo) => {
+      setFilasTabla([...filasTabla, objetivo]);
+      console.log("Tabla Objetivos Especificos",filasTabla)
   };
 
   const eliminarObjEspecificos = (objEspecificosAEliminar) => {
-    setFilasTabla(filasTabla.filter((v) => v._id !== objEspecificosAEliminar._id));
+    setFilasTabla(
+      filasTabla.filter((v) => v._id !== objEspecificosAEliminar._id)
+    );
     //setObjEspecificos([...objEspecificos, objEspecificosAEliminar]); //si se esta utilizando elminiar el objEspecificos del select
   };
 
-  const modificarObjEspecificos = (objEspecificos, cantidad) => {
+  const modificarObjEspecificos = (objEspecificos, descripcion) => {
     setFilasTabla(
       filasTabla.map((ft) => {
         if (ft._id === objEspecificos.id) {
-          ft.cantidad = cantidad;
-          ft.total = objEspecificos.precio * cantidad;
+          ft.descripcion = descripcion;
         }
         return ft;
       })
     );
   };
 
+  const FilaObjetivos = ({ obj, index, eliminarObjetivo, modificarObjetivo }) => {
+    const [objetivo, setObjetivo] = useState(obj);
+    useEffect(() => {
+      console.log('Fila objetivo ...objetivo', objetivo);
+    }, [objetivo]);
+
+    return (
+      <tr className="flex items-center" style={{borderBottom:"1px solid #212D5B",justifyContent: "center"}}>{/*py-2*/}
+        <td hiddden>{index + 1}</td>      
+        <td>
+          <label htmlFor={`descripcion_${index}`}>
+          </label>
+          <textarea
+              type="text"
+              id={`ObjetivoEspecifico_${index}`}
+              name={`ObjetivoEspecifico_${index}`}
+              rows="2"
+              cols="125"
+              className="w-full pl-2 pr-2"
+              style={{justifyContent: "center"}}
+              defaultValue={objetivo.descripcion}
+              onChange={(e) => {
+                modificarObjetivo(objetivo, e.target.value);
+                setObjetivo({
+                  ...objetivo,
+                  descripcion: e.target.value,
+                });
+              }}
+            />
+        </td>
+        <td hidden>{objetivo.tipo}</td>
+        <td className="text-center">
+          <i
+            onClick={() => eliminarObjetivo(objetivo)}
+            className='fas fa-trash-alt text-red-500 cursor-pointer'
+          />
+        </td>
+        <td className='hidden'>
+          <input defaultValue={objetivo._id} name={`Objetivo_${index}`} />
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <div>
-      <div class="">
-        <div className="flex flex-col">
-          <div class="flex flex-col">
-            <label hidden className="form-label hidden">ObjEspecificos</label>
-            <textarea
-              class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              name="objetivosEspecíficos"
-              id="objetivosEspecíficos"
-              placeholder="Escribe aquí los Objetivos Específicos"
-              required
-            />
-          </div>
-          <button name="addObjetivo" type="button"
-            onClick={() => agregarNuevoObjEspecificos()}
-            className="col-span-2 bg-green-400 p-2 rounded-full shadow-md hover:bg-green-600 text-white">
-            <i className="fas fa-plus-circle"></i>
-          </button>
-        </div>
+      <div className="flex items-center py-2">
+        <textarea
+          className="appearance-none block w-full bg-gray-200 text-black border border-red-500 rounded py-3 mr-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+          name="objetivoEspecífico"
+          cols={60}
+          id="objetivoEspecífico"
+          placeholder="Escribe aquí los Objetivos Específicos"
+          defaultValue={""}
+        />
+        <button
+          name="addObjetivo"
+          type="button"
+          onClick={() => {
+            if (document.getElementById("objetivoEspecífico").value && (document.getElementById("objetivoEspecífico").value).length>5) {
+              console.log(document.getElementById("objetivoEspecífico").value);
+              var myObjetivo = {
+                descripcion:
+                  document.getElementById("objetivoEspecífico").value,
+                tipo: "ESPECIFICO",
+                _id: nanoid(),
+              };
+              agregarNuevoObjEspecificos(myObjetivo);
+              document.getElementById("objetivoEspecífico").value="";
+            }
+          }}
+          className={`col-span-2 bg-green-400 p-2 rounded-full shadow-md hover:bg-green-600 text-white`}
+        >
+          <i className="fas fa-plus-circle"></i>
+        </button>
       </div>
 
-
-      <table className='table'>
+      <table className="table mb-2">
         <thead>
           <tr>
-            <th hidden>Id</th>
-            <th>Descripción</th>
-            <th>Eliminar</th>
-            <th hidden className='hidden'>Input</th>
+            <th></th>
+            <th></th>
+            <th hidden>Tipo</th>
+            <th></th>
+            <th hidden className="hidden">
+              Input
+            </th>
           </tr>
         </thead>
         <tbody>
-          {/* {filasTabla.map((el, index) => {
+          {filasTabla.map((el, index) => {
             return (
-              <FilaObjEspecificos
+              <FilaObjetivos
                 key={el._id}
-                veh={el}
+                obj={el}
                 index={index}
-                eliminarObjEspecificos={eliminarObjEspecificos}
-                modificarObjEspecificos={modificarObjEspecificos}
+                eliminarObjetivo={eliminarObjEspecificos}
+                modificarObjetivo={modificarObjEspecificos}
               />
             );
-          })} */}
+          })}
         </tbody>
       </table>
     </div>
