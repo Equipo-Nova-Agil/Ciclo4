@@ -6,7 +6,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { obtenerProyecto } from "graphql/Proyectos/Queries";
 import { editarProyecto } from "graphql/Proyectos/Mutations";
 import { Enum_EstadoProyecto, Enum_FaseProyecto } from "utils/enum";
-import { obtenerUsuariosPorRol } from "graphql/Usuarios/Queries";
+import { obtenerUsuariosPorFiltro } from "graphql/Usuarios/Queries";
 import { obtenerAvancesPorProyecto } from "graphql/Avances/Queries";
 import { obtenerIncripcionesPorProyecto } from "graphql/Incripciones/Queries";
 
@@ -20,27 +20,33 @@ import { Dialog } from "@mui/material";
 import DropDown from "componets/Dropdown";
 import PrivateComponent from "componets/PrivateComponent";
 
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import { styled } from "@mui/material/styles";
-import Typography from "@mui/material/Typography";
+// import Accordion from "@mui/material/Accordion";
+// import AccordionSummary from "@mui/material/AccordionSummary";
+// import AccordionDetails from "@mui/material/AccordionDetails";
+// import { styled } from "@mui/material/styles";
+// import Typography from "@mui/material/Typography";
 
-const AccordionStyled = styled((props) => <Accordion {...props} />)(
-  ({ theme }) => ({
-    backgroundColor: "#212D5B",
-  })
-);
-const AccordionSummaryStyled = styled((props) => (
-  <AccordionSummary {...props} />
-))(({ theme }) => ({
-  backgroundColor: "#212D5B",
-}));
-const AccordionDetailsStyled = styled((props) => (
-  <AccordionDetails {...props} />
-))(({ theme }) => ({
-  backgroundColor: "#ccc",
-}));
+import {
+  AccordionStyled,
+  AccordionSummaryStyled,
+  AccordionDetailsStyled,
+} from '../../componets/Accordion';
+
+// const AccordionStyled = styled((props) => <Accordion {...props} />)(
+//   ({ theme }) => ({
+//     backgroundColor: "#212D5B",
+//   })
+// );
+// const AccordionSummaryStyled = styled((props) => (
+//   <AccordionSummary {...props} />
+// ))(({ theme }) => ({
+//   backgroundColor: "#212D5B",
+// }));
+// const AccordionDetailsStyled = styled((props) => (
+//   <AccordionDetails {...props} />
+// ))(({ theme }) => ({
+//   backgroundColor: "#ccc",
+// }));
 
 //PANEL PRINCIPAL
 const ViewProyectos = (vistaProyecto) => {
@@ -73,7 +79,7 @@ const ViewProyectos = (vistaProyecto) => {
     loading: queryLideresLoading,
     data: queryLideres,
     error: queryLideresError,
-  } = useQuery(obtenerUsuariosPorRol, { variables: { rol: "LIDER" } });
+  } = useQuery(obtenerUsuariosPorFiltro, { filtro: { rol: "LIDER" } });
 
   //Consulta Proyecto...Proyecto
   const {
