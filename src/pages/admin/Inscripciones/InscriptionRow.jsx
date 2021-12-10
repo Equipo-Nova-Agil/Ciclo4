@@ -38,7 +38,6 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
 function InscriptionRowForm(props) {
   const { onOk, onCancel, user, onReject } = props;
   const [info, setInfo] = useState({ ...user });
-
   const handleChange = (fieldName) => (e) => {
     setInfo((currentInfo) => ({
       ...currentInfo,
@@ -54,6 +53,7 @@ function InscriptionRowForm(props) {
     aprobarInscrip({ 
       variables: { aprobarInscripcionId: info._id }
     })
+    console.log("mutationData: ",mutationData)
   };
 
   useEffect(() => {
@@ -69,6 +69,7 @@ function InscriptionRowForm(props) {
       console.log("mutationError:", mutationError)
     }
   }, [mutationError])
+
 
 
   return (
@@ -92,6 +93,7 @@ function InscriptionRowForm(props) {
           <button className="ml-5" type="button" title="Rechazar inscripción" onClick={() => onReject(info)}>
             <i className="fas fa-skull-crossbones hover:text-red-700"></i>
           </button>
+          <ToastContainer />
       </td>
       {/* <td>
         <select
