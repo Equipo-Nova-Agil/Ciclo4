@@ -5,7 +5,7 @@ const PrivateComponent = ({ roleList, children }) => {
   const { userData } = useUser();
   console.log ('userData en PrivateComponent',userData);
   
-  if (roleList.includes(userData.rol)) {
+  if (roleList.includes(userData.rol) && userData.estado==="AUTORIZADO") {
     return children;
   }
   return <></>;
