@@ -386,7 +386,7 @@ const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }
   const { form, formData, updateFormData } = useFormData();
   const {data: dataUsuarios, loading: loadingUsuarios} = useQuery (obtenerUsuarios);
   const {data: dataProyectos, loading: loadingProyectos} = useQuery (obtenerProyectos);
-  const [nuevoAvance, { data: dataMutation, loading: loadingMutation, error: errorMutation }] =useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
+  const [nuevoAvance, { data: dataMutation, loading: loadingMutation, error: errorMutation }] = useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
   
   useEffect(() => {
     if ((loadingUsuarios)||(loadingProyectos)) return <div>

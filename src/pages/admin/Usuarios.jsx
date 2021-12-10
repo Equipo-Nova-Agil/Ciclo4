@@ -166,7 +166,14 @@ const FilaUsuarios = ({usuario})  => {
     editUsuario({ 
       variables: { ...infoNuevaUsuario }
     })
-    if(mutationError){toast.error('Error Editando Usuario')} else {toast.success('Usuario Editado Exitosamente')}
+    if(mutationError){toast.error('Error Editando Usuario')} 
+    else {toast.success('Usuario Editado Exitosamente', 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    })
+  }
   }
 
   const eliminarUser = () => {
@@ -174,7 +181,14 @@ const FilaUsuarios = ({usuario})  => {
       variables: { "_id": infoNuevaUsuario._id }
     });
     console.log("id", infoNuevaUsuario._id)
-    if(mutationErrorDelete){toast.error('Error Eliminando Usuario')} else {toast.success('Usuario Eliminado Exitosamente')}
+    if(mutationErrorDelete){toast.error('Error Eliminando Usuario')} else 
+    {toast.success('Usuario Eliminado Exitosamente', 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    })
+  }
     setOpenDialog(false);
   }
       

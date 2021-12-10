@@ -34,8 +34,19 @@ query Proyectos {
     fechaFin
     estado
     fase
+    lider {
+      _id
+      nombre
+      apellido
+    }
+    objetivos {
+      tipo
+      descripcion
+    }
+    
   }
 }
-  `;
+
+`;
 
   export {obtenerProyectos};
