@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from '@apollo/client'; 
 import { aprobarInscripcion } from '../../../graphql/Incripciones/Mutations';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
 
 
 function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
