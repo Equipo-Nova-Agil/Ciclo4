@@ -65,6 +65,29 @@ query Proyecto($_id: String!) {
       descripcion
       tipo
     }
+    avances {
+      _id
+      fecha
+      descripcion
+      observaciones {
+        descripcion
+      }
+      creadoPor{
+        _id
+      }
+
+    }
+    inscripciones {
+      _id
+      estudiante {
+        _id
+        nombre
+        apellido
+      }
+      fechaIngreso
+      fechaEgreso
+      estado
+    }
   }
 }
 `;
