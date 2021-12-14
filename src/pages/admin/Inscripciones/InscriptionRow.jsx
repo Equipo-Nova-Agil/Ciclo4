@@ -53,12 +53,12 @@ function InscriptionRowForm(props) {
     aprobarInscrip({ 
       variables: { aprobarInscripcionId: info._id }
     })
-    toast.success("Se aprobó correctamente")
+    toast.success("La inscripción se aprobó correctamente")
   };
 
   useEffect(() => {
     if (mutationData){
-      toast.success("Se aprobó correctamente")
+      toast.success("La inscripción se aprobó correctamente")
     }
   }, [mutationData])
 
