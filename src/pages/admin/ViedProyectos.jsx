@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import { useParams, Link } from "react-router-dom";
+import { useUser } from "context/userContext";
 import { nanoid } from "nanoid";
 import { useQuery, useMutation } from "@apollo/client";
 import { obtenerProyecto } from "graphql/Proyectos/Queries";
@@ -15,48 +16,32 @@ import ButtonLoading from "componets/ButtonLoading";
 import ReactLoading from "react-loading";
 import useFormData from "hooks/useFormData";
 import { toast } from "react-toastify";
-import { Dialog } from "@mui/material";
+import { Dialog, getListSubheaderUtilityClass } from "@mui/material";
 
 import DropDown from "componets/Dropdown";
 import PrivateComponent from "componets/PrivateComponent";
-
-// import Accordion from "@mui/material/Accordion";
-// import AccordionSummary from "@mui/material/AccordionSummary";
-// import AccordionDetails from "@mui/material/AccordionDetails";
-// import { styled } from "@mui/material/styles";
-// import Typography from "@mui/material/Typography";
 
 import {
   AccordionStyled,
   AccordionSummaryStyled,
   AccordionDetailsStyled,
-} from '../../componets/Accordion';
-
-// const AccordionStyled = styled((props) => <Accordion {...props} />)(
-//   ({ theme }) => ({
-//     backgroundColor: "#212D5B",
-//   })
-// );
-// const AccordionSummaryStyled = styled((props) => (
-//   <AccordionSummary {...props} />
-// ))(({ theme }) => ({
-//   backgroundColor: "#212D5B",
-// }));
-// const AccordionDetailsStyled = styled((props) => (
-//   <AccordionDetails {...props} />
-// ))(({ theme }) => ({
-//   backgroundColor: "#ccc",
-// }));
+} from "../../componets/Accordion";
 
 //PANEL PRINCIPAL
 const ViewProyectos = (vistaProyecto) => {
+  const [edit, setEdit] = useState(false);
+  const { userData } = useUser();
   const { form, formData, updateFormData } = useFormData(null);
   const { _id } = useParams();
   const [activeVistaFormulario, setActiveVistaFormulario] = useState(false);
-  const [objetivosEspecificos, setObjetivosEspecificos] = useState([]);
 
-  const [tituloVentana, setTituloVentana] = useState("")
+  const [tituloVentana, setTituloVentana] = useState("");
   const [tituloBoton, setTituloBoton] = useState("Editar");
+
+  // if(userData.rol==="LIDER")
+  // {
+  //   setTituloBoton("editare")
+  // }
 
   //Avances del proyecto ...filtrarAvance
   const {
@@ -79,7 +64,11 @@ const ViewProyectos = (vistaProyecto) => {
     loading: queryLideresLoading,
     data: queryLideres,
     error: queryLideresError,
-  } = useQuery(obtenerUsuariosPorFiltro, { filtro: { rol: "LIDER" } });
+  } =  useQuery(obtenerUsuariosPorFiltro, {
+    variables: {
+      filtro: { rol: 'LIDER', estado: 'AUTORIZADO' },
+    },
+  });
 
   //Consulta Proyecto...Proyecto
   const {
@@ -132,504 +121,473 @@ const ViewProyectos = (vistaProyecto) => {
     );
   }
 
-  if (queryProyecto && queryAvances && queryInscripciones && queryLideres) {
-    //DATOS DEL PROYECTO
-    console.log("id proyecto", _id);
-    console.log("Datos del proyecto ", queryProyecto);
-    console.log("Avances del proyecto ", queryAvances);
-    console.log("Inscripciones en el proyecto ", queryInscripciones);
-  }
+  // if (queryProyecto && queryAvances && queryInscripciones && queryLideres) {
+  //   //DATOS DEL PROYECTO
+  //   console.log("id proyecto", _id);
+  //   console.log("Datos del proyecto ", queryProyecto);
+  //   console.log("Avances del proyecto ", queryAvances);
+  //   console.log("Inscripciones en el proyecto ", queryInscripciones);
+  // }
+
+  //Envio formulario
+ // const [editProyecto, { data: mutationDataEdit, loading: mutationLoadingEdit, error: mutationErrorEdit }] = useMutation(editarProyecto);
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    var contObjetivos = 0;
+    var Objetivos = [];
+    const fd = new FormData(form.current);
+    fd.delete("objetivoEspecífico");
+    const nuevosDatosProyecto = {};
+    fd.forEach((value, key) => {
+      if (key.includes("objetivoGeneral")) {
+        Objetivos[contObjetivos] = { tipo: "GENERAL", descripcion: value };
+        contObjetivos++;
+      } else {
+        if (key.includes("ObjetivoEspecifico_")) {
+          Objetivos[contObjetivos] = { tipo: "ESPECIFICO", descripcion: value };
+          contObjetivos++;
+        } else {
+          nuevosDatosProyecto[key] = value;
+        }
+        nuevosDatosProyecto[key] = value;
+      }
+    });
+
+    if (Objetivos.length > 1) {
+      // editProyecto({
+      //   variables: {
+      //     _id: queryProyecto.Proyecto._id,
+      //     nombre: nuevosDatosProyecto.nombre,
+      //     fechaInicio: queryProyecto.Proyecto.fechaInicio,
+      //     fechaFin: queryProyecto.Proyecto.fechaFin,
+      //     lider: queryProyecto.Proyecto.lider,
+      //     presupuesto: parseFloat(nuevosDatosProyecto.presupuesto),
+      //     fase: queryProyecto.Proyecto.fase,
+      //     estado: queryProyecto.Proyecto.estado,
+      //   },
+      // });
+console.log("Datos proycto",nuevosDatosProyecto)
+    } else {
+      toast.error(
+        "El proyecto no fue editado, posible causa los objetivos especificos"
+      );
+    }
+  };
+
+  // useEffect(() => {
+  //   console.log('Mutación edicion', mutationDataEdit);
+  //   if (mutationDataEdit) {
+  //     toast.success("El proyecto fue editado");
+  //     setEdit(false);
+  //     setActiveVistaFormulario(false);
+  //   }
+  // },[mutationDataEdit]);
+
+  // if (mutationErrorEdit) {
+  //   toast.error("Proyecto no se pudo editar");
+  //   console.log("error,", mutationErrorEdit);
+  // } else {
+  //   toast.success("Proyecto editado con éxito");
+  // }
 
   return (
     <div className="container mx-auto">
-
       <div>
         <h1 className="m-4 text-3xl text-gray-800 font-bold text-center">
-        <Link to="/admin/proyectos">
-          <i className="fas fa-arrow-left text-left mr-20 text-gray-600 cursor-pointer font-bold text-xl hover:text-gray-900" />
-        </Link>
+          <Link to="/admin/proyectos">
+            <i className="fas fa-arrow-left text-left mr-20 text-gray-600 cursor-pointer font-bold text-xl hover:text-gray-900" />
+          </Link>
           {tituloVentana}
         </h1>
       </div>
 
-      <div class="box-border h-full w-100 p-4 border-4 border-gray">
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="application-link"
-            >
-              Nombre del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-              {queryProyecto && queryProyecto.Proyecto.nombre}
-            </p>
-          </div>
-        </div>
+      <form ref={form} onSubmit={submitForm}>
+        <div class="box-border h-full w-100 p-4 border-4 border-gray">
+          <div className="-mx-3 md:flex mb-3">
+            <div className="md:w-full px-3">
+              <label
+                className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                for="application-link"
+              >
+                Nombre del proyecto
+                <span className="text-red-500 text-xs italic"> *</span>
+              </label>
 
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            {queryProyecto && (
-              <AcordeonObjetivos
-                objetivos={queryProyecto.Proyecto.objetivos}
-                titulo={"OBJETIVOS"}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fase"
-            >
-              Fase del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {queryProyecto && queryProyecto.Proyecto.fase}
-              </p>
+              {edit ? (
+                <input
+                  className="appearance-none block w-full bg-gray-200 text-black border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                  name="nombre"
+                  type="text"
+                  defaultValue={queryProyecto.Proyecto.nombre}
+                  placeholder="Escribe aquí el Nombre del Proyecto"
+                  required={true}
+                />
+              ) : (
+                <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
+                  {queryProyecto && queryProyecto.Proyecto.nombre}
+                </p>
+              )}
             </div>
           </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="estado"
-            >
-              Estado del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {queryProyecto && queryProyecto.Proyecto.estado}
-              </p>
+
+          {edit ? (
+            <>
+              <div className="-mx-3 md:flex mb-3">
+                <div className="md:w-full px-3">
+                  <label
+                    className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                    for="application-link"
+                  >
+                    Objetivo general
+                    <span className="text-red-500 text-xs italic"> *</span>
+                  </label>
+                  <textarea
+                    className="appearance-none block w-full bg-gray-200 text-black border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    name="objetivoGeneral"
+                    defaultValue={
+                      queryProyecto.Proyecto.objetivos[0].descripcion
+                    }
+                    placeholder="Escribe aquí el Objetivo General del proyecto"
+                    required={true}
+                  />
+                </div>
+              </div>
+
+              <div className="-mx-3 md:flex mb-3">
+                <div className="md:w-full px-3">
+                  <label
+                    className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                    for="application-link"
+                  >
+                    Objetivos especificos
+                    <span className="text-red-500 text-xs italic"> *</span>
+                  </label>
+                  {/* queryProyecto.Proyecto.objetivos.filter((obj)=>obj.tipo==="ESPECIFICO") */}
+                  <TablaObjetivos
+                    objetivosEspecificos={queryProyecto.Proyecto.objetivos.filter(
+                      (obj) => obj.tipo === "ESPECIFICO"
+                    )}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            queryProyecto && (
+              <div className="-mx-3 md:flex mb-3">
+                <div className="md:w-full px-3">
+                  <AcordeonObjetivos
+                    objetivos={queryProyecto.Proyecto.objetivos}
+                    titulo={"OBJETIVOS"}
+                  />
+                </div>
+              </div>
+            )
+          )}
+
+          {edit === false && (
+            <div className="-mx-3 md:flex mb-3">
+              <div className="md:w-1/2 px-3 mb-6 md:mb-0">
+                <label
+                  className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                  for="fase"
+                >
+                  Fase del proyecto
+                  <span className="text-red-500 text-xs italic"> *</span>
+                </label>
+                <div>
+                  <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
+                    {queryProyecto && queryProyecto.Proyecto.fase}
+                  </p>
+                </div>
+              </div>
+              <div className="md:w-1/2 px-3">
+                <label
+                  className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                  for="estado"
+                >
+                  Estado del proyecto
+                  <span className="text-red-500 text-xs italic"> *</span>
+                </label>
+                <div>
+                  <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
+                    {queryProyecto && queryProyecto.Proyecto.estado}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="-mx-3 md:flex mb-3">
+            <div className="md:w-1/2 px-3 mb-6 md:mb-0">
+              <label
+                className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                for="presupuesto"
+              >
+                Presupuesto{" "}
+                <span className="text-red-500 text-xs italic"> *</span>
+              </label>
+              <div>
+                {edit ? (
+                  <input
+                    className="appearance-none block w-full bg-gray-200 text-black border rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    name="presupuesto"
+                    type="number"
+                    min={1}
+                    defaultValue={queryProyecto.Proyecto.presupuesto}
+                    placeholder="Ej: 2000000"
+                    required={true}
+                  />
+                ) : (
+                  <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
+                    {/* {queryProyecto.Proyecto.presupuesto} */}
+                    {queryProyecto &&
+                      new Intl.NumberFormat("es-CO").format(
+                        queryProyecto.Proyecto.presupuesto
+                      )}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="md:w-1/2 px-3">
+              <label
+                className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                for="fechaInicio"
+              >
+                Inicio <span className="text-red-500 text-xs italic"> *</span>
+              </label>
+              <div>
+                <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
+                  {queryProyecto &&
+                    queryProyecto.Proyecto.fechaInicio.split("T")[0]}
+                </p>
+              </div>
+            </div>
+            <div className="md:w-1/2 px-3">
+              <label
+                className="uppercase tracking-wide text-black text-xs font-bold mb-2"
+                for="fechaFin"
+              >
+                Finalización{" "}
+                <span className="text-red-500 text-xs italic"> *</span>
+              </label>
+              <div>
+                <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
+                  {queryProyecto &&
+                    queryProyecto.Proyecto.fechaFin.split("T")[0]}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="presupuesto"
-            >
-              Presupuesto{" "}
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {/* {queryProyecto.Proyecto.presupuesto} */}
-                {queryProyecto &&
-                  new Intl.NumberFormat("es-CO").format(
-                    queryProyecto.Proyecto.presupuesto
-                  )}
-              </p>
+          {edit === false && (
+            <div className="-mx-3 md:flex mb-3">
+              <div className="md:w-full px-3">
+                <AcordeonLider
+                  lider={queryProyecto && queryProyecto.Proyecto.lider}
+                  titulo={"RESPONSABLE DEL PROYECTO"}
+                />
+              </div>
             </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fechaInicio"
-            >
-              Inicio <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {queryProyecto &&
-                  queryProyecto.Proyecto.fechaInicio.split("T")[0]}
-              </p>
+          )}
+          {/* <PrivateComponent roleList={["LIDER","ADMINISTRADOR"]}> */}
+          {edit === false && (
+            <div className="-mx-3 md:flex mb-3">
+              <div className="md:w-full px-3">
+                {queryProyecto && (
+                  <AcordeonAvances
+                    avances={queryProyecto.Proyecto.avances}
+                    titulo={"AVANCES"}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fechaFin"
-            >
-              Finalización{" "}
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {queryProyecto && queryProyecto.Proyecto.fechaFin.split("T")[0]}
-              </p>
+          )}
+
+          {/* </PrivateComponent> */}
+
+          {/* <PrivateComponent roleList={["LIDER","ADMINISTRADOR"]}> */}
+          {edit === false && (
+            <div className="-mx-3 md:flex mb-3">
+              <div className="md:w-full px-3">
+                {queryProyecto && (
+                  <AcordeonInscripciones
+                    inscripciones={queryProyecto.Proyecto.inscripciones}
+                    titulo={"INTEGRANTES"}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+          {/* </PrivateComponent> */}
 
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <AcordeonLider
-              lider={queryProyecto && queryProyecto.Proyecto.lider}
-              titulo={"RESPONSABLE DEL PROYECTO"}
-            />
-          </div>
+          <PrivateComponent roleList={["LIDER"]}>
+            <div className="-mx-3 md:flex mt-2">
+              {edit ? (
+                <>
+                  <div className="md:w-1/4 px-3">
+                    <button
+                      type="submit"
+                      className="md:w-full col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-green-600"
+                    >
+                      Guardar
+                    </button>
+                  </div>
+                  <div className="md:w-1/4 px-3">
+                    <button
+                      className="md:w-full col-span-2 py-3 fondo1 font-bold  text-white p-2 rounded-full shadow-md hover:bg-red-600"
+                      onClick={() => {
+                        setEdit(!edit);
+                        setActiveVistaFormulario(!activeVistaFormulario);
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="md:w-1/4 px-3">
+                  <button
+                    className="md:w-full col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-600"
+                    onClick={() => {
+                      setEdit(true);
+                      setActiveVistaFormulario(true);
+                    }}
+                  >
+                    {tituloBoton}
+                  </button>
+                </div>
+              )}
+            </div>
+          </PrivateComponent>
         </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            {queryAvances && queryAvances.FiltrarAvances && (
-              <AcordeonAvances
-                losavances={queryAvances.FiltrarAvances}
-                titulo={"AVANCES"}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            {queryProyecto && (
-              <AcordeonInscripciones
-                inscripciones={queryInscripciones.InscripcionesPorProyecto}
-                titulo={"INTEGRANTES"}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mt-2">
-          <div className="md:w-1/4 px-3">
-            <button className="md:w-full col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-600">
-              {tituloBoton}
-            </button>
-          </div>
-        </div>
-      </div>
+      </form>
     </div>
   );
 };
 
-//==================================VISTAS ==================================
-//VISTA PROYECTO
-const vistaProyecto = ({ tituloBoton, proyecto }) => {
-  console.log("Vista proyecto ", proyecto);
+//==================================TABLA OBJETIVOS ESPECIFICOS==================================
+const TablaObjetivos = ({ objetivosEspecificos }) => {
+  const [filasTabla, setFilasTabla] = useState(objetivosEspecificos);
+
+  const agregarNuevoObjEspecificos = (objetivo) => {
+    setFilasTabla([...filasTabla, objetivo]);
+    console.log("Tabla Objetivos Especificos", filasTabla);
+  };
+
+  const eliminarObjEspecificos = (objEspecificosAEliminar) => {
+    setFilasTabla(
+      filasTabla.filter((v) => v._id !== objEspecificosAEliminar._id)
+    );
+    //setObjEspecificos([...objEspecificos, objEspecificosAEliminar]); //si se esta utilizando elminiar el objEspecificos del select
+  };
+
+  const FilaObjetivos = ({
+    obj,
+    index,
+    eliminarObjetivo,
+  }) => {
+    const [objetivo, setObjetivo] = useState(obj);
+    useEffect(() => {
+      console.log("Fila objetivo ...objetivo", objetivo);
+    }, [objetivo]);
+
+    return (
+      <tr
+        className="flex items-center"
+        style={{ borderBottom: "1px solid #212D5B", justifyContent: "center" }}
+      >
+        {/*py-2*/}
+        <td hiddden>{index + 1}</td>
+        <td>
+          <label htmlFor={`descripcion_${index}`}></label>
+          <textarea
+            type="text"
+            id={`ObjetivoEspecifico_${index}`}
+            name={`ObjetivoEspecifico_${index}`}
+            rows="2"
+            cols="125"
+            className="w-full pl-2 pr-2"
+            style={{ justifyContent: "center" }}
+            defaultValue={objetivo.descripcion}
+          />
+        </td>
+        <td hidden>{objetivo.tipo}</td>
+        <td className="text-center">
+          <i
+            onClick={() => eliminarObjetivo(objetivo)}
+            className="fas fa-trash-alt text-red-500 cursor-pointer"
+          />
+        </td>
+        <td className="hidden">
+          <input defaultValue={objetivo._id} name={`Objetivo_${index}`} />
+        </td>
+      </tr>
+    );
+  };
+
   return (
-    <div className="container mx-auto">
-      <div>
-        <Link to="/admin/proyectos">
-          <i className="fas fa-arrow-left text-gray-600 cursor-pointer font-bold text-xl hover:text-gray-900" />
-        </Link>
-        <h1 className="m-4 text-3xl text-gray-800 font-bold text-center">
-          Vista proyecto
-        </h1>
+    <>
+      <div className="flex items-center py-2">
+        <textarea
+          className="appearance-none block w-full bg-gray-200 text-black border rounded py-3 mr-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+          name="objetivoEspecífico"
+          cols={60}
+          id="objetivoEspecífico"
+          placeholder="Escribe aquí los Objetivos Específicos"
+          defaultValue={""}
+        />
+        <button
+          name="addObjetivo"
+          type="button"
+          onClick={() => {
+            if (
+              document.getElementById("objetivoEspecífico").value &&
+              document.getElementById("objetivoEspecífico").value.length > 5
+            ) {
+              console.log(document.getElementById("objetivoEspecífico").value);
+              var myObjetivo = {
+                descripcion:
+                  document.getElementById("objetivoEspecífico").value,
+                tipo: "ESPECIFICO",
+                _id: nanoid(),
+              };
+              agregarNuevoObjEspecificos(myObjetivo);
+              document.getElementById("objetivoEspecífico").value = "";
+            }
+          }}
+          className={`col-span-2 bg-green-400 p-2 rounded-full shadow-md hover:bg-green-600 text-white`}
+        >
+          <i className="fas fa-plus-circle"></i>
+        </button>
       </div>
-      <div class="box-border h-full w-100 p-4 border-4 border-gray">
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="application-link"
-            >
-              Nombre del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-              {proyecto.nombre}
-            </p>
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <AcordeonObjetivos
-              objetivos={proyecto.objetivos}
-              titulo={"OBJETIVOS"}
-            />
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fase"
-            >
-              Fase del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {proyecto.fase}
-              </p>
-            </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="estado"
-            >
-              Estado del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {proyecto.estado}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="presupuesto"
-            >
-              Presupuesto{" "}
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {/* {queryProyecto.Proyecto.presupuesto} */}
-                {new Intl.NumberFormat("es-CO").format(proyecto.presupuesto)}
-              </p>
-            </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fechaInicio"
-            >
-              Inicio <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {proyecto.fechaInicio.split("T")[0]}
-              </p>
-            </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fechaFin"
-            >
-              Finalización{" "}
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <p className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3">
-                {proyecto.fechaFin.split("T")[0]}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <AcordeonLider
-              lider={proyecto.lider}
-              titulo={"RESPONSABLE DEL PROYECTO"}
-            />
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <AcordeonObjetivos
-              objetivos={proyecto.objetivos}
-              titulo={"AVANCES"}
-            />
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <AcordeonObjetivos
-              objetivos={proyecto.objetivos}
-              titulo={"INTEGRANTES"}
-            />
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mt-2">
-          <div className="md:w-1/4 px-3">
-            <button className="md:w-full col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-600">
-              {tituloBoton}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-//VISTA FORMULARIO PROYECTO
-const vistaFormulario = ({ proyecto }) => {
-  return (
-    <form>
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="application-link"
-            >
-              Nombre del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <input
-              className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3"
-              id="nombre"
-              type="text"
-              placeholder="Ingrese titulo del proyecto"
-            />
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="objetivoGeneral"
-            >
-              Objetivo general
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <textarea
-              className="w-full bg-gray-200 text-black border border-gray-200 rounded py-2 px-4 mb-3"
-              id="objetivoGeneral"
-              placeholder="Objetivo del proyecto"
-              requerid
-            />
-          </div>
-        </div>
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-full px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="objetivoGeneral"
-            >
-              Objetivos especificos
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            {/* <TablaObjetivos
-                objetivosEspecificos={objetivosEspecificos}
-              ></TablaObjetivos> */}
-            <AcordeonObjetivos
-              objetivos={proyecto.objetivos}
-              titulo={"OBJETIVOS"}
-            />
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fase"
-            >
-              Fase del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <select
-                className="w-full bg-gray-200 border border-gray-200 text-black py-2 px-4 pr-8 mb-3 rounded"
-                id="fase"
-                defaultValue={0}
-                requerid
-              >
-                <option disabled value={0}>
-                  Seleccione una fase para el proyecto
-                </option>
-                <option>Iniciado</option>
-                <option>En Desarrollo</option>
-                <option>Terminado</option>
-              </select>
-            </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="estado"
-            >
-              Estado del proyecto
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <select
-                className="w-full bg-gray-200 border border-gray-200 text-black py-2 px-4 pr-8 mb-3 rounded"
-                id="estado"
-                defaultValue={0}
-                requerid
-              >
-                <option disabled value={0}>
-                  Seleccione un estado para el proyecto
-                </option>
-                <option>Activo</option>
-                <option>Inactivo</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mb-3">
-          <div className="md:w-1/2 px-3 mb-6 md:mb-0">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="presupuesto"
-            >
-              Presupuesto{" "}
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <input
-                type="number"
-                min={1}
-                id="presupuesto"
-                className="w-full bg-gray-200 border border-gray-200 text-black py-2 px-4 pr-8 mb-3 rounded"
-                placeholder="2000000"
-                requerid
-              ></input>
-            </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fechaInicio"
-            >
-              Fecha de inicio{" "}
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <input
-                type="date"
-                className="w-full bg-gray-200 border border-gray-200 text-black py-2 px-4 pr-8 mb-3 rounded"
-                id="fechaInicio"
-                requerid
-              ></input>
-            </div>
-          </div>
-          <div className="md:w-1/2 px-3">
-            <label
-              className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-              for="fechaFin"
-            >
-              Fecha de finalización{" "}
-              <span className="text-red-500 text-xs italic"> *</span>
-            </label>
-            <div>
-              <input
-                type="date"
-                className="w-full bg-gray-200 border border-gray-200 text-black py-2 px-4 pr-8 mb-3 rounded"
-                id="fechaFin"
-                requerid
-              ></input>
-            </div>
-          </div>
-        </div>
-
-        <div className="-mx-3 md:flex mt-2">
-          <div className="md:w-full px-3">
-            <button className="md:w-full bg-gray-900 text-white font-bold py-2 px-4 border-b-4 hover:border-b-2 border-gray-500 hover:border-gray-100 rounded-full">
-              Button
-            </button>
-          </div>
-        </div>
-      </div>
-    </form>
+      <table className="table mb-2">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th hidden>Tipo</th>
+            <th></th>
+            <th hidden className="hidden">
+              Input
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {filasTabla.map((el, index) => {
+            console.log("fila obejtivos",el)
+            return (
+              <FilaObjetivos
+                key={el._id}
+                obj={el}
+                index={index}
+                eliminarObjetivo={eliminarObjEspecificos}
+              />
+            );
+          })}
+        </tbody>
+      </table>
+    </>
   );
 };
 
@@ -730,11 +688,11 @@ const AcordeonLider = ({ lider, titulo }) => {
         </AccordionDetailsStyled>
       </AccordionStyled>
     );
-    return "no se han cargado objetivos";
+    return "no se han cargado información del lider";
   }
 };
 //AVANCES
-const AcordeonAvances = ({ losavances, titulo }) => {
+const AcordeonAvances = ({ avances, titulo }) => {
   {
     return (
       <AccordionStyled>
@@ -747,16 +705,19 @@ const AcordeonAvances = ({ losavances, titulo }) => {
         </AccordionSummaryStyled>
         <AccordionDetailsStyled>
           <div>
-            {losavances ? (
-              losavances.length > 0 ? (
-                losavances.map((elavan) => {
+            {avances ? (
+              avances.length > 0 ? (
+                avances.map((elavan) => {
                   return (
                     <p className="w-full bg-gray-200 text-justify text-black border border-gray-200 rounded py-2 px-4 mt-2">
                       {elavan.descripcion}
-                      <br />
                       <span>
-                        By - {elavan.creadoPor.nombre}{" "}
-                        {elavan.creadoPor.apellido}
+                        <br />
+                        {elavan.creadoPor.nombre &&
+                          "By - " +
+                            elavan.creadoPor.nombre +
+                            " " +
+                            elavan.creadoPor.apellido}
                       </span>
                     </p>
                   );
@@ -798,8 +759,8 @@ const AcordeonInscripciones = ({ inscripciones, titulo }) => {
                     <p className="w-full bg-gray-200 text-justify text-black border border-gray-200 rounded py-2 px-4 mt-2">
                       {inscripcion.estudiante.nombre}{" "}
                       {inscripcion.estudiante.apellido}
-                      <br />
-                      <span>By - {inscripcion.correo}</span>
+                      {/* <br />
+                      <span>By - {inscripcion.correo}</span> */}
                     </p>
                   );
                 })
