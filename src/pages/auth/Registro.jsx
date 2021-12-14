@@ -10,8 +10,9 @@ import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router';
 import { useAuth } from 'context/authContext';
 
+
 const Registro = () => {
-  // const { setToken } = useAuth();
+  const { setToken } = useAuth();
   const navigate = useNavigate();
   const { form, formData, updateFormData } = useFormData();
 
@@ -27,22 +28,11 @@ const Registro = () => {
     console.log ('Datos Registro', dataMutation);
     if (dataMutation) {
       if (dataMutation.registro.token){
-      localStorage.setItem('token', dataMutation.registro.token);
+        setToken(dataMutation.registro.token);
       navigate('/admin');
     }
   }
-  },[dataMutation])
-
-  // useEffect(() => {
-  //   if (dataMutation) {
-  //     if (dataMutation.registro.token) {
-  //       setToken(dataMutation.registro.token);
-  //       navigate('/admin');
-  //     }
-  //   }
-  // }, [dataMutation, setToken, navigate]);
-
-  
+  },[dataMutation, setToken, navigate])
 
   return (
     <main>

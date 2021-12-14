@@ -16,70 +16,73 @@ import Index from './pages/Index';
 import Error404 from "pages/Error404";
 import Usuarios from './pages/admin/Usuarios';
 import Proyectos from './pages/admin/Proyectos';
+import ViedProyectos from './pages/admin/ViedProyectos';
 import Perfil from "pages/admin/Perfil";
 import Inscripciones from "pages/admin/Inscripciones/index";
 import Avances from "pages/admin/Avances";
 import Login from "./pages/auth/Login"
 import Registro from "./pages/auth/Registro"
+import ErrorAuth from './pages/auth/ErrorAuth';
+import CambiarPassword from './pages/auth/CambiarPassword'
 
 
-// const httpLink = createHttpLink({
-//   // uri: 'http://localhost:4000/graphql',
-// uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
-// });
+const httpLink = createHttpLink({
+  //uri: 'http://localhost:4000/graphql',
+  uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
+});
 
-// const authLink = setContext((_, { headers }) => {
-//   // get the authentication token from local storage if it exists
-//   const token = JSON.parse(localStorage.getItem('token'));
-//   // return the headers to the context so httpLink can read them
-//   return {
-//     headers: {
-//       ...headers,
-//       authorization: token ? `Bearer ${token}` : '',
-//     },
-//   };
-// });
+const authLink = setContext((_, { headers }) => {
+  // get the authentication token from local storage if it exists
+  const token = JSON.parse(localStorage.getItem('token'));
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : '',
+    },
+  };
+});
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: 'https://servidor-proyectorio.herokuapp.com/graphql',
-  //uri: 'http://localhost:4000/graphql'
-  // link: authLink.concat(httpLink),
+  // uri: 'http://localhost:4000/graphql'
+  link: authLink.concat(httpLink),
 });
 
 function App() {
   const [userData, setUserData] = useState({});
   const [authToken, setAuthToken] = useState('');
 
-  // const setToken = (token) => {
-  //   console.log('Set Token', token);
-  //   setAuthToken(token);
-  //   if (token) {
-  //     localStorage.setItem('token', JSON.stringify(token));
-  //   } else {
-  //     localStorage.removeItem('token');
-  //   }
-  // };
+  const setToken = (token) => {
+    console.log('Set Token', token);
+    setAuthToken(token);
+    if (token) {
+      localStorage.setItem('token', JSON.stringify(token));
+    } else {
+      localStorage.removeItem('token');
+    }
+  };
 
-  // useEffect(() => {
-  //   if (authToken) {
-  //     const decoded = jwt_decode(authToken);
-  //     setUserData({
-  //       _id: decoded._id,
-  //       nombre: decoded.nombre,
-  //       apellido: decoded.apellido,
-  //       identificacion: decoded.identificacion,
-  //       correo: decoded.correo,
-  //       rol: decoded.rol,
-  //     });
-  //   }
-  // }, [authToken]);
+  useEffect(() => {
+    if (authToken) {
+      const decoded = jwt_decode(authToken);
+      setUserData({
+        _id: decoded._id,
+        nombre: decoded.nombre,
+        apellido: decoded.apellido,
+        identificacion: decoded.identificacion,
+        correo: decoded.correo,
+        rol: decoded.rol,
+        estado: decoded.estado,
+      });
+    }
+  }, [authToken]);
 
 
   return (
 
     <ApolloProvider client={client}>
-      {/* <AuthContext.Provider value={{ authToken, setAuthToken, setToken }}> */}
+      <AuthContext.Provider value={{ authToken, setAuthToken, setToken }}>
         <UserContext.Provider value={{ userData, setUserData }}> 
 
           <Router>
@@ -94,14 +97,17 @@ function App() {
                 <Route path='' element={<Perfil/>}/>
                 <Route path='usuarios' element={<Usuarios/>}/>
                 <Route path='proyectos' element={<Proyectos/>}/>
+                <Route path='viedProyectos/:_id' element={<ViedProyectos />} />
                 <Route path='inscripciones' element={<Inscripciones/>}/>
                 <Route path='avances' element={<Avances/>}/>
+                <Route path='cambiarpassword' element={<CambiarPassword/>}/>
               </Route>
 
               <Route path='/auth' element={<AuthLayout/>}>
                 <Route path='' element={<Login/>}/>
                 <Route path='login' element={<Login/>}/>
                 <Route path='registro' element={<Registro/>}/>
+                <Route path='errorauth' element={<ErrorAuth/>}/>
               </Route>
 
               <Route path='*' element={<Error404/>}/>
@@ -111,7 +117,7 @@ function App() {
           </Router>
               
         </UserContext.Provider>
-      {/* </AuthContext.Provider> */}
+      </AuthContext.Provider>
     </ApolloProvider>
   );
 }

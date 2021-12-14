@@ -7,7 +7,6 @@ query Avances {
     _id
     fecha
     descripcion
-    observaciones
     proyecto {
       _id
       nombre
@@ -16,8 +15,32 @@ query Avances {
       _id
       nombre
     }
+    observaciones {
+      descripcion
+    }
   }
 }
   `;
 
-  export {obtenerAvances};
+  const obtenerAvancesPorProyecto = gql `
+  query FiltrarAvances($proyecto: String!) {
+    FiltrarAvances(proyecto: $proyecto) {
+      _id
+      fecha
+      descripcion
+      proyecto {
+        _id
+        nombre
+      }
+      creadoPor {
+        _id
+        nombre
+        apellido
+      }
+      observaciones {
+        descripcion
+      }
+    }
+  }  `;
+
+  export {obtenerAvances, obtenerAvancesPorProyecto};
