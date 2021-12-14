@@ -18,7 +18,8 @@ import {
 } from "../../graphql/Proyectos/Mutations.js";
 import { obtenerUsuariosPorFiltro } from "../../graphql/Usuarios/Queries.js";
 import { crearInscripcion } from "../../graphql/Incripciones/Mutations.js";
-import useFormData from '../../hooks/useFormData'
+import useFormData from "../../hooks/useFormData";
+import Paginacion from "componets/Paginacion.jsx";
 
 const Proyectos = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
@@ -34,6 +35,7 @@ const Proyectos = () => {
     data: dataProyectos,
     error: errorProyectos,
   } = useQuery(obtenerProyectos);
+
   //LISTADO LIDERES
   const {
     loading: loadLideres,
@@ -41,10 +43,9 @@ const Proyectos = () => {
     error: errorLideres,
   } = useQuery(obtenerUsuariosPorFiltro, {
     variables: {
-      filtro: { rol: 'LIDER', estado: 'AUTORIZADO' },
+      filtro: { rol: "LIDER", estado: "AUTORIZADO" },
     },
   });
-
 
   useEffect(() => {
     if (ejecutarConsulta && dataProyectos) {
@@ -126,21 +127,32 @@ const Proyectos = () => {
 };
 
 //==================================TABLA PROYECTOS==================================
-const TablaProyectos = ({
-  datosUsuario,
-}) => {
+const TablaProyectos = ({ datosUsuario }) => {
   const [busqueda, setBusqueda] = useState("");
   const { data: dataProyectos } = useQuery(obtenerProyectos);
-  const [proyectosFiltrados, setProyectosFiltrados] = useState(dataProyectos.Proyectos);
+  const [proyectosFiltrados, setProyectosFiltrados] = useState(
+    dataProyectos.Proyectos
+  );
   const listaProyectos = dataProyectos.Proyectos;
+  const totalRegistros = useState(dataProyectos.Proyectos.length);
+  const [totalRegistrosFiltrados, setTotalRegistrosFiltrados] = useState(
+    proyectosFiltrados.length
+  );
 
   useEffect(() => {
     setProyectosFiltrados(
       listaProyectos.filter((elemento) => {
-        return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
-        })
-      );
-    }, [busqueda, listaProyectos]);
+        return JSON.stringify(elemento)
+          .toLowerCase()
+          .includes(busqueda.toLowerCase());
+      })
+    );
+    setTotalRegistrosFiltrados(proyectosFiltrados.length);
+  }, [busqueda, listaProyectos]);
+
+  useEffect(() => {
+    setTotalRegistrosFiltrados(proyectosFiltrados.length);
+  }, [busqueda, proyectosFiltrados, listaProyectos]);
 
   return (
     <div>
@@ -169,21 +181,21 @@ const TablaProyectos = ({
               </div>
               {/* TABLA */}
               <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-                  {proyectosFiltrados.length>0 ? (
+                {proyectosFiltrados.length > 0 ? (
+                  <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
                     <table className="min-w-full leading-normal">
                       <thead>
                         <tr>
-                          <th
-                            hidden
-                            className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-20"
-                          >
+                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-20">
                             <i className="fas fa-passport"></i>
                           </th>
                           <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
                             Proyecto
                           </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          <th
+                            hidden
+                            className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32"
+                          >
                             Presupuesto
                           </th>
                           <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
@@ -220,19 +232,24 @@ const TablaProyectos = ({
                           })}
                       </tbody>
                     </table>
-                  ) : (
-                    <div role="alert">
-                      <div class="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
-                        Notificación
-                      </div>
-                      <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-                        <p className="text-2xl">
-                          Sin información para visualizar
-                        </p>
-                      </div>
+                    <Paginacion
+                      fin={totalRegistrosFiltrados}
+                      registros={totalRegistros}
+                      limite={10}
+                    />
+                  </div>
+                ) : (
+                  <div role="alert">
+                    <div class="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
+                      Notificación
                     </div>
-                  )}
-                </div>
+                    <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+                      <p className="text-2xl">
+                        Sin información para visualizar
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -246,8 +263,11 @@ const TablaProyectos = ({
 
 //==================================FILA PROYECTOS==================================
 const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
+  const fechaActual = new Date();
+  fechaActual.setDate(fechaActual.getDate());
   const [edit, setEdit] = useState(false);
-  const [openDialogEditar, setOpenDialogEditar] = useState(false);
+  const [openDialogTerminarProyecto, setOpenDialogTerminarProyecto] =
+    useState(false);
   const [openDialogEliminar, setOpenDialogEliminar] = useState(false);
   const [openDialogAprobarProyecto, setOpenDialogAprobarProyecto] =
     useState(false);
@@ -302,12 +322,20 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
     let lidera = infoNuevoProyecto.lider._id;
     //delete infoNuevoProyecto.lider
     let estadito;
-    if (proyecto.estado == "ACTIVO") {
+    let faseactual = infoNuevoProyecto.fase;
+    let fechaInicial = infoNuevoProyecto.fechaInicio; //fechaActual.toISOString().substr(0, 10);
+    let fechaFinal = infoNuevoProyecto.fechaFin;
+    if (proyecto.estado === "ACTIVO") {
       console.log("Estamos en inactivar proyecto", infoNuevoProyecto);
       estadito = "INACTIVO";
     } else {
       console.log("Estamos en activar proyecto", infoNuevoProyecto);
       estadito = "ACTIVO";
+      if (proyecto.fase === "NULO" || proyecto.fase === "") {
+        faseactual = "INICIADO";
+        fechaInicial = fechaActual.toISOString().substr(0, 10);
+        fechaFinal = "";
+      }
     }
 
     editProyecto({
@@ -319,7 +347,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
         fechaFin: infoNuevoProyecto.fechaFin,
         lider: lidera,
         presupuesto: infoNuevoProyecto.presupuesto,
-        fase: infoNuevoProyecto.fase,
+        fase: faseactual,
         estado: estadito,
       },
     });
@@ -333,26 +361,29 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
     setOpenDialogAprobarProyecto(false);
   };
 
-  //EDITAR FASE
+  //EDITAR FASE/terminar
   const editarFaseProyecto = () => {
     console.log("Estamos en cambio de fase del proyecto", infoNuevoProyecto);
     let lidera = infoNuevoProyecto.lider._id;
-    let estadito;
-    if (proyecto.fase == "TERMINADO") {
+    let estadito = infoNuevoProyecto.estado;
+    let lafase = infoNuevoProyecto.fase;
+    let fechaFinal = infoNuevoProyecto.fechaFin;
+    if (proyecto.fase === "DESARROLLO" && proyecto.estado === "ACTIVO") {
       estadito = "INACTIVO";
-    } else {
-      estadito = infoNuevoProyecto.estado;
+      lafase = "TERMINADO";
+      fechaFinal = Date.now();
     }
+
     editProyecto({
       //variables: { ...infoNuevoProyecto}
       variables: {
         _id: infoNuevoProyecto._id,
         nombre: infoNuevoProyecto.nombre,
         fechaInicio: infoNuevoProyecto.fechaInicio,
-        fechaFin: infoNuevoProyecto.fechaFin,
+        fechaFin: fechaFinal,
         lider: lidera,
         presupuesto: infoNuevoProyecto.presupuesto,
-        fase: infoNuevoProyecto.fase,
+        fase: lafase,
         estado: estadito,
       },
     });
@@ -363,7 +394,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
     } else {
       toast.success("Proyecto editado con éxito");
     }
-    setOpenDialogAprobarProyecto(false);
+    setOpenDialogTerminarProyecto(false);
   };
 
   //CREAR INSCRIPCION
@@ -395,16 +426,16 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
 
   return (
     <tr>
-      <td
-        hidden
-        className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-24"
-      >
+      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-24">
         {proyecto._id.slice(20)}
       </td>
-      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
+      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-justify w-32">
         {proyecto.nombre}
       </td>
-      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
+      <td
+        hidden
+        className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32"
+      >
         {proyecto.presupuesto}
       </td>
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
@@ -413,42 +444,19 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
         {proyecto.fechaFin.split("T")[0]}
       </td>
-      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
+      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-justify w-32">
         {proyecto.lider.nombre} {proyecto.lider.apellido}
       </td>
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
-        {edit ? (
-          <select
-            className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
-            name="rol"
-            required={true} 
-
-            onChange={(e) =>
-              setInfoNuevoProyecto({
-                ...infoNuevoProyecto,
-                fase: e.target.value,
-              })
-            }
-            defaultValue={infoNuevoProyecto.fase}
-          >
-            <option disabled value={0}>
-              Seleccione fase
-            </option>
-            <option value="INICIADO">Iniciado</option>
-            <option value="DESARROLLO">Desarrollo</option>
-            <option value="TERMINADO">Terminado</option>
-            <option value="NULO">Nulo</option>
-          </select>
-        ) : (
-          proyecto.fase
-        )}
+        {proyecto.fase}
       </td>
       <td
         className={
           proyecto.estado === "ACTIVO"
             ? "relative inline-block m-4 px-5 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
-            : proyecto.fase!="TERMINADO" ? "relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full" :
-            "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+            : proyecto.fase !== "TERMINADO"
+            ? "relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+            : "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
         }
       >
         {proyecto.estado}
@@ -456,63 +464,46 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
 
       <td>
         <div className="flex w-24 justify-around text-gray-800 ">
-          {edit ? (
-            <>
-              <button
-                type="button"
-                title="Confirmar edicion"
-                onClick={() => {
-                  setEdit(!edit);
-                  editarFaseProyecto();
-                }}
-              >
-                <i className="fas fa-check hover:text-green-600"></i>
-              </button>
-              <button
-                type="button"
-                title="Cancelar"
-                onClick={() => {
-                  setEdit(!edit);
-                }}
-              >
-                <i className="fas fa-ban hover:text-red-700"></i>
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to={`/admin/viedProyectos/${proyecto._id}`}
-                title="Ver mas detalles"
-              >
-                <i className="fa fa-eye hover:text-blue-600"></i>
-              </Link>
-              <PrivateComponent roleList={["ADMINISTRADOR"]}>
-                {proyecto.fase != "TERMINADO" ? (
+          <>
+            <Link
+              to={`/admin/viedProyectos/${proyecto._id}`}
+              title="Ver mas detalles"
+            >
+              <i className="fa fa-eye hover:text-blue-600"></i>
+            </Link>
+            <PrivateComponent roleList={["ADMINISTRADOR"]}>
+              {
+                //Editar proyecto cambiar fase
+                proyecto.estado === "ACTIVO" &&
+                proyecto.fase === "DESARROLLO" ? (
                   <button
                     type="button"
-                    title="Editar"
-                    onClick={() => setEdit(!edit)}
+                    title="Terminar proyecto"
+                    onClick={() => setOpenDialogTerminarProyecto(true)}
                   >
-                    <i className="fas fa-edit hover:text-yellow-600"></i>
+                    <i className="fas fa-stop-circle text-green-500 hover:text-green-700"></i>
                   </button>
                 ) : (
                   <button
                     type="button"
-                    title="Inactivar proyecto"
-                    onClick={() => setOpenDialogEditar(true)}
+                    title="Terminar proyecto"
+                    onClick={() => setOpenDialogTerminarProyecto(true)}
                   >
-                    <i className="fas fa-edit hover:text-red-600"></i>
+                    <i className="fas fa-stop-circle text-yellow-500 hover:text-red-700"></i>
                   </button>
-                )}
-
-                {proyecto.fase != "TERMINADO" ? (
-                  proyecto.estado != "ACTIVO" ? (
+                )
+              }
+              {
+                //Aprobar proyecto - activar/inactivar
+                proyecto.fase !== "TERMINADO" ? (
+                  proyecto.estado !== "ACTIVO" ? (
                     <button
                       type="button"
                       title="Activar proyecto"
+                      className=" "
                       onClick={() => setOpenDialogAprobarProyecto(true)}
                     >
-                      <i className="fas fa-thumbs-up hover:text-green-700"></i>
+                      <i className="fas fa-play-circle text-green-500 hover:text-green-700"></i>
                     </button>
                   ) : (
                     <button
@@ -520,7 +511,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
                       title="Inactivar proyecto"
                       onClick={() => setOpenDialogAprobarProyecto(true)}
                     >
-                      <i className="fas fa-thumbs-down hover:text-red-700"></i>
+                      <i className="fas fa-pause-circle text-red-500 hover:text-green-700"></i>
                     </button>
                   )
                 ) : (
@@ -529,61 +520,91 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
                     title="Activar proyecto"
                     onClick={() => setOpenDialogAprobarProyecto(true)}
                   >
-                    <i className="fas fa-thumbs-up hover:text-red-700"></i>
+                    <i className="fas fa-play-circle text-yellow-500 hover:text-red-700"></i>
                   </button>
-                )}
-              </PrivateComponent>
-              <PrivateComponent roleList={["ESTUDIANTE"]}>
+                )
+              }
+            </PrivateComponent>
+            <PrivateComponent roleList={["ESTUDIANTE"]}>
+              <button
+                type="button"
+                title="Inscribirse"
+                onClick={() => setOpenDialogInscribirse(true)}
+              >
                 {proyecto.estado === "ACTIVO" &&
-                proyecto.fase != "TERMINADO" ? (
-                  <button
-                    type="button"
-                    title="Inscribirse"
-                    onClick={() => setOpenDialogInscribirse(true)}
-                  >
-                    <i className="fas fa-folder-plus hover:text-green-700"></i>
-                  </button>
+                proyecto.fase !== "TERMINADO" ? (
+                  <i className="fas fa-folder-plus hover:text-green-700"></i>
                 ) : (
-                  <button
-                    type="button"
-                    title="Inscribirse"
-                    onClick={() => setOpenDialogInscribirse(true)}
-                  >
-                    <i className="fas fa-folder-plus hover:text-red-700"></i>
-                  </button>
+                  <i className="fas fa-folder-plus hover:text-red-700"></i>
                 )}
-              </PrivateComponent>
-              <PrivateComponent roleList={["LIDER"]}>
-                <button
-                  type="button"
-                  title="Eliminar"
-                  onClick={() => setOpenDialogEliminar(true)}
-                >
-                  <i className="fas fa-trash-alt hover:text-red-700"></i>
-                </button>
-              </PrivateComponent>
-            </>
-          )}
+              </button>
+            </PrivateComponent>
+            <PrivateComponent roleList={["LIDER", "ADMINISTRADOR"]}>
+              <button
+                type="button"
+                title="Eliminar"
+                onClick={() => setOpenDialogEliminar(true)}
+              >
+                {proyecto.fase === "TERMINADO" ? (
+                  <i className="fas fa-trash-alt text-yellow-500 hover:text-red-700"></i>
+                ) : (
+                  <i className="fas fa-trash-alt text-red-500 hover:text-green-700"></i>
+                )}
+              </button>
+            </PrivateComponent>
+          </>
         </div>
-        <Dialog open={openDialogEditar}>
+        <Dialog open={openDialogTerminarProyecto}>
           <div className="p-8 flex flex-col">
             <h1 className="text-gray-900 text-2xl font-bold">
-              El proyecto "{proyecto.nombre}"{" "}
-              <span className="text-red-600">no puede ser editado.</span>
+              {proyecto.estado === "ACTIVO" &&
+              proyecto.fase === "DESARROLLO" ? (
+                <>
+                  ¿Está seguro de querer cambiar el proyecto "{proyecto.nombre}"
+                  a fase <span className="text-green-600"> terminado</span> ?
+                </>
+              ) : (
+                <>
+                  El proyecto "{proyecto.nombre}", no puede cambiar de{" "}
+                  <span className="text-red-600">fase </span>en este momento.
+                </>
+              )}
             </h1>
             <div className="flex w-full items-center justify-center my-4">
-              <button
-                onClick={() => setOpenDialogEditar(false)}
-                className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
-              >
-                Cerrar
-              </button>
+              {proyecto.estado === "ACTIVO" &&
+              proyecto.fase === "DESARROLLO" ? (
+                <>
+                  <button
+                    onClick={() => {
+                      editarFaseProyecto();
+                    }}
+                    className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
+                  >
+                    Sí
+                  </button>
+                  <button
+                    onClick={() => setOpenDialogTerminarProyecto(false)}
+                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                  >
+                    No
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setOpenDialogTerminarProyecto(false)}
+                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                  >
+                    Cerrar
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </Dialog>
         <Dialog open={openDialogEliminar}>
           <div className="p-8 flex flex-col">
-            {proyecto.fase != "TERMINADO" ? (
+            {proyecto.fase !== "TERMINADO" ? (
               <>
                 <h1 className="text-gray-900 text-2xl font-bold">
                   ¿Está seguro de querer{" "}
@@ -627,18 +648,18 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
         <Dialog open={openDialogAprobarProyecto}>
           <div className="p-8 flex flex-col">
             <>
-              {proyecto.fase != "TERMINADO" ? (
-                proyecto.estado == "ACTIVO" ? (
+              {proyecto.fase !== "TERMINADO" ? (
+                proyecto.estado === "ACTIVO" ? (
                   <h1 className="text-gray-900 text-2xl font-bold">
-                    Está seguro de querer{" "}
+                    ¿Está seguro de querer{" "}
                     <span className="text-red-600">inactivar</span> el proyecto
-                    "{proyecto.nombre}"
+                    "{proyecto.nombre}"?
                   </h1>
                 ) : (
                   <h1 className="text-gray-900 text-2xl font-bold">
-                    Está seguro de querer{" "}
+                    ¿Está seguro de querer{" "}
                     <span className="text-green-600">activar</span> el proyecto
-                    "{proyecto.nombre}"
+                    "{proyecto.nombre}"?
                   </h1>
                 )
               ) : (
@@ -649,7 +670,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
               )}
 
               <div className="flex w-full items-center justify-center my-4">
-                {proyecto.fase != "TERMINADO" && (
+                {proyecto.fase !== "TERMINADO" && (
                   <button
                     onClick={() => {
                       editarEstadoProyecto();
@@ -663,7 +684,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
                   onClick={() => setOpenDialogAprobarProyecto(false)}
                   className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
                 >
-                  {proyecto.fase != "TERMINADO" ? "No" : "Cerrar"}
+                  {proyecto.fase !== "TERMINADO" ? "No" : "Cerrar"}
                 </button>
               </div>
             </>
@@ -672,7 +693,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
         <Dialog open={openDialogInscribirse}>
           <div className="p-8 flex flex-col">
             <>
-              {proyecto.estado != "INACTIVO" ? (
+              {proyecto.estado !== "INACTIVO" ? (
                 <h1 className="text-gray-900 text-2xl font-bold">
                   ¿Está seguro de querer{" "}
                   <span className="text-green-600">inscribirse</span> en el
@@ -687,19 +708,21 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
               )}
 
               <div className="flex w-full items-center justify-center my-4">
-                {proyecto.estado != "INACTIVO" && proyecto.fase != "TERMINADO" && (
-                  <button
-                    onClick={() => inscribirseEnProyecto()}
-                    className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
-                  >
-                    Sí
-                  </button>
-                )}
+                {proyecto.estado !== "INACTIVO" &&
+                  proyecto.fase !== "TERMINADO" && (
+                    <button
+                      onClick={() => inscribirseEnProyecto()}
+                      className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
+                    >
+                      Sí
+                    </button>
+                  )}
                 <button
                   onClick={() => setOpenDialogInscribirse(false)}
                   className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
                 >
-                  {proyecto.estado != "INACTIVO" && proyecto.fase != "TERMINADO"
+                  {proyecto.estado !== "INACTIVO" &&
+                  proyecto.fase !== "TERMINADO"
                     ? "No"
                     : "Cerrar"}
                 </button>
@@ -713,10 +736,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
 };
 
 //==================================FORMULARIO==================================
-const FormularioCreacionProyectos = ({
-  setMostrarTabla,
-  lidera
-}) => {
+const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
   const { userData } = useUser();
   // const form = useRef(null);
   const { form, formData, updateFormData } = useFormData();
@@ -728,7 +748,7 @@ const FormularioCreacionProyectos = ({
     error: errorLideres,
   } = useQuery(obtenerUsuariosPorFiltro, {
     variables: {
-      filtro: { rol: 'LIDER', estado: 'AUTORIZADO' },
+      filtro: { rol: "LIDER", estado: "AUTORIZADO" },
     },
   });
 
@@ -744,39 +764,39 @@ const FormularioCreacionProyectos = ({
     }
   }, [dataLideres]);
 
-const [createProyecto, { data: mutationDataCreate, loading: mutationLoadingCreate, error: mutationErrorCreate }] =
-useMutation(crearProyecto);
+  const [
+    createProyecto,
+    {
+      data: mutationDataCreate,
+      loading: mutationLoadingCreate,
+      error: mutationErrorCreate,
+    },
+  ] = useMutation(crearProyecto);
 
-const submitForm = (e) => {
-  e.preventDefault();
-var contObjetivos=0;
-var Objetivos = []
-const fd = new FormData(form.current);
-fd.delete("objetivoEspecífico");
-  const nuevoProyecto = {};
+  const submitForm = (e) => {
+    e.preventDefault();
+    var contObjetivos = 0;
+    var Objetivos = [];
+    const fd = new FormData(form.current);
+    fd.delete("objetivoEspecífico");
+    const nuevoProyecto = {};
     fd.forEach((value, key) => {
-      if(key.includes("objetivoGeneral"))
-      {
-        Objetivos[contObjetivos]={"tipo":"GENERAL","descripcion":value};
+      if (key.includes("objetivoGeneral")) {
+        Objetivos[contObjetivos] = { tipo: "GENERAL", descripcion: value };
         contObjetivos++;
-      }
-      else 
-      {
-        if(key.includes("ObjetivoEspecifico_"))
-            {
-              Objetivos[contObjetivos]={"tipo":"ESPECIFICO","descripcion":value};
-              contObjetivos++;
-            }
-            else{
-              nuevoProyecto[key] = value;
-            }
-            nuevoProyecto[key] = value;
+      } else {
+        if (key.includes("ObjetivoEspecifico_")) {
+          Objetivos[contObjetivos] = { tipo: "ESPECIFICO", descripcion: value };
+          contObjetivos++;
+        } else {
+          nuevoProyecto[key] = value;
+        }
+        nuevoProyecto[key] = value;
       }
     });
-    
-  if(Objetivos.length>1)
-  {
-    createProyecto({
+
+    if (Objetivos.length > 1) {
+      createProyecto({
         variables: {
           nombre: nuevoProyecto.nombre,
           presupuesto: parseFloat(nuevoProyecto.presupuesto),
@@ -788,23 +808,22 @@ fd.delete("objetivoEspecífico");
           objetivos: Object.values(Objetivos),
         },
       });
-  }
-  else
-  {
-    toast.error("El proyecto no fue creado, posible causa los objetivos especificos");
-  }
-};
+    } else {
+      toast.error(
+        "El proyecto no fue creado, posible causa los objetivos especificos"
+      );
+    }
+  };
 
-useEffect(() => {
-  console.log('Mutación creacion', mutationDataCreate);
-  if (mutationDataCreate) {
-    toast.success("El proyecto fue creado");
-    setMostrarTabla(true);
-  }
-},[mutationDataCreate]);
+  useEffect(() => {
+    console.log("Mutación creacion", mutationDataCreate);
+    if (mutationDataCreate) {
+      toast.success("El proyecto fue creado");
+      setMostrarTabla(true);
+    }
+  }, [mutationDataCreate]);
 
-
-if (loadLideres) return <div>...Construyendo formulario</div>;
+  if (loadLideres) return <div>...Construyendo formulario</div>;
 
   return (
     <div className="container mx-auto items-center justify-center">
@@ -829,7 +848,7 @@ if (loadLideres) return <div>...Construyendo formulario</div>;
               name="nombre"
               type="text"
               placeholder="Escribe aquí el Nombre del Proyecto"
-              required={true} 
+              required={true}
             />
           </div>
         </div>
@@ -851,7 +870,7 @@ if (loadLideres) return <div>...Construyendo formulario</div>;
                 name="objetivoGeneral"
                 placeholder="Escribe aquí el Objetivo General del proyecto"
                 defaultValue={""}
-                required={true} 
+                required={true}
               />
             </div>
           </div>
@@ -882,7 +901,7 @@ if (loadLideres) return <div>...Construyendo formulario</div>;
               type="number"
               min={1}
               placeholder="Ej: 2000000"
-              required={true} 
+              required={true}
             />
           </div>
           <div className="w-full md:w-1/3 px-3 pb-4 mb-4 md:mb-0">
@@ -897,7 +916,7 @@ if (loadLideres) return <div>...Construyendo formulario</div>;
               name="fechaInicio"
               type="date"
               className="block appearance-none w-full bg-gray-200 border border-red-500 text-black py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              required={true} 
+              required={true}
             />
           </div>
           <div className="w-full md:w-1/3 px-3 pb-4 mb-4 md:mb-0">
@@ -910,13 +929,18 @@ if (loadLideres) return <div>...Construyendo formulario</div>;
             <input
               type="date"
               name="fechaFin"
+              placeholder="Fecha estimada de terminación"
               className="appearance-none block w-full bg-gray-200 text-black border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              required={true} 
+              required={true}
             />
           </div>
         </div>
 
-        <div className="flex flex-wrap -mx-3 mt-4 hidden" style={{ backgroundColor: "#212D5B" }} hidden>
+        <div
+          className="flex flex-wrap -mx-3 mt-4 hidden"
+          style={{ backgroundColor: "#212D5B" }}
+          hidden
+        >
           <div className="w-full px-3">
             <label
               className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
@@ -1021,14 +1045,12 @@ if (loadLideres) return <div>...Construyendo formulario</div>;
 };
 
 //==================================TABLA OBJETIVOS ESPECIFICOS==================================
-const TablaObjetivos = ({
-  setObjEspecificosTabla,
-}) => {
+const TablaObjetivos = ({ setObjEspecificosTabla }) => {
   const [filasTabla, setFilasTabla] = useState([]);
 
   const agregarNuevoObjEspecificos = (objetivo) => {
-      setFilasTabla([...filasTabla, objetivo]);
-      console.log("Tabla Objetivos Especificos",filasTabla)
+    setFilasTabla([...filasTabla, objetivo]);
+    console.log("Tabla Objetivos Especificos", filasTabla);
   };
 
   const eliminarObjEspecificos = (objEspecificosAEliminar) => {
@@ -1049,44 +1071,52 @@ const TablaObjetivos = ({
     );
   };
 
-  const FilaObjetivos = ({ obj, index, eliminarObjetivo, modificarObjetivo }) => {
+  const FilaObjetivos = ({
+    obj,
+    index,
+    eliminarObjetivo,
+    modificarObjetivo,
+  }) => {
     const [objetivo, setObjetivo] = useState(obj);
     useEffect(() => {
-      console.log('Fila objetivo ...objetivo', objetivo);
+      console.log("Fila objetivo ...objetivo", objetivo);
     }, [objetivo]);
 
     return (
-      <tr className="flex items-center" style={{borderBottom:"1px solid #212D5B",justifyContent: "center"}}>{/*py-2*/}
-        <td hiddden>{index + 1}</td>      
+      <tr
+        className="flex items-center"
+        style={{ borderBottom: "1px solid #212D5B", justifyContent: "center" }}
+      >
+        {/*py-2*/}
+        <td hiddden>{index + 1}</td>
         <td>
-          <label htmlFor={`descripcion_${index}`}>
-          </label>
+          <label htmlFor={`descripcion_${index}`}></label>
           <textarea
-              type="text"
-              id={`ObjetivoEspecifico_${index}`}
-              name={`ObjetivoEspecifico_${index}`}
-              rows="2"
-              cols="125"
-              className="w-full pl-2 pr-2"
-              style={{justifyContent: "center"}}
-              defaultValue={objetivo.descripcion}
-              onChange={(e) => {
-                modificarObjetivo(objetivo, e.target.value);
-                setObjetivo({
-                  ...objetivo,
-                  descripcion: e.target.value,
-                });
-              }}
-            />
+            type="text"
+            id={`ObjetivoEspecifico_${index}`}
+            name={`ObjetivoEspecifico_${index}`}
+            rows="2"
+            cols="125"
+            className="w-full pl-2 pr-2"
+            style={{ justifyContent: "center" }}
+            defaultValue={objetivo.descripcion}
+            onChange={(e) => {
+              modificarObjetivo(objetivo, e.target.value);
+              setObjetivo({
+                ...objetivo,
+                descripcion: e.target.value,
+              });
+            }}
+          />
         </td>
         <td hidden>{objetivo.tipo}</td>
         <td className="text-center">
           <i
             onClick={() => eliminarObjetivo(objetivo)}
-            className='fas fa-trash-alt text-red-500 cursor-pointer'
+            className="fas fa-trash-alt text-red-500 cursor-pointer"
           />
         </td>
-        <td className='hidden'>
+        <td className="hidden">
           <input defaultValue={objetivo._id} name={`Objetivo_${index}`} />
         </td>
       </tr>
@@ -1108,7 +1138,10 @@ const TablaObjetivos = ({
           name="addObjetivo"
           type="button"
           onClick={() => {
-            if (document.getElementById("objetivoEspecífico").value && (document.getElementById("objetivoEspecífico").value).length>5) {
+            if (
+              document.getElementById("objetivoEspecífico").value &&
+              document.getElementById("objetivoEspecífico").value.length > 5
+            ) {
               console.log(document.getElementById("objetivoEspecífico").value);
               var myObjetivo = {
                 descripcion:
@@ -1117,7 +1150,7 @@ const TablaObjetivos = ({
                 _id: nanoid(),
               };
               agregarNuevoObjEspecificos(myObjetivo);
-              document.getElementById("objetivoEspecífico").value="";
+              document.getElementById("objetivoEspecífico").value = "";
             }
           }}
           className={`col-span-2 bg-green-400 p-2 rounded-full shadow-md hover:bg-green-600 text-white`}
