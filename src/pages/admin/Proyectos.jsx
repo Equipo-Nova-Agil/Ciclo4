@@ -29,168 +29,320 @@ import {AccordionStyled, AccordionSummaryStyled, AccordionDetailsStyled} from '.
 
 
 
+const Proyectos =()=> {
+  const [mostrarProyectos, setMostrarProyectos] = useState(true);
+  const [textoBoton, setTextoBoton] = useState('Nuevo Proyecto');
+  const { data: dataProyectos, loading: loadingProyectos, error: errorProyectos } = useQuery(obtenerProyectos);
 
-const Proyectos=()=> {
-    const [mostrarProyectos, setMostrarProyectos] = useState(true);
-    const [textoBoton, setTextoBoton] = useState('Nuevo Proyecto');
-    const { data: dataProyectos, loading: loadingProyectos, error: errorProyectos } = useQuery(obtenerProyectos);
+  useEffect(() => {
+    if (mostrarProyectos) {
+      setTextoBoton('Nuevo Proyecto');
+    } else {
+      setTextoBoton('Todos Los Proyectos');
+    }
+  }, [mostrarProyectos]);
 
+  useEffect(() => {
+    if (errorProyectos) {
+      toast.error('Error Consultando Proyectos', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
+    }
+  }, [errorProyectos]);
 
-    useEffect(() => {
-        if (mostrarProyectos) {
-          setTextoBoton('Nuevo Proyecto');
-        } else {
-          setTextoBoton('Todos Los Proyectos');
-        }
-      }, [mostrarProyectos]);
-
-      useEffect(() => {
-        if (errorProyectos) {
-          toast.error('Error Consultando Proyectos', 
-          {
-            position: toast.POSITION.BOTTOM_CENTER,
-            theme: "colored",
-            autoClose: 3000
-          })
-        }
-      }, [errorProyectos]);
-    
-      if (loadingProyectos) return <div>
-        <h1 className='text-3xl font-extrabold'>Cargando...</h1>
-        <ReactLoading type='bars' color='#11172d' height={467} width={175} />
-        </div>;
-      
-      
-        return (
-          <div className='flex h-full w-full flex-col items-center justify-start p-8'>
-            <div className='flex flex-col'>
-              <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
-              Administración de Proyectos
-            </h2>
-            <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
-              <button
-                onClick={() => {
-                setMostrarProyectos(!mostrarProyectos);}}
-                className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}>
-                {textoBoton}
-              </button>
-            </PrivateComponent>
+  if (loadingProyectos) return <div>
+    <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+    <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+    </div>;
+          return (
+            <div className='flex h-full w-full flex-col items-center justify-start p-8'>
+              <div className='flex flex-col'>
+                <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
+                Administración de Proyectos
+              </h2>
+              <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+                <button
+                  onClick={() => {
+                  setMostrarProyectos(!mostrarProyectos);}}
+                  className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}>
+                  {textoBoton}
+                </button>
+              </PrivateComponent>
+              </div>
+              {mostrarProyectos ? (
+              <ListaProyectos/>
+              ) : (
+            <FormularioCreacionProyecto setMostrarProyectos={setMostrarProyectos}/>)}
             </div>
-            {mostrarProyectos ? (
-            <ListaProyectos/>
-            ) : (
-          <FormularioCreacionProyecto setMostrarProyectos={setMostrarProyectos}/>)}
-          </div>
-
-
-
-          
-        );
-      
+          );
 };
 
 const ListaProyectos = ()=> {
   const { data: dataProyectos, loading: loadingProyectos, error: errorProyectos } = useQuery(obtenerProyectos);
   if (dataProyectos.Proyectos) {return (
     <div className='p-4 flex w-10/12 flex-col'>
-      
-      
       {dataProyectos.Proyectos.map((proyecto) => {
         return <AcordionProyectos proyecto={proyecto} />;
       })}
     </div>
   );
-}
-}
-
-const AcordionProyectos = ({ proyecto }) => {
-  const [showDialog, setShowDialog] = useState(false);
-  return (
-    <>
-      <AccordionStyled>
-        <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
-          <div className='flex w-full justify-between items-center'>
-
-            <div className='font-bold text-gray-600 pr-8'>
-              {proyecto.nombre}
-            </div>
-
-            <div className={
-              proyecto.estado === 'ACTIVO' ? 'relative inline-block mx-4 px-3 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full' 
-              :'relative inline-block mx-4 px-1 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>
-              {proyecto.estado}
-            </div>
-
-          </div>
-        </AccordionSummaryStyled>
-        <AccordionDetailsStyled>
-          <PrivateComponent roleList={['ADMINISTRADOR']}>
-            <i
-              className='mx-4 fas fa-edit text-gray-600 hover:text-yellow-600'
-              onClick={() => {
-                setShowDialog(true);}}
-            />
-          </PrivateComponent>
-          <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
-            <InscripcionProyecto
-              idProyecto={proyecto._id}
-              estado={proyecto.estado}
-              inscripciones={proyecto.inscripciones}
-            />
-          </PrivateComponent>
-
-          {/* DATOS PROYECTOS */}
-          <div className='flex justify-between px-2 py-4 text-gray-600'>
-
-            <div>
-              <span className='font-extrabold'>Inicio: </span>
-              {proyecto.fechaInicio.slice(0, -14)}
-            </div>
-            <div>
-              <span className='font-extrabold'>Fin: </span>
-              {proyecto.fechaFin.slice(0, -14)}</div>
-            <div>
-              <span className='font-extrabold'>Fase: </span>
-              {proyecto.fase}
-            </div>
-          </div>
-          <div className='flex justify-center px-2 py-4 text-gray-600'>
-            <div className='px-8'>
-              <span className='font-extrabold'>Presupuesto: </span>
-              ${proyecto.presupuesto}
-            </div>
-
-            <div className='px-8'>
-              <span className='font-extrabold'>Lider: </span>
-              {proyecto.lider.nombre} {proyecto.lider.apellido}
-            </div>
-          </div>
-
-          {/* OBJETIVOS PROYECTOS */}
-          <div className='flex'>
-            {proyecto.objetivos.map((objetivo) => {
-              return <ListaObjetivos tipo={objetivo.tipo} descripcion={objetivo.descripcion} />;
-            })}
-          </div>
-
-        </AccordionDetailsStyled>
-      </AccordionStyled>
-      <Dialog
-        open={showDialog}
-        onClose={() => {setShowDialog(false);}}>
-        <FormularioEditarProyecto _id = {proyecto._id} />
-      </Dialog>
-    </>
-  );
+  }
 };
+
+const AcordionProyectos =({proyecto}) => {
+  const [edit, setEdit] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [modificarProyecto, { data: mutacionProyecto, loading, error }] = useMutation(editarProyecto, {refetchQueries:[{ query: obtenerProyectos}]});
+  
+  const [infoNuevoProyecto, setInfoNuevoProyecto] = useState({
+    _id: proyecto._id,
+    nombre: proyecto.nombre,
+    fechaInicio: proyecto.fechaInicio,
+    fecha_fin: proyecto.fecha_fin,
+    lider: proyecto.lider,
+    presupuesto: proyecto.presupuesto,
+    fase: proyecto.fase,
+    estado: proyecto.estado,
+  });
+
+  const actualizarProyecto = () => {
+    console.log("Le Di a Editar Proyecto:", infoNuevoProyecto)
+    modificarProyecto({ 
+      variables: { ...infoNuevoProyecto }
+    })
+  };
+
+  return (
+
+    edit? (
+      <>
+        <AccordionStyled>
+          <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
+            <div className='flex w-full justify-between items-center'>
+              <span className='font-bold text-gray-600 pr-8'>ID: {proyecto._id.slice(20)}</span>
+              <div className='font-bold text-gray-600 pr-8'>
+                <input 
+                  type="text" 
+                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+                  value={infoNuevoProyecto.nombre}
+                  onChange={(e) => setInfoNuevoProyecto({ ...infoNuevoProyecto, nombre: e.target.value })}/>
+              </div>
+  
+              <div>
+                <select
+                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-24'
+                  name='estado'
+                  required
+                  defaultValue={infoNuevoProyecto.estado}
+                  onChange={(e) => setInfoNuevoProyecto({ ...infoNuevoProyecto, estado: e.target.value })}>
+                    <option disabled value={0}>
+                      Seleccione Una Opción
+                    </option>
+                    <option value="ACTIVO">Activo</option>
+                    <option value="INACTIVO">Inactivo</option>
+                </select>
+              </div>
+  
+            </div>
+
+          </AccordionSummaryStyled>
+          <AccordionDetailsStyled>
+            <PrivateComponent roleList={['ADMINISTRADOR']}>
+            {edit? (
+                <>
+                  <i
+                    onClick={() => actualizarProyecto()} 
+                    className="fas fa-check hover:text-green-600 pr-2"/>
+                  <i
+                    onClick={() => setEdit(!edit)}
+                    className='fas fa-ban hover:text-red-700 pl-2'/>
+                </>
+              ):(
+                <>
+                  <i
+                    onClick={() => setEdit(!edit)}
+                    className="fas fa-edit hover:text-yellow-600"/>
+                
+                </>
+              )}
+              
+            </PrivateComponent>
+            <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
+              <InscripcionProyecto
+                idProyecto={proyecto._id}
+                estado={proyecto.estado}
+                inscripciones={proyecto.inscripciones}
+              />
+            </PrivateComponent>
+  
+            {/* EDICION DATOS PROYECTOS */}
+            <div className='flex justify-between items-center px-2 py-4 text-gray-600'>
+  
+              <div>
+                <span className='font-extrabold'>Inicio: </span>
+                <input 
+                  type="date" 
+                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+                  defaultValue={infoNuevoProyecto.fechaInicio}
+                  onChange={(e) => setInfoNuevoProyecto({ ...infoNuevoProyecto, fechaInicio: e.target.value })}/>
+              </div>
+              <div>
+                <span className='font-extrabold'>Fin: </span>
+                <input 
+                  type="date" 
+                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+                  value={infoNuevoProyecto.fechaFin}
+                  onChange={(e) => setInfoNuevoProyecto({ ...infoNuevoProyecto, fechaFin: e.target.value })}/>
+              </div>
+              <div>
+                <span className='font-extrabold'>Fase: </span>
+                <select
+                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-24'
+                  name='fase'
+                  required
+                  defaultValue={infoNuevoProyecto.fase}
+                  onChange={(e) => setInfoNuevoProyecto({ ...infoNuevoProyecto, fase: e.target.value })}>
+                    <option disabled value={0}>
+                      Seleccione Una Opción
+                    </option>
+                    <option value="INICIADO">Iniciado</option>
+                    <option value="DESARROLLO">Desarrollo</option>
+                    <option value="TERMINADO">Terminado</option>
+                </select>
+              </div>
+            </div>
+            <div className='flex justify-center items-center px-2 py-4 text-gray-600'>
+              <div className='px-8'>
+                <span className='font-extrabold'>Presupuesto: </span>
+                <input 
+                  type="number" 
+                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+                  value={infoNuevoProyecto.presupuesto}
+                  onChange={(e) => setInfoNuevoProyecto({ ...infoNuevoProyecto, presupuesto: e.target.value })}/>
+              </div>
+  
+              <div className='px-8'>
+                <span className='font-extrabold'>Lider: </span>
+                {proyecto.lider.nombre} {proyecto.lider.apellido}
+              </div>
+            </div>
+  
+            {/* OBJETIVOS PROYECTOS */}
+            <div className='flex'>
+              {proyecto.objetivos.map((objetivo) => {
+                return <ListaObjetivos tipo={objetivo.tipo} descripcion={objetivo.descripcion} />;
+              })}
+            </div>
+  
+          </AccordionDetailsStyled>
+        </AccordionStyled>
+        <Dialog
+          open={showDialog}
+          onClose={() => {setShowDialog(false);}}>
+          <FormularioEditarProyecto _id = {proyecto._id} />
+        </Dialog>
+        </>
+
+      ):(
+
+        <>
+        <AccordionStyled>
+          <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
+            <div className='flex w-full justify-between items-center'>
+
+              <span className='font-bold text-gray-600 pr-8'>ID: {proyecto._id.slice(20)}</span>
+  
+              <div className='font-bold text-gray-600 pr-8'>
+                {proyecto.nombre}
+              </div>
+  
+              <div className={
+                proyecto.estado === 'ACTIVO' ? 'relative inline-block mx-4 px-3 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full' 
+                :'relative inline-block mx-4 px-1 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>
+                {proyecto.estado}
+              </div>
+  
+            </div>
+          </AccordionSummaryStyled>
+          <AccordionDetailsStyled>
+            <PrivateComponent roleList={['ADMINISTRADOR']}>
+              <i
+                className='mx-4 fas fa-edit text-gray-600 hover:text-yellow-600'
+                onClick={() => setEdit(!edit)}
+              />
+            </PrivateComponent>
+            <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
+              <InscripcionProyecto
+                idProyecto={proyecto._id}
+                estado={proyecto.estado}
+                inscripciones={proyecto.inscripciones}
+              />
+            </PrivateComponent>
+  
+            {/* DATOS PROYECTOS */}
+            <div className='flex justify-between px-2 py-4 text-gray-600'>
+  
+              
+              <div>
+                <span className='font-extrabold'>Inicio: </span>
+                {proyecto.fechaInicio.slice(0, -14)}
+              </div>
+              <div>
+                <span className='font-extrabold'>Fin: </span>
+                {proyecto.fechaFin.slice(0, -14)}</div>
+              <div>
+                <span className='font-extrabold'>Fase: </span>
+                {proyecto.fase}
+              </div>
+            </div>
+            <div className='flex justify-center px-2 py-4 text-gray-600'>
+              <div className='px-8'>
+                <span className='font-extrabold'>Presupuesto: </span>
+                ${proyecto.presupuesto}
+              </div>
+  
+              <div className='px-8'>
+                <span className='font-extrabold'>Lider: </span>
+                {proyecto.lider.nombre} {proyecto.lider.apellido}
+              </div>
+            </div>
+  
+            {/* OBJETIVOS PROYECTOS */}
+            <div className='flex'>
+              {proyecto.objetivos.map((objetivo) => {
+                return <ListaObjetivos tipo={objetivo.tipo} descripcion={objetivo.descripcion} />;
+              })}
+            </div>
+  
+          </AccordionDetailsStyled>
+        </AccordionStyled>
+        <Dialog
+          open={showDialog}
+          onClose={() => {setShowDialog(false);}}>
+          <FormularioEditarProyecto _id = {proyecto._id} />
+        </Dialog>
+      </>
+      )
+
+  );
+
+
+};
+
+
+/////////////////////////////////////////////////////////////////////
+
 
 const FormularioEditarProyecto = ({ _id }) => {
   const { form, formData, updateFormData } = useFormData();
-  const [editarProyecto, { data: dataMutation, loading, error }] = useMutation(editarProyecto);
+  const [modificarProyecto, { data: dataMutation, loading, error }] = useMutation(editarProyecto, {refetchQueries:[{ query: obtenerProyectos }]});
 
   const submitForm = (e) => {
     e.preventDefault();
-    editarProyecto({
+    modificarProyecto({
       variables: {
         _id,
         campos: formData,
@@ -209,8 +361,8 @@ const FormularioEditarProyecto = ({ _id }) => {
         ref={form}
         onChange={updateFormData}
         onSubmit={submitForm}
-        className='flex flex-col items-center'
-      >
+        className='flex flex-col items-center'>
+
         <DropDown label='Estado del Proyecto' name='estado' options={Enum_EstadoProyecto} />
         <ButtonLoading disabled={false} loading={loading} text='Confirmar' />
       </form>
@@ -232,7 +384,11 @@ const ListaObjetivos = ({ tipo, descripcion }) => {
 
 const InscripcionProyecto = ({ idProyecto, estado, inscripciones }) => {
   const [estadoInscripcion, setEstadoInscripcion] = useState('');
-  const [Inscribirse, { data, loading, error }] = useMutation(crearInscripcion);
+  const [Inscribirse, { data, loading, error }] = useMutation(crearInscripcion,
+    {
+      refetchQueries: [{ query: obtenerProyectos }],
+    }
+  );
   const { userData } = useUser();
 
   useEffect(() => {
@@ -247,26 +403,36 @@ const InscripcionProyecto = ({ idProyecto, estado, inscripciones }) => {
   useEffect(() => {
     if (data) {
       console.log(data);
-      toast.success('inscripcion creada con exito');
+      toast.success('Inscripción Exitosa', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      });
     }
   }, [data]);
 
   const confirmarInscripcion = () => {
-    crearInscripcion({ variables: { proyecto: idProyecto, estudiante: userData._id } });
+    Inscribirse({ variables: { proyecto: idProyecto, estudiante: userData._id } });
   };
 
   return (
     <>
+    <PrivateComponent roleList={['ESTUDIANTE']}>
       {estadoInscripcion !== '' ? (
         <span className='bg-red-500 border-2'>Ya Estás Inscrito {estadoInscripcion}</span>
       ) : (
-        <ButtonLoading
-          onClick={() => confirmarInscripcion()}
-          disabled={estado === 'INACTIVO'}
-          loading={loading}
-          text='Inscribirme'
-        />
+        
+          <ButtonLoading
+            onClick={() => confirmarInscripcion()}
+            disabled={estado === 'INACTIVO'}
+            loading={loading}
+            text='Inscribirme'
+            className='border-2 rounded-lg ml-2 p-1 bg-yellow-300 text-gray-600 font-bold'
+          />
+        
       )}
+    </PrivateComponent>  
     </>
   );
 };
@@ -481,7 +647,5 @@ const FormObjetivo = ({ id }) => {
     </div>
   );
 };
-
-
 
 export default Proyectos;

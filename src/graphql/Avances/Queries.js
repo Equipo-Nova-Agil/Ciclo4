@@ -20,4 +20,19 @@ query Avances {
 }
   `;
 
-  export {obtenerAvances};
+const filtrarAvance = gql`
+query FiltrarAvance($proyecto: String!) {
+  filtrarAvance(proyecto: $proyecto) {
+    _id
+    fecha
+    proyecto {
+      _id
+    }
+    descripcion
+    creadoPor {
+      _id
+    }
+  }
+}
+`;
+  export {obtenerAvances, filtrarAvance};

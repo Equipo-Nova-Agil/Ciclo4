@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactLoading from 'react-loading';
 import PrivateRoute from '../../componets/PrivateRoute';
+import PrivateComponent from '../../componets/PrivateComponent';
 import { useParams } from 'react-router-dom';
 import { obtenerUsuarios } from '../../graphql/Usuarios/Queries.js';
 import {editarUsuario, eliminarUsuario} from '../../graphql/Usuarios/Mutations.js';
@@ -259,9 +260,10 @@ const FilaUsuarios = ({usuario})  => {
                 </option>
                 <option value="PENDIENTE">Pendiente</option>
                 <option value="AUTORIZADO">Autorizado</option>
-                <option value="NO_AUTORIZADO">No Autorizado</option>
+                {/* <PrivateComponent roleList={['ADMINISTRADOR']} */}
+                  <option value="NO_AUTORIZADO">No Autorizado</option>
+                {/* </PrivateComponent> */}
               </select>
-
             </form>
           </td>
           

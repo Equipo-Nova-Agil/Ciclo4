@@ -5,13 +5,13 @@ const crearInscripcion = gql `
     mutation CrearInscripcion(
         $proyecto: String!, 
         $estudiante: String!, 
-        $estado: Enum_EstadoInscripcion!
+        # $estado: Enum_EstadoInscripcion!
         ){
         crearInscripcion(
             proyecto: $proyecto, 
             estudiante: $estudiante, 
-            estado: $estado) 
-            {
+            # estado: $estado
+            ){
             _id
             proyecto {
                 _id
@@ -34,7 +34,6 @@ mutation AprobarInscripcion(
       id: $aprobarInscripcionId
       ) {
       _id
-      
       fechaIngreso
       fechaEgreso
       estado

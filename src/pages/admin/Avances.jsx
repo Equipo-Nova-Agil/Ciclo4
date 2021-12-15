@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { Dialog} from '@material-ui/core';
 
 //QUERIES & MUTATUIONS
-import {obtenerAvances} from '../../graphql/Avances/Queries.js';
+import {obtenerAvances, filtrarAvance} from '../../graphql/Avances/Queries.js';
 import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
 import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
 import {crearAvance, editarAvance, eliminarAvance} from '../../graphql/Avances/Mutations'
@@ -26,13 +26,14 @@ const Avances = () => {
   const [mostrarObservaciones, setMostrarObservaciones] = useState(false);
   const [textoBoton, setTextoBoton] = useState('Nuevo Avance');
   const {loading: loadingAvances, data: dataAvances, error:errorAvances} = useQuery (obtenerAvances);
+  const [avance, setAvance] = useState({})
   
   useEffect(() => {
     if (mostrarObservaciones) {
       setMostrarTabla(false);
-    } else {
+    }else{
       setMostrarTabla(true);
-    }
+    } 
   }, [mostrarObservaciones]);
 
   useEffect(() => {
@@ -80,9 +81,15 @@ const Avances = () => {
         )}
         </div>
         {mostrarObservaciones & !mostrarTabla ? (
-          <Observaciones/>
+          <Observaciones
+          setMostrarObservaciones={setMostrarObservaciones}
+          mostrarObservaciones={mostrarObservaciones}
+          avance={avance}/>
+          
           ) : mostrarTabla ? (
-        <TablaAvances/>
+        <TablaAvances 
+        setMostrarObservaciones={setMostrarObservaciones}
+        mostrarObservaciones={mostrarObservaciones}/>
         ) : (
           <FormularioCreacionAvances
             setMostrarTabla={setMostrarTabla}
@@ -94,10 +101,22 @@ const Avances = () => {
     );
   };
 
-const Observaciones = ()=> {
-  <div>Observaciones</div>
+const Observaciones = ({setMostrarObservaciones, mostrarObservaciones, avance})=> {
+  const {data: dataAvanceFiltrado} = useQuery (filtrarAvance);
+
+
+
+  return(
+  <div className='text-4xl font-extrabold text-red-700'>Observaciones
+  <span>{avance.nombre}</span>
+  <button onClick={() =>setMostrarObservaciones(!mostrarObservaciones)}>Regresar
+  </button>
+  </div>
+
+  )
+
 };
-const TablaAvances = ({ setEjecutarConsulta }) => {
+const TablaAvances = ({ setMostrarObservaciones, mostrarObservaciones}) => {
   const {data:dataAvances} = useQuery (obtenerAvances);
   const [busqueda, setBusqueda] = useState('');
   const listaAvances = dataAvances.Avances;
@@ -160,7 +179,7 @@ const TablaAvances = ({ setEjecutarConsulta }) => {
                         Creado Por
                     </th>
                     <th class="px-1 py-1 m-0 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                        Observaciones
+                        Detalles
                     </th>
                     <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
                     <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
@@ -173,7 +192,9 @@ const TablaAvances = ({ setEjecutarConsulta }) => {
                 {avancesFiltrados.map((avance) => {
                     return <FilaAvances 
                       key={nanoid()} 
-                      avance={avance}/>;
+                      avance={avance}
+                      mostrarObservaciones={mostrarObservaciones}
+                      setMostrarObservaciones={setMostrarObservaciones}/>;
                   })}
                 </tbody>
               </table>
@@ -192,6 +213,8 @@ const FilaAvances = ({avance, mostrarObservaciones,setMostrarObservaciones})  =>
   const [openDialog, setOpenDialog] = useState(false);
   const {data: dataUsuarios} = useQuery (obtenerUsuarios);
   const {data: dataProyectos} = useQuery (obtenerProyectos);
+  const {data: dataAvances} = useQuery (obtenerAvances);
+  const {data: dataAvanceFiltrado} = useQuery (filtrarAvance);
   const [modificarAvance, { data: mutacionEditar, loading: mutationLoading, error: mutationError }] = useMutation(editarAvance, {refetchQueries:[{ query: obtenerAvances }]});
   const [borrarAvance, { data: mutacionEliminar, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarAvance, {refetchQueries:[{ query: obtenerAvances }]});
   const { _id } = useParams();
@@ -239,10 +262,13 @@ const FilaAvances = ({avance, mostrarObservaciones,setMostrarObservaciones})  =>
     };
   };
 
-  const verObservaciones =()=> {
+  const filtroAvance = () => {
     
-    setMostrarObservaciones(true);
-  }
+
+    
+  };
+
+  
   
 
   return (
@@ -323,7 +349,7 @@ const FilaAvances = ({avance, mostrarObservaciones,setMostrarObservaciones})  =>
             <button
               type="button"
               title="Ver Detalles"
-              onClick={() => {mostrarObservaciones(true);}}>
+              onClick={() => setMostrarObservaciones (!mostrarObservaciones)}>
               <i className="fa fa-eye hover:text-blue-600"></i>
             </button>
           </td>

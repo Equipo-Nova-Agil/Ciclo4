@@ -22,26 +22,40 @@ const crearProyecto = gql `
   }
 `;
 
-const editarProyecto = gql `
-    mutation Mutation {
-
-        editarProyecto(
-        nombre: $nombre, 
-        apellido: $apellido, 
-        identificacion: $identificacion, 
-        correo: $correo, 
-        rol: $rol) 
-        {
-            _id
-            nombre
-            apellido
-            identificacion
-            correo
-            rol
-            estado
-            }
+const editarProyecto = gql`
+  mutation EditarProyecto(
+    $_id: String!, 
+    $campos: camposProyecto!) 
+    {
+    editarProyecto(
+      _id: $_id, 
+      campos: $campos) {
+      _id
+      estado
     }
+  }
 `;
+
+// const editarProyecto = gql `
+
+//     mutation EditarProyecto {
+//         editarProyecto(
+//         nombre: $nombre, 
+//         apellido: $apellido, 
+//         identificacion: $identificacion, 
+//         correo: $correo, 
+//         rol: $rol) 
+//         {
+//             _id
+//             nombre
+//             apellido
+//             identificacion
+//             correo
+//             rol
+//             estado
+//             }
+//     }
+// `;
 
 const eliminarProyecto = gql`
     mutation EliminarProyecto (
@@ -55,4 +69,35 @@ const eliminarProyecto = gql`
         }
     }
 `
-export {editarProyecto, crearProyecto, eliminarProyecto};
+const editarObjetivo = gql`
+  mutation EditarObjetivo(
+    $idProyecto: String!, 
+    $indexObjetivo: Int!, 
+    $campos: camposObjetivo!) 
+    {
+    editarObjetivo(
+      idProyecto: $idProyecto, 
+      indexObjetivo: 
+      $indexObjetivo, 
+      campos: $campos) 
+      {
+        _id
+      }
+    }
+`;
+
+const eliminarObjetivo = gql`
+  mutation EliminarObjetivo(
+    $idProyecto: String!, 
+    $idObjetivo: String!) 
+    {
+      eliminarObjetivo(
+        idProyecto: $idProyecto, 
+        idObjetivo: $idObjetivo) 
+        {
+        _id
+        }
+    }
+`;
+
+export {editarProyecto, crearProyecto, eliminarProyecto, editarObjetivo, eliminarObjetivo};
