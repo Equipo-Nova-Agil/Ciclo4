@@ -55,7 +55,8 @@ mutation EditarProyecto(
   $lider: String!,
   $presupuesto: Float!, 
   $fase: Enum_FaseProyecto!,
-  $estado: Enum_EstadoProyecto!
+  $estado: Enum_EstadoProyecto!,
+  $objetivos: [crearObjetivo]
   ) 
   {
   editarProyecto(
@@ -66,7 +67,8 @@ mutation EditarProyecto(
     lider: $lider, 
     presupuesto: $presupuesto, 
     fase: $fase, 
-    estado: $estado
+    estado: $estado,
+    objetivos: $objetivos
     ) 
     {
       _id
