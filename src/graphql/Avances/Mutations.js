@@ -1,27 +1,82 @@
 import { gql} from '@apollo/client';
 
 const crearAvance = gql `
-    mutation Mutation {
-
-        crearAvance(
-        fecha: $fecha, 
-        proyecto: $proyecto, 
-        descripcion: $descripcion, 
-        creadoPor: $creadoPor) 
+    mutation CrearAvance(
+        $fecha: Date! 
+        $proyecto: String! 
+        $descripcion: String! 
+        $creadoPor: String!)
         {
-        _id
-        fecha
-        proyecto {
+            crearAvance(
+            fecha: $fecha, 
+            proyecto: $proyecto, 
+            descripcion: $descripcion, 
+            creadoPor: $creadoPor) 
+            {
             _id
-            nombre
+            fecha
+            proyecto {
+                _id
+                
+            }
+            descripcion
+            creadoPor {
+                _id
+                
+            }
         }
-        descripcion
-        creadoPor {
-            _id
-            nombre
-      }
     }
+    
+`;
+
+const editarAvance = gql `
+    mutation EditarAvance (
+        $_id: String! 
+        $fecha: Date! 
+        $proyecto: String! 
+        $descripcion: String! 
+        $creadoPor: String!) 
+        {
+        editarAvance(
+            _id: $_id
+            fecha: $fecha
+            proyecto: $proyecto
+            descripcion: $descripcion
+            creadoPor: $creadoPor
+        ){
+            _id
+            fecha
+            proyecto {
+                    _id
+            }
+            descripcion
+            creadoPor {
+                _id
+            }
+        }    
+    }
+    
+`;
+
+const eliminarAvance = gql `
+    mutation EliminarAvance (
+        $_id: String!) 
+        {
+        eliminarAvance(
+            _id: $_id)
+            {
+            _id
+            fecha
+            proyecto {
+                _id
+            }
+            descripcion
+            creadoPor {
+                _id
+            }
+        }
     }
 `;
 
-export {crearAvance};
+
+export {crearAvance, editarAvance, eliminarAvance};
