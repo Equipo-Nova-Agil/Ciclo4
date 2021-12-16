@@ -186,7 +186,7 @@ const FilaUsuarios = ({usuario})  => {
           </td>
 
           <td className="px-3 py-3  bg-white text-sm text-center w-44">
-            <input 
+            <input
             type="text" 
             className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
             value={infoNuevaUsuario.identificacion}
@@ -316,9 +316,3 @@ const FilaUsuarios = ({usuario})  => {
 };
 
 export default Usuarios;
-
-                              
-                                      
-                                              
-                                      
- 
