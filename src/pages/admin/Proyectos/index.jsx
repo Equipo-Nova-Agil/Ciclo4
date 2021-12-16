@@ -8,17 +8,17 @@ import { Link } from "react-router-dom";
 import ReactLoading from "react-loading";
 import { useParams } from "react-router-dom";
 import { nanoid } from "nanoid";
-import PrivateComponent from "../../componets/PrivateComponent.jsx";
-import { obtenerProyectos } from "../../graphql/Proyectos/Queries.js";
-import ComponenteNoAutorizado from "../../componets/ComponenteNoAutorizado.jsx";
+import PrivateComponent from "componets/PrivateComponent.jsx";
+import { obtenerProyectos } from "graphql/Proyectos/Queries.js";
+import ComponenteNoAutorizado from "componets/ComponenteNoAutorizado.jsx";
 import {
   crearProyecto,
   editarProyecto,
   eliminarProyecto,
-} from "../../graphql/Proyectos/Mutations.js";
-import { obtenerUsuariosPorFiltro } from "../../graphql/Usuarios/Queries.js";
-import { crearInscripcion } from "../../graphql/Incripciones/Mutations.js";
-import useFormData from "../../hooks/useFormData";
+} from "graphql/Proyectos/Mutations.js";
+import { obtenerUsuariosPorFiltro } from "graphql/Usuarios/Queries.js";
+import { crearInscripcion } from "graphql/Incripciones/Mutations.js";
+import useFormData from "hooks/useFormData";
 import Paginacion from "componets/Paginacion.jsx";
 
 const Proyectos = () => {
@@ -466,7 +466,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
         <div className="flex w-24 justify-around text-gray-800 ">
           <>
             <Link
-              to={`/admin/viedProyectos/${proyecto._id}`}
+              to={`/admin/vieditproyectos/${proyecto._id}`}
               title="Ver mas detalles"
             >
               <i className="fa fa-eye hover:text-blue-600"></i>

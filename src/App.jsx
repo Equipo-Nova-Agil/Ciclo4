@@ -15,8 +15,8 @@ import AuthLayout from './layouts/AuthLayout';
 import Index from './pages/Index';
 import Error404 from "pages/Error404";
 import Usuarios from './pages/admin/Usuarios';
-import Proyectos from './pages/admin/Proyectos';
-import ViedProyectos from './pages/admin/ViedProyectos';
+import Proyectos from './pages/admin/Proyectos/index';
+import VieditProyectos from './pages/admin/Proyectos/viedit';
 import Perfil from "pages/admin/Perfil";
 import Inscripciones from "pages/admin/Inscripciones/index";
 import Avances from "pages/admin/Avances";
@@ -97,7 +97,7 @@ function App() {
                 <Route path='' element={<Perfil/>}/>
                 <Route path='usuarios' element={<Usuarios/>}/>
                 <Route path='proyectos' element={<Proyectos/>}/>
-                <Route path='viedProyectos/:_id' element={<ViedProyectos />} />
+                <Route path='vieditproyectos/:_id' element={<VieditProyectos />} />
                 <Route path='inscripciones' element={<Inscripciones/>}/>
                 <Route path='avances' element={<Avances/>}/>
                 <Route path='cambiarpassword' element={<CambiarPassword/>}/>
