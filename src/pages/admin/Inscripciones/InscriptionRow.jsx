@@ -9,18 +9,18 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
 
   return (
     <tr>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaIngreso.slice(0, -14)}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaEgreso}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.fechaIngreso && user.fechaIngreso.slice(0, -14)}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.fechaEgreso && user.fechaEgreso.slice(0, -14)}</td>
 
       <td className={
         user.estado === 'ACEPTADO' 
-          ? 'flex justify-center my-3 px-4 py-2 border-b-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
+          ? 'flex justify-center my-3 px-4 py-2 border-b border-gray-300 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
         :user.estado === 'PENDIENTE' 
-          ?('flex justify-center my-3 px-6 py-2 border-b-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
-          :'flex justify-center my-3 px-4 py-2 border-b-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{user.estado}
+          ?('flex justify-center my-3 px-6 py-2 border-b border-gray-300 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
+          :'flex justify-center my-3 px-4 py-2 border-b border-gray-300 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{user.estado}
         </td>
 
 
@@ -72,11 +72,11 @@ function InscriptionRowForm(props) {
 
   return (
     <tr>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaIngreso.slice(0, -14)}</td>
-      <td className="px-3 py-3 border-b-2 bg-white text-sm text-center w-44">{user.fechaEgreso}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user._id.slice(18)}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.fechaIngreso && user.fechaIngreso.slice(0, -14)}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.fechaEgreso && user.fechaEgreso.slice(0, -14)}</td>
       <td className={
         user.estado === 'ACEPTADO' 
           ? 'flex justify-center my-3 px-4 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
