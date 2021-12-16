@@ -1,280 +1,174 @@
-import React, { useState, useEffect, useRef } from "react";
-import { nanoid } from 'nanoid';
+import React, { useState, useEffect} from "react";
+import { useParams } from 'react-router-dom';
+import { useUser } from 'context/userContext';
+import { ObservacionContext, useObservacion } from '../../context/observacionContext.js';
 import { useQuery, useMutation } from '@apollo/client';
-import { ToastContainer, toast } from "react-toastify";
-import { obtenerAvances } from '../../graphql/Avances/Queries.js';
+import { Enum_TipoObjetivo } from '../../utils/enum.js';
+
+
+//DEPENDENCIAS & HOOKS
+import { Dialog } from '@mui/material';
+import { toast } from 'react-toastify';
+import { nanoid } from 'nanoid';
+import ReactLoading from 'react-loading';
+import useFormData from '../../hooks/useFormData';
+
+//QUERIES & MUTATUIONS
+import {obtenerAvances, filtrarAvance} from '../../graphql/Avances/Queries.js';
 import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
 import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
-import {crearAvance} from '../../graphql/Avances/Mutations'
-import useFormData from 'hooks/useFormData';
-import ReactLoading from 'react-loading';
-import PrivateComponent from '../../componets/PrivateComponent'
+import {crearAvance, editarAvance, eliminarAvance} from '../../graphql/Avances/Mutations'
+
+//COMPONETS
+import Input from '../../componets/Input';
+import TextArea from '../../componets/textArea';
+import DropDown from "componets/Dropdown.jsx";
+import ButtonLoading from "componets/ButtonLoading.jsx";
+import PrivateComponent from '../../componets/PrivateComponent';
+import {AccordionStyled, AccordionSummaryStyled, AccordionDetailsStyled} from '../../componets/Accordion';
+
 
 const Avances = () => {
-  const [mostrarTabla, setMostrarTabla] = useState(true);
-  const [avances, setAvances] = useState([]);
+  const [mostrarAvances, setMostrarAvances] = useState(true);
+  const [agregarObservaciones, setAgregarObservaciones] = useState(false);
   const [textoBoton, setTextoBoton] = useState('Nuevo Avance');
-  const [ejecutarConsulta, setEjecutarConsulta] = useState(true);
-  const {loading, data: dataAvances, error} = useQuery (obtenerAvances);
+  const [avance, setAvance] = useState({})
+  const {loading: loadingAvances, data: dataAvances, error:errorAvances} = useQuery (obtenerAvances);
+  
+  useEffect(() => {
+    if (agregarObservaciones) {
+      setMostrarAvances(false);
+    }else{
+      setMostrarAvances(true);
+    } 
+  }, [agregarObservaciones]);
 
   useEffect(() => {
-      console.log('Datos Avances Servidor', dataAvances);
-  }, [dataAvances]);
-
-  useEffect(() => {
-    console.log('consulta', ejecutarConsulta);
-    if (ejecutarConsulta) {
-          setAvances(dataAvances);
-          setEjecutarConsulta(false);
-        }
-  }, [ejecutarConsulta]);
-  console.log('Avances', dataAvances)
-
-  useEffect(() => {
-    //obtener lista de avances desde el backend
-    if (mostrarTabla) {
-      setEjecutarConsulta(true);
-    }
-  }, [mostrarTabla]);
-
-  useEffect(() => {
-    if (mostrarTabla) {
+    if (mostrarAvances) {
       setTextoBoton('Nuevo Avance');
-      
     } else {
       setTextoBoton('Todos Los Avances');
-      
     }
-  }, [mostrarTabla]);
+  }, [mostrarAvances]);
 
   useEffect(() => {
-    if (error) {
-      toast.error('Error Consultando Avances');
+    if (errorAvances) {
+      toast.error('Error Consultando Avances', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
     }
-  }, [error]);
+  }, [errorAvances]);
 
-  if (loading) return <div>
-                        <h1 className='text-3xl font-extrabold'>Cargando...</h1>
-                        <ReactLoading type='bars' color='#11172d' height={467} width={175} />
-                      </div>;
+  if (loadingAvances) return <div>
+    <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+    <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+    </div>;
+
+
     return (
       <div className='flex h-full w-full flex-col items-center justify-start p-8'>
-        <div className='flex flex-col'>
-          <h2 className='text-3xl pt-12 pb-8 font-extrabold fuenteColor'>
-          Gestión de Avances
-          </h2>
-          <button
-          onClick={() => {
-            setMostrarTabla(!mostrarTabla);
-          }}
-          className={`shadow-md fondo1 text-gray-200 font-bold p-2 rounded m-6  self-center hover:bg-gray-800`}>
-          {textoBoton}
-        </button>
-        </div>
-        {mostrarTabla ? (
-        <TablaAvances listaAvances={avances} setEjecutarConsulta={setEjecutarConsulta} />
-        ) : (
-          <FormularioCreacionAvances
-            setMostrarTabla={setMostrarTabla}
-            listaAvances={avances}
-            setAvances={setAvances}
-          />
-        )}
-        <ToastContainer position='bottom-center' autoClose={3000} />
-      </div>
-    );
-  };
-
-const TablaAvances = ({ listaAvances, setEjecutarConsulta }) => {
-  const {data:dataAvances} = useQuery (obtenerAvances);
-  const [busqueda, setBusqueda] = useState('');
-  const [avancesFiltrados, setAvancesFiltrados] = useState(listaAvances);
-  
-  // useEffect(() => {
-  //   setAvancesFiltrados(
-  //   listaAvances.filter((elemento) => {
-  //       return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
-  //       })
-  //     );
-  //   }, [busqueda, listaAvances]);
-
-  return (
-  <div>
-    <body className="antialiased font-sans bg-white">
-      <div class="container mx-auto px-4 sm:px-8">
-        <div class="py-8">
-
-          {/* BUSCADOR */}
-          <div class="my-2 mx-2 flex sm:flex-row flex-col">
-            <div class="block relative">
-              <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
-                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
-                  <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
-                  </path>
-                </svg>
-              </span>
-              <input 
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar"
-                class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"/>
-            </div>
-          </div>
-          
-            {/* HEADERS TABLA */}
-            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-              <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
-              
-              <table className="tabla w-full">
-                <thead>
-                  <tr>
-                    
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                        Código
-                    </th>
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
-                        Fecha
-                    </th>
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
-                        Proyecto
-                    </th>
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
-                        Descripción
-                    </th>
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
-                        Creado Por
-                    </th>
-                    
-                    {/* <PrivateComponent roleList={['Administrador']}> */}
-                    <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                        Acciones
-                    </th> 
-                    {/* </PrivateComponent> */}
-                  </tr>
-                </thead>
-                <tbody>
-                {dataAvances.Avances.map((avance) => {
-                    return <FilaAvances 
-                      key={avance._id} 
-                      avance={avance}
-                      setEjecutarConsulta={setEjecutarConsulta}/>;
-                  })}
-                </tbody>
-              </table>
+              <div className='flex flex-col'>
+                <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
+                Administración de Avances
+                </h2>
+                {agregarObservaciones & !mostrarAvances ? (
+                <></>
+                ) : (
+                <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
+                  <button
+                    onClick={() => {setMostrarAvances(!mostrarAvances);}}
+                    className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}>
+                    {textoBoton}
+                  </button>
+                </PrivateComponent>
+                )}
               </div>
-
+              {agregarObservaciones & !mostrarAvances ? (
+                <Observaciones
+                  setAgregarObservaciones={setAgregarObservaciones}
+                  agregarObservaciones={agregarObservaciones}
+                  avance={avance}/>
+              ) : mostrarAvances ? (
+                <ListaAvances
+                  setAgregarObservaciones={setAgregarObservaciones}
+                  agregarObservaciones={agregarObservaciones}/>
+        
+              ) : (
+                <FormularioCreacionAvance
+                setMostrarAvances={setMostrarAvances}
+              />
+            )}
             </div>
-        </div>
-      </div>
-    </body>
-</div>  
-  );
-}; 
+          );
+};
 
-const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
+const ListaAvances = ()=> {
+  const { data: dataAvances, loading: loadingAvances} = useQuery(obtenerAvances);
+  if (loadingAvances) return <div>
+    <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+    <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+    </div>;
+  if (dataAvances.Avances) {
+    return (
+    <div className='p-4 flex w-10/12 flex-col'>
+      {dataAvances && dataAvances.Avances.map((avance) => {
+        return <AcordionAvances avance={avance} />;
+      })}
+    </div>
+  );
+  }
+
+};
+
+const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones}) => {
   const [edit, setEdit] = useState(false);
-  const {data: dataUsuarios} = useQuery (obtenerUsuarios);
-  const {data: dataProyectos} = useQuery (obtenerProyectos);
+  const [showDialog, setShowDialog] = useState(false);
+  const [modificarAvance, { data: mutacionAvance, loading, error }] = useMutation(editarAvance, {refetchQueries:[{ query: obtenerAvances}]});
   
-  const listaEstudiantes = dataUsuarios && dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
-  console.log('Lista Estudiantes', listaEstudiantes);
-  const listaProyectos = dataProyectos && dataProyectos.Proyectos.filter(p => (p.fase === 'INICIADO')||(p.fase ==='DESARROLLO'));
-  console.log('Lista Proyectos', listaProyectos);
-    
   const [infoNuevoAvance, setInfoNuevoAvance] = useState({
     _id: avance._id,
     fecha: avance.fecha,
     proyecto: avance.proyecto,
     descripcion: avance.descripcion,
-    creadoPor: avance.creadoPor,    
+    creadoPor: avance.creadoPor, 
   });
-  
+
+  const actualizarAvance = () => {
+    console.log("Le Di a Editar Proyecto:", infoNuevoAvance)
+    modificarAvance({ 
+      variables: { ...infoNuevoAvance }
+    })
+  };
 
   return (
-    <tr >
-      {edit? (
-        <>
-        
-          <td className='text-center'>{infoNuevoAvance._id.slice(20)}
-          </td>
-          <td><input 
-            type="date" 
-            className="bg-gray-50 border border-gray-600 p-1 text-center rounded-lg m-1 w-full"
-            value={infoNuevoAvance.fecha}
-            onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, fecha: e.target.value })}/>
-          </td>
-          <td>
-          <label className='flex flex-col py-2 text-gray-800' htmlFor='proyecto'>
-              
-              <select
-              className="bg-gray-50 border border-gray-600 p-1 rounded-lg m-1 w-full"
-              name='proyecto'
-              onChange ={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, proyecto: e.target.value })}
-              defaultValue={infoNuevoAvance.proyecto}>
-                {listaProyectos.map((p) => {
-             return (
-               <option
-                 key={nanoid()}
-                 value={p._id}
-               >{p.nombre}</option>
-             );
-           })}
-            </select>
-            </label>
-          </td>
-            
-          
-          <td>
-            <input 
-            type="text" 
-            className="bg-gray-50 border border-gray-600 p-1 text-center rounded-lg m-1 w-full"
-            value={infoNuevoAvance.descripcion}
-            onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, descripcion: e.target.value })}/>
-          </td>
-          <td>
-            <label className='flex flex-col py-2 text-gray-800' htmlFor='creadoPor'>
-              
-              <select
-              className="bg-gray-50 border border-gray-600 p-1 rounded-lg m-1 w-full"
-              name='creadoPor'
-              onChange ={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, creadoPor: e.target.value })}
-              defaultValue={infoNuevoAvance.creadoPor}>
-                {listaEstudiantes.map((p) => {
-             return (
-               <option
-                 key={nanoid()}
-                 value={p._id}
-               >{p.nombre}</option>
-             );
-           })}
-            </select>
-            </label> 
-          </td>
-            
-            
-            
-        </>
-        
-      ) :(
+
+    edit? (
       <>
-          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance._id.slice(20)}</td>
-          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.fecha}</td>
-          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.proyecto.nombre}</td>
-          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.descripcion}</td>
-          <td className=" border-b border-gray-300 rounded-lg bg-white text-md text-center text-gray-800">{avance.creadoPor.nombre}</td>
-      </>  
-        )}
-          {/* <PrivateComponent roleList={['Administrador']}> */}
-        <td>
-            <div className="flex w-full justify-around text-gray-600 ">
-              {edit? (
+        <AccordionStyled>
+          {/* ENCABEZADO ARCORDEON */}
+          <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
+            <div className='flex w-full justify-between items-center'>
+
+              <span className='font-bold text-gray-600 pr-8'>ID: {avance._id.slice(20)}</span>
+              <div className='font-extrabold text-gray-600 uppercase justify-center items-center'>
+                {avance.proyecto.nombre}
+              </div>
+            </div>
+          </AccordionSummaryStyled>
+
+          <AccordionDetailsStyled>
+            {/* <PrivateComponent roleList={['ADMINISTRADOR']}> */}
+            {edit? (
                 <>
                   <i
-                    // onClick={() => actualizarAvance()} 
-                    className="fas fa-check hover:text-green-600"/>
+                    onClick={() => actualizarAvance()} 
+                    className="fas fa-check hover:text-green-600 pr-2"/>
                   <i
                     onClick={() => setEdit(!edit)}
-                    className='fas fa-ban hover:text-yellow-700'/>
+                    className='fas fa-ban hover:text-red-700 pl-2'/>
                 </>
               ):(
                 <>
@@ -282,114 +176,341 @@ const FilaAvances = ({avance, ejecutarConsulta, setEjecutarConsulta})  => {
                     onClick={() => setEdit(!edit)}
                     className="fas fa-edit hover:text-yellow-600"/>
                 
-                    
-                  <i
-                      // onClick={() => borrarAvance()}
-                      class="fas fa-trash text-gray-600 hover:text-red-500"/>
                 </>
-              )} 
+              )}
+              
+            {/* </PrivateComponent> */}
+            
+  
+            {/* EDICION DATOS PROYECTOS */}
+            <div className='flex justify-between items-center px-2 py-4 text-gray-600'>
+  
+              <div>
+                <span className='font-extrabold'>Fecha: </span>
+                <input 
+                  type="date" 
+                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+                  defaultValue={infoNuevoAvance.fecha}
+                  onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, fecha: e.target.value })}/>
+              </div>
+              <div>
+                <span className='font-extrabold'>Creado Por: </span>
+                {avance.creadoPor.nombre} {avance.creadoPor.apellido}
+              </div>
+              <div className='px-8'>
+                <span className='font-extrabold'>Líder: </span>
+                {avance.proyecto.lider.nombre} {avance.proyecto.lider.apellido}
+              </div>
+            </div>
+            <div className='flex justify-center items-center px-2 py-4 text-gray-600'>
+              <div className='px-8'>
+                <span className='font-extrabold'>Descripcion: </span>
+                <TextArea
+                name='descripcion'
+                rows="4"
+                cols="25"
+                className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+                // defaultValue={infoNuevoAvance.descripcion}
+                onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, descripcion: e.target.value })}
+                />
+              </div>
+  
               
             </div>
-            
+  
+            {/* OBSERVACIONES AVANCES */}
+            {/* <div className='flex'>
+              {avance.observaciones.map((observacion) => {
+                return <ListaObservaciones tipo={observacion.tipo} descripcion={observacion.descripcion} />;
+              })}
+            </div> */}
+  
+          </AccordionDetailsStyled>
+        </AccordionStyled>
+        {/* <Dialog
+          open={showDialog}
+          onClose={() => {setShowDialog(false);}}>
+          <FormularioEditarProyecto _id = {proyecto._id} />
+        </Dialog> */}
+        </>
 
-        </td>
-          {/* </PrivateComponent> */}
-      
-    </tr>
+      ):(
+
+        <>
+        <AccordionStyled>
+          <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
+            <div className='flex w-full justify-center items-center'>
+
+              <span className='font-bold text-gray-600 pr-1'>ID: </span>
+              <span className=' text-gray-600 pr-8'>{avance._id.slice(20)}</span>
+
+              <div className='font-extrabold text-gray-600 uppercase justify-center items-center'>
+                {avance.proyecto.nombre}
+              </div>
+            </div>
+
+          </AccordionSummaryStyled>
+          <AccordionDetailsStyled>
+            <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
+              <i
+                className='mx-4 fas fa-edit text-gray-600 hover:text-yellow-600'
+                onClick={() => setEdit(!edit)}
+              />
+            </PrivateComponent>
+  
+            {/* DATOS AVANCES */}
+            <div className='flex justify-between px-2 py-4 text-gray-600'>
+  
+              <div>
+                <span className='font-extrabold'>Fecha: </span>
+                {avance.fecha.slice(0, -14)}
+              </div>
+              <div>
+                <span className='font-extrabold'>Creado Por: </span>
+                {avance.creadoPor.nombre} {avance.creadoPor.apellido}
+              </div>
+              <div className='px-8'>
+                <span className='font-extrabold'>Líder: </span>
+                {avance.proyecto.lider.nombre} {avance.proyecto.lider.apellido}
+              </div>
+            </div>
+            <div className='flex justify-center px-2 py-4 text-gray-600'>
+              <div>
+                <span className='font-extrabold'>Descripción: </span>
+                {avance.descripcion}
+              </div>
+            </div>
+            
+              <h1 className='font-bold text-gray-600 text-center mt-8 mb-2'>Observaciones Del Líder:</h1>
+              <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+                <button
+                  className='bg-yellow-300 rounded-lg p-1 text-sm text-gray-600 hover:text-blue-900'
+                  type="button"
+                  title="Ver Detalles"
+                  onClick={() => setAgregarObservaciones (!agregarObservaciones)}>
+                  <i className="fa fa-eye "></i> Agregar
+                </button>
+              </PrivateComponent>
+
+            
+  
+            {/* OBSERVACIONES AVANCES */}
+            {/* <div className='flex'>
+              {avance.observaciones.map((objetivo) => {
+                return <ListaObservaciones tipo={objetivo.tipo} descripcion={observaciones.descripcion} />;
+              })}
+            </div> */}
+  
+          </AccordionDetailsStyled>
+        </AccordionStyled>
+        
+      </>
+      )
 
   );
+
+
 };
 
-const FormularioCreacionAvances = ({ setMostrarTabla, listaAvances, setAvances }) => {
+const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
   const { form, formData, updateFormData } = useFormData();
-  const {data: dataUsuarios} = useQuery (obtenerUsuarios);
-  const {data: dataProyectos} = useQuery (obtenerProyectos);
-  const [nuevoAvance, { data: dataMutation, loading: loadingMutation, error: errorMutation }] =useMutation(crearAvance);
+  const [listaLideres, setListaLideres] = useState({});
+  const [listaProyectos, setListaProyectos] = useState({});
+  const {data: dataProyectos, loading: loadingProyectos} = useQuery (obtenerProyectos);
+  const { userData} = useUser();
+  const { data: dataUsuarios, loading: loadingUsuarios, error: errorUsuarios } = useQuery(obtenerUsuarios
+    , 
+    {
+    variables: {
+      filtro: { _id: userData._id },
+    },
+  }
+  );
 
-  const listaEstudiantes = dataUsuarios.Usuarios.filter(e => (e.rol === 'ESTUDIANTE') && (e.estado === 'AUTORIZADO'));
-  console.log('Lista Estudiantes', listaEstudiantes);
-  const listaProyectos = dataProyectos.Proyectos.filter(p => (p.fase === 'INICIADO')||(p.fase ==='DESARROLLO'));
-  console.log('Lista Proyectos', listaProyectos);
-  
-  const submitForm = (e) => {
-    e.preventDefault();
-    nuevoAvance({ variables: formData });
-  };
+  const proyectosInscritos= dataUsuarios && dataUsuarios.Usuarios[0].inscripciones.filter(p => (p.proyecto.fase === 'INICIADO')||(p.proyecto.fase ==='DESARROLLO'));
+  console.log('Lista Proyectos Inscritos', proyectosInscritos)
+  const [nuevoAvance, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
 
   useEffect(() => {
-    console.log ('Datos Nuevo Avance', dataMutation);
-  },[dataMutation])
-    
-  
+    if (loadingUsuarios) return <div>
+        <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+        <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+      </div>;
+  });
 
-  return (
+  useEffect(() => {
+    if (dataUsuarios) {
+      const py = {};
+      proyectosInscritos.forEach((p) => {
+        py[p.proyecto._id] = p.proyecto.nombre;
+      });
+      setListaProyectos(py);
+      mostrarAvances = false ;
+    }
+  }, [dataUsuarios]);
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    // formData.observaciones = Object.values(formData.observaciones);
+    formData.proyecto = formData.toString(formData.proyecto);
+    formData.creadoPor = userData._id;
+
+    nuevoAvance({
+      variables: formData,
+    });
+    toast.success('Avance Creado Exitosamente', 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    });
+    setMostrarAvances(true);
+  };
+
+  return(
     <div className='flex flex-col items-center justify-center'>
-      <h2 className='text-2xl font-extrabold pb-4 text-gray-800'>Nuevo Avance</h2>
-      <form onSubmit={submitForm} onChange={updateFormData} ref={form} className='flex flex-col justify-center text-center pb-10'>
+      <h2 className='text-2xl font-extrabold pb-4 mb-4 mt-4 text-gray-800'>Nuevo Avance</h2>
+    
+      <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
         
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='fecha'>
-          Fecha del Avance
-          <input
+
+        
+
+        <div className='flex flex-col m-4 justify-center items-center'>
+
+        <label className='flex flex-col py-2 text-gray-800 font-bold text-center' for='fecha'>
+            Fecha: 
+          </label>
+          <Input 
             name='fecha'
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2 '
-            type='date'
-            required/>
-        </label>
-        
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='proyecto'>
-        Proyecto
-          <select
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
+            className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm text-center shadow-md focus:outline-none focus:ring w-48' 
+            required={true} 
+            type='date'/>
+
+          <label className='flex flex-col mr-2 py-2 text-gray-800 font-bold text-center' for='proyecto'>
+            Proyecto: 
+          </label>
+          <DropDown 
+            options={listaProyectos}
             name='proyecto'
-            required
-            defaultValue={0}>
-            <option disabled value={0}>
-              Elija una Opción
-            </option>
-            {listaProyectos.map((p) => {
-              return <option key={nanoid()}  value={p._id}>{`${p.nombre}`}</option>;
-            })}
-          </select>
-        </label>
-        
-        
-        
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='precio'>    
-          Descripción del Avance
-          <input
-            name='descripcion'
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
-            type='text'
-            required/>
-        </label>
-        
-        <label className='flex flex-col py-2 text-gray-800' htmlFor='creadoPor'>
-        Creador del Avance
-          <select
-            className='bg-gray-50 border border-gray-600 p-2 rounded-lg m-2'
-            name='creadoPor'
-            required
-            defaultValue={0}>
-            <option disabled value={0}>
-              Elija una Opción
-            </option>
-            {listaEstudiantes.map((e) => {
-              return <option key={nanoid()}  value={e._id}>{`${e.nombre}`}</option>;
-            })}
-          </select>
-        </label>
-        <button
-          type='submit'
-          className='col-span-2 py-3 fondo1 font-bold  text-gray-300 p-2 rounded-full shadow-md hover:bg-gray-700'
-        >
-          Guardar Avance
-        </button>
+            className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm text-center shadow-md focus:outline-none focus:ring w-48' 
+            required={true} />
+        </div>
+
+        <div className='justify-center items-center'>
+          <label className='flex flex-col mt-2 py-2 font-bold text-gray-800 text-center' for='descripcion'>
+            Descripción Del Avance:
+          </label>
+          <TextArea
+          name='descripcion'
+          className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200 rounded text-sm shadow-lg focus:outline-none focus:ring w-96 justify-center'
+          rows="8"
+          cols="20"
+          required={true}/>
+        </div>
+
+
+
+        {/* <div className='flex m-4 pt-6 justify-center items-center'>
+          <Observaciones />
+        </div> */}
+
+        <div className='flex m-4 justify-center items-center'>
+          <ButtonLoading 
+            text='Crear Avance' 
+            loading={false} 
+            disabled={false}
+            className='fondo1 text-white active:bg-gray-700 text-md font-bold mt-5 px-6 py-4 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-60 transform hover:translate-y-1 transition-transform ease-in duration-200' />
+        </div>
+
       </form>
+    </div>
+
+  );
+
+
+};
+
+const ListaObservaciones = ({ tipo, descripcion }) => {
+  return (
+    <div className='mx-5 my-4 text-gray-600 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
+      <div className='text-md font-bold'>Observación: {tipo}</div>
+      <div>{descripcion}</div>
+      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+        <div className='text-indigo-600 text-sm underline'>Editar</div>
+      </PrivateComponent>
     </div>
   );
 };
-      
+
+const Observaciones = () => {
+  const [listaObservaciones, setListaObservaciones] = useState([]);
+  const [maxObservaciones, setMaxObservaciones] = useState(false);
+
+  const eliminarObservacion = (id) => {
+    setListaObservaciones(listaObservaciones.filter((ob) => ob.props.id !== id));
+  };
+
+  const componenteObservacionAgregada = () => {
+    const id = nanoid();
+    return <FormularioObservacion key={id} id={id} />;
+  };
+
+  useEffect(() => {
+    if (listaObservaciones.length > 4) {
+      setMaxObservaciones(true);
+    } else {
+      setMaxObservaciones(false);
+    }
+  }, [listaObservaciones]);
+
+  return (
+    <ObservacionContext.Provider value={{ eliminarObservacion }}>
+      <div>
+        <span className='flex flex-col mt-2 py-2 font-bold text-gray-800 text-center'>
+          Observaciones del Líder
+        </span>
+        {!maxObservaciones && (
+          <i
+            onClick={() => setListaObservaciones([...listaObservaciones, componenteObservacionAgregada()])}
+            className='fas fa-plus rounded-full bg-green-500 hover:bg-green-400 text-white p-2 mx-2 cursor-pointer'
+          />
+        )}
+        {listaObservaciones.map((observacion) => {
+          return observacion;
+        })}
+      </div>
+    </ObservacionContext.Provider>
+  );
+};
+
+const FormularioObservacion = ({ id }) => {
+  const { eliminarObservacion } = useObservacion();
+  return (
+    <div>
     
+    <div className='flex items-center'>
+      <DropDown
+        name={`nested||objetivos||${id}||tipo`}
+        options={Enum_TipoObjetivo}
+        label='Tipo: '
+        required={true}
+      />
+      <Input
+        name={`nested||objetivos||${id}||descripcion`}
+        label='Descripción: '
+        type='text'
+        required={true}
+      />
+      <i
+        onClick={() => eliminarObservacion(id)}
+        className='fas fa-minus rounded-full bg-red-500 hover:bg-red-400 text-white p-2 mx-2 cursor-pointer mt-6'
+      />
+    </div>
+
+    </div>
+  );
+};
 
 
 export default Avances;
