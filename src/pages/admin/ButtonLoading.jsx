@@ -20,5 +20,6 @@ const ButtonLoading = ({ disabled, loading, text, onClick = () => {} }) => (
             text
         )}
     </button>
-);
-export default ButtonLoading;
+  );
+
+  export default ButtonLoading;
