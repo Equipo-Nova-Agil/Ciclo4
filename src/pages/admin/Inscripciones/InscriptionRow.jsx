@@ -13,7 +13,7 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
       <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.nombreProyecto}</td>
       <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.nombreEstudiante}</td>
       <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.fechaIngreso && user.fechaIngreso.slice(0, -14)}</td>
-      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.fechaEgreso && user.fechaEgreso.slice(0, -14)}</td>
+      <td className="px-3 py-3 border-b border-gray-300 bg-white text-sm text-center w-44">{user.estadoProyecto === "INACTIVO" || user.faseProyecto ===  "TERMINADO" ? new Date(Date.now()).toLocaleDateString().replace(/\//g , '-').split('-').reverse().join('-') : ""}</td>
 
       <td className={
         user.estado === 'ACEPTADO' 

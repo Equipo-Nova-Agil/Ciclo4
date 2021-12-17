@@ -107,6 +107,8 @@ const Inscripciones = () => {
         fechaIngreso: i.fechaIngreso,
         fechaEgreso: i.fechaEgreso,
         nombreProyecto: i.proyecto.nombre,
+        estadoProyecto: i.proyecto.estado,
+        faseProyecto: i.proyecto.fase
       }));
       setEdit(updatedCopyData.map(() => false));
       setCopyData(updatedCopyData);
@@ -128,6 +130,8 @@ const Inscripciones = () => {
         fechaIngreso: i.fechaIngreso,
         fechaEgreso: i.fechaEgreso,
         nombreProyecto: i.proyecto.nombre,
+        estadoProyecto: i.proyecto.estado,
+        faseProyecto: i.proyecto.fase
       }));
       setEdit(updatedCopyData.map(() => false));
       setCopyData(updatedCopyData);

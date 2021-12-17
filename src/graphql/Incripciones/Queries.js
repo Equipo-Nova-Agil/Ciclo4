@@ -10,6 +10,8 @@ query Inscripciones {
     proyecto {
       _id
       nombre
+      estado
+      fase
     }
     estudiante {
       _id
