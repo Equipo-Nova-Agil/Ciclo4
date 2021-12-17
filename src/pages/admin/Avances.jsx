@@ -25,7 +25,7 @@ import TextArea from '../../componets/textArea';
 import DropDown from "componets/Dropdown.jsx";
 import ButtonLoading from "componets/ButtonLoading.jsx";
 import PrivateComponent from '../../componets/PrivateComponent';
-import {AccordionStyled, AccordionSummaryStyled, AccordionDetailsStyled} from '../../componets/Accordion';
+import {AccordionStyled, AccordionSummaryStyled, AccordionDetailsStyled} from '../../componets/AccordionAvances';
 
 
 const Avances = () => {
