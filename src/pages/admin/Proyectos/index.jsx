@@ -19,7 +19,7 @@ import {
 import { obtenerUsuariosPorFiltro } from "graphql/Usuarios/Queries.js";
 import { crearInscripcion } from "graphql/Incripciones/Mutations.js";
 import useFormData from "hooks/useFormData";
-import Paginacion from "componets/Paginacion.jsx";
+//import Paginacion from "componets/Paginacion.jsx";
 
 const Proyectos = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
@@ -34,6 +34,7 @@ const Proyectos = () => {
     loading: loadingProyectos,
     data: dataProyectos,
     error: errorProyectos,
+    refetch
   } = useQuery(obtenerProyectos);
 
   //LISTADO LIDERES
@@ -64,10 +65,12 @@ const Proyectos = () => {
     } else {
       setTextoBoton("Mostrar Todos Los Proyectos");
     }
+    refetch()
   }, [mostrarTabla]);
 
   useEffect(() => {
     console.log("Datos Proyectos Servidor", dataProyectos);
+    refetch()
   }, [dataProyectos]);
 
   useEffect(() => {
@@ -112,6 +115,7 @@ const Proyectos = () => {
           listaProyectos={proyectos}
           setEjecutarConsulta={setEjecutarConsulta}
           datosUsuario={userData}
+          setMostrarTabla={setMostrarTabla}
         />
       ) : (
         <FormularioCreacionProyectos
@@ -127,9 +131,9 @@ const Proyectos = () => {
 };
 
 //==================================TABLA PROYECTOS==================================
-const TablaProyectos = ({ datosUsuario }) => {
+const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
   const [busqueda, setBusqueda] = useState("");
-  const { data: dataProyectos } = useQuery(obtenerProyectos);
+  const { data: dataProyectos,refetch } = useQuery(obtenerProyectos);
   const [proyectosFiltrados, setProyectosFiltrados] = useState(
     dataProyectos.Proyectos
   );
@@ -232,11 +236,11 @@ const TablaProyectos = ({ datosUsuario }) => {
                           })}
                       </tbody>
                     </table>
-                    <Paginacion
+                    {/* <Paginacion
                       fin={totalRegistrosFiltrados}
                       registros={totalRegistros}
                       limite={10}
-                    />
+                    /> */}
                   </div>
                 ) : (
                   <div role="alert">
@@ -262,7 +266,7 @@ const TablaProyectos = ({ datosUsuario }) => {
 };
 
 //==================================FILA PROYECTOS==================================
-const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
+const FilaProyectos = ({ proyecto, usuario }) => {
   const fechaActual = new Date();
   fechaActual.setDate(fechaActual.getDate());
   const [edit, setEdit] = useState(false);
@@ -304,6 +308,7 @@ const FilaProyectos = ({ proyecto, setEjecutarConsulta, usuario }) => {
       toast.error("Proyecto no se pudo eliminar");
     } else {
       toast.success("Proyecto eliminado con éxito");
+      window.location.href = window.location.href;
     }
     setOpenDialogEliminar(false);
   };
@@ -746,6 +751,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
     loading: loadLideres,
     data: dataLideres,
     error: errorLideres,
+    refetch
   } = useQuery(obtenerUsuariosPorFiltro, {
     variables: {
       filtro: { rol: "LIDER", estado: "AUTORIZADO" },
@@ -819,6 +825,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
     console.log("Mutación creacion", mutationDataCreate);
     if (mutationDataCreate) {
       toast.success("El proyecto fue creado");
+      refetch()
       setMostrarTabla(true);
     }
   }, [mutationDataCreate]);
