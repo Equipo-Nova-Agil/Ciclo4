@@ -64,13 +64,23 @@ const Inscripciones = () => {
   useEffect(() => {
     if (mutationDataRechazar) {
       setBusqueda("");
-      toast.success("La inscripción se rechazó correctamente");
+      toast.success("Inscripción Rechazada Correctamente", 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      });
     }
   }, [mutationDataRechazar]);
 
   useEffect(() => {
     if (mutationErrorRechazar) {
-      toast.error("Hay un error rechazando la inscripción");
+      toast.error("Error Rechazando Inscripción", 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      });
     }
   }, [mutationErrorRechazar]);
 
@@ -148,7 +158,7 @@ const Inscripciones = () => {
     <div>
       <div className="flex h-full w-full flex-col items-center justify-start p-8">
         <div className="flex flex-col">
-          <h2 className="text-3xl pt-12 pb-10 font-extrabold text-gray-800">
+          <h2 className="text-3xl pt-8 pb-10 font-extrabold text-gray-800">
             Administración Inscripciones
           </h2>
         </div>

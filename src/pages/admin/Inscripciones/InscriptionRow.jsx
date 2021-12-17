@@ -53,18 +53,33 @@ function InscriptionRowForm(props) {
     aprobarInscrip({ 
       variables: { aprobarInscripcionId: info._id }
     })
-    toast.success("La inscripción se aprobó correctamente")
+    toast.success("Inscripción Aprobada Correctamente", 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    });
   };
 
   useEffect(() => {
     if (mutationData){
-      toast.success("La inscripción se aprobó correctamente")
+      toast.success("Inscripción Aprobada Correctamente", 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      });
     }
   }, [mutationData])
 
   useEffect(() => {
     if (mutationError){
-      toast.error("Hay un error aprobando la inscripción")
+      toast.error("Error Aprobando Inscripción", 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      });
     }
   }, [mutationError])
 
