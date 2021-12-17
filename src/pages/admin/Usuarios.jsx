@@ -1,10 +1,11 @@
 import React, { useEffect, useState} from 'react';
-import { useQuery, useMutation } from '@apollo/client'; 
+import { useQuery, useMutation } from '@apollo/client';
+import { nanoid } from 'nanoid'; 
 import { Dialog} from '@material-ui/core';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ReactLoading from 'react-loading';
-import PrivateRoute from '../../componets/PrivateRoute';
+import PrivateComponent from '../../componets/PrivateComponent';
 import { useParams } from 'react-router-dom';
 import { obtenerUsuarios } from '../../graphql/Usuarios/Queries.js';
 import {editarUsuario, eliminarUsuario} from '../../graphql/Usuarios/Mutations.js';
@@ -13,8 +14,7 @@ import { Enum_Rol, Enum_EstadoUsuario } from 'utils/enum';
 
 
 const Usuarios = () => {
-
-  
+  const [usuarios, setUsuarios] = useState([]);
   const {loading, data, error} = useQuery (obtenerUsuarios);
 
   useEffect(() => {
@@ -33,22 +33,31 @@ const Usuarios = () => {
                       </div>;
 
   return (
-    // <PrivateRoute roleList={['ADMINISTRADOR']}>
       <div className='flex h-full w-full flex-col items-center justify-start p-8'>
         <div className='flex flex-col'>
           <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
           Administración de Usuarios
           </h2>
         </div>
-        <TablaUsuarios/>
-        <ToastContainer position='bottom-center' autoClose={4000} />
+        <TablaUsuarios listaUsuarios={data && data.Usuarios} />
       </div>
-    // </PrivateRoute>
   );
 };
 
 const TablaUsuarios = () => {
-  const {data} = useQuery (obtenerUsuarios);
+  const {data: dataUsuarios} = useQuery (obtenerUsuarios);
+  const listaUsuarios = dataUsuarios && dataUsuarios.Usuarios;
+  const [busqueda, setBusqueda] = useState('');
+  const [usuariosFiltrados, setUsuariosFiltrados] = useState(listaUsuarios);
+  console.log('listaUsuarios', dataUsuarios)
+
+  useEffect(() => {
+    setUsuariosFiltrados(
+    listaUsuarios.filter((elemento) => {
+        return JSON.stringify(elemento).toLowerCase().includes(busqueda.toLowerCase());
+        })
+      );
+    }, [busqueda, listaUsuarios]);
   
   return (
 
@@ -56,7 +65,9 @@ const TablaUsuarios = () => {
       <body class="antialiased font-sans bg-white">
         <div class="container mx-auto px-4 sm:px-8">
           <div class="py-8">
-            {/* <div class="my-2 flex sm:flex-row flex-col">
+
+            {/* BUSCADOR */}
+            <div class="my-2 mx-2 flex sm:flex-row flex-col">
               <div class="block relative">
                 <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
                   <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
@@ -70,8 +81,9 @@ const TablaUsuarios = () => {
                   placeholder="Buscar"
                   class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"/>
               </div>
-            </div> */}
+            </div>
 
+            {/* HEADERS TABLA */}
             <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
               <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
                 
@@ -110,10 +122,9 @@ const TablaUsuarios = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data &&
-                    data.Usuarios.map((usuario) => {
+                    {usuariosFiltrados.map((usuario) => {
                     return <FilaUsuarios 
-                      key={usuario._id}
+                      key={nanoid()}
                       usuario={usuario}/>;
                       
                     })}
@@ -143,16 +154,23 @@ const FilaUsuarios = ({usuario})  => {
   });
   
 
-  const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario);
+  const [editUsuario, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(editarUsuario, {refetchQueries:[{ query: obtenerUsuarios }]});
 
-  const [deleteUsuario, { data: mutationDataDelete, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarUsuario);
+  const [deleteUsuario, { data: mutationDataDelete, loading: mutationLoadingDelete, error: mutationErrorDelete }] = useMutation(eliminarUsuario, {refetchQueries:[{ query: obtenerUsuarios }]});
 
   const enviarDatosEditadosUsuario = () => {
     console.log("le di a editar:", infoNuevaUsuario)
     editUsuario({ 
       variables: { ...infoNuevaUsuario }
     })
-    if(mutationError){toast.error('Error Editando Usuario')} else {toast.success('Usuario Editado Exitosamente')}
+    if(mutationError){toast.error('Error Editando Usuario')} 
+    else {toast.success('Usuario Editado Exitosamente', 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    })
+  }
   }
 
   const eliminarUser = () => {
@@ -160,7 +178,14 @@ const FilaUsuarios = ({usuario})  => {
       variables: { "_id": infoNuevaUsuario._id }
     });
     console.log("id", infoNuevaUsuario._id)
-    if(mutationErrorDelete){toast.error('Error Eliminando Usuario')} else {toast.success('Usuario Eliminado Exitosamente')}
+    if(mutationErrorDelete){toast.error('Error Eliminando Usuario')} else 
+    {toast.success('Usuario Eliminado Exitosamente', 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    })
+  }
     setOpenDialog(false);
   }
       
@@ -202,7 +227,7 @@ const FilaUsuarios = ({usuario})  => {
           </td>
           
           <td className="px-3 py-3  bg-white text-sm text-center w-32">
-            {/* <form>
+            <form>
               <select
               className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
               name='rol'
@@ -216,8 +241,7 @@ const FilaUsuarios = ({usuario})  => {
                 <option value="LIDER">Líder</option>
                 <option value="ESTUDIANTE">Estudiante</option>
               </select>
-            </form> */}
-            {infoNuevaUsuario.rol}
+            </form>
           </td>
           <td className="px-3 py-3  bg-white text-sm text-center w-36">
             <form>
@@ -232,9 +256,10 @@ const FilaUsuarios = ({usuario})  => {
                 </option>
                 <option value="PENDIENTE">Pendiente</option>
                 <option value="AUTORIZADO">Autorizado</option>
-                <option value="NO_AUTORIZADO">No Autorizado</option>
+                {/* <PrivateComponent roleList={['ADMINISTRADOR']} */}
+                  <option value="NO_AUTORIZADO">No Autorizado</option>
+                {/* </PrivateComponent> */}
               </select>
-
             </form>
           </td>
           
@@ -257,12 +282,6 @@ const FilaUsuarios = ({usuario})  => {
           <div className="flex w-24 justify-around text-gray-800 ">
             {edit? (
               <>
-                {/* <i 
-                  onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}
-                  className="fas fa-check hover:text-green-600"/>
-                <i
-                  onClick={() => {setEdit(!edit);}}
-                  className='fas fa-ban hover:text-red-700'/> */}
                 <button type="button" title="Editar"  onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}>
                   <i className="fas fa-check hover:text-green-600"></i>
                 </button>
@@ -278,12 +297,6 @@ const FilaUsuarios = ({usuario})  => {
                 <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
                   <i className="fas fa-trash-alt hover:text-red-700"></i>
                 </button>
-                {/* <i
-                  onClick={() => setEdit(!edit)}
-                  className="fas fa-user-edit hover:text-yellow-600"/>
-                <i
-                  onClick={() => {eliminarUser();}}
-                  className='fas fa-trash-alt hover:text-red-700'/> */}
               </>
             )} 
             

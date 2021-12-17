@@ -17,11 +17,11 @@ query Usuarios($filtro: FiltroUsuarios) {
         nombre
         fase
       }
-    }
-    proyectosLiderados {
+      }
+      proyectosLiderados {
       _id
       nombre
-    }
+      }
     
   }
   

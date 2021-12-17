@@ -1,46 +1,23 @@
 import { gql } from "@apollo/client";
 
 const crearProyecto = gql `
-
     mutation CrearProyecto(
-        $nombre: String!,
-        $fechaInicio: Date!, 
-        $fechaFin: Date!, 
-        $lider: String!,
-        $presupuesto: Float!, 
-        $fase: Enum_FaseProyecto!,
-        $estado: Enum_EstadoProyecto!,
-        $objetivos: [crearObjetivo],
-        ){
-          crearProyecto(
-            nombre: $nombre
-            presupuesto: $presupuesto
-            fechaInicio: $fechaInicio
-            fechaFin: $fechaFin
-            estado: $estado
-            fase: $fase
-            lider: $lider
-            objetivos: $objetivos
-            ) 
-            {
-              _id
-              nombre
-              presupuesto
-              fechaInicio
-              fechaFin
-              estado
-              fase
-              lider {
-                _id
-                nombre
-                apellido
-                correo
-              }
-              objetivos {
-                _id
-                tipo
-                descripcion
-              }
+    $nombre: String!
+    $fechaInicio: Date!
+    $fechaFin: Date!
+    $lider: String!
+    $presupuesto: Float!
+    $objetivos: [crearObjetivo]
+  ) {
+    crearProyecto(
+      nombre: $nombre
+      presupuesto: $presupuesto
+      fechaInicio: $fechaInicio
+      fechaFin: $fechaFin
+      lider: $lider
+      objetivos: $objetivos
+    ) {
+      _id
     }
   }
 `;
