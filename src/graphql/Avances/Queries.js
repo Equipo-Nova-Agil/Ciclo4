@@ -6,19 +6,25 @@ query Avances {
   Avances {
     _id
     fecha
-    descripcion
     proyecto {
       _id
       nombre
+      lider {
+        _id
+        nombre
+        apellido
+      }
+    }
+    descripcion
+    observaciones {
+      descripcion
     }
     creadoPor {
       _id
       nombre
+      apellido
     }
-    observaciones {
-      descripcion
-    }
-  }
+}
 }
   `;
 
