@@ -1,8 +1,11 @@
 import { gql} from '@apollo/client';
 
+import { gql} from '@apollo/client';
+
 const obtenerIncripciones = gql `
-query Inscripciones {
-  Inscripciones {
+
+query Inscripciones ($filtro: FiltroInscripciones)  {
+  Inscripciones (filtro: $filtro){
     _id
     estado
     fechaIngreso
@@ -10,6 +13,8 @@ query Inscripciones {
     proyecto {
       _id
       nombre
+      estado
+      fase
     }
     estudiante {
       _id
@@ -17,9 +22,9 @@ query Inscripciones {
     }
   }
 }
-  `;
+`;
 
-  const obtenerIncripcionesPorProyecto = gql `
+const obtenerIncripcionesPorProyecto = gql `
   query InscripcionesPorProyecto($proyecto: String!) {
     InscripcionesPorProyecto(proyecto: $proyecto) {
       _id

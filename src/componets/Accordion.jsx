@@ -2,7 +2,6 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { styled } from '@mui/material/styles';
-import Typography from "@mui/material/Typography";
 
 const AccordionStyled = styled((props) => <Accordion {...props} />)(({ theme }) => ({
   backgroundColor: '#212D5B',
