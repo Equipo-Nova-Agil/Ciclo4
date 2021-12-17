@@ -1,7 +1,5 @@
 import { gql} from '@apollo/client';
 
-import { gql} from '@apollo/client';
-
 const obtenerIncripciones = gql `
 
 query Inscripciones ($filtro: FiltroInscripciones)  {
@@ -19,6 +17,7 @@ query Inscripciones ($filtro: FiltroInscripciones)  {
     estudiante {
       _id
       nombre
+      apellido
     }
   }
 }
