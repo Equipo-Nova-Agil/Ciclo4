@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useUser } from 'context/userContext';
 import { ObservacionContext, useObservacion } from '../../context/observacionContext.js';
 import { useQuery, useMutation } from '@apollo/client';
-import { Enum_TipoObjetivo } from '../../utils/enum.js';
+import { Enum_TipoObservacion } from '../../utils/enum.js';
 
 
 //DEPENDENCIAS & HOOKS
@@ -296,8 +296,8 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
   
             {/* OBSERVACIONES AVANCES */}
             {/* <div className='flex'>
-              {avance.observaciones.map((objetivo) => {
-                return <ListaObservaciones tipo={objetivo.tipo} descripcion={observaciones.descripcion} />;
+              {avance.observaciones.map((observacion) => {
+                return <ListaObservaciones tipo={observacion.tipo} descripcion={observacion.descripcion} />;
               })}
             </div> */}
   
@@ -351,7 +351,7 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 
   const submitForm = (e) => {
     e.preventDefault();
-    // formData.observaciones = Object.values(formData.observaciones);
+    formData.observaciones = Object.values(formData.observaciones);
     formData.proyecto = formData.toString(formData.proyecto);
     formData.creadoPor = userData._id;
 
@@ -411,9 +411,9 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 
 
 
-        {/* <div className='flex m-4 pt-6 justify-center items-center'>
+        <div className='flex m-4 pt-6 justify-center items-center'>
           <Observaciones />
-        </div> */}
+        </div>
 
         <div className='flex m-4 justify-center items-center'>
           <ButtonLoading 
@@ -492,7 +492,7 @@ const FormularioObservacion = ({ id }) => {
     <div className='flex items-center'>
       <DropDown
         name={`nested||objetivos||${id}||tipo`}
-        options={Enum_TipoObjetivo}
+        options={Enum_TipoObservacion}
         label='Tipo: '
         required={true}
       />

@@ -17,6 +17,7 @@ query Avances {
     }
     descripcion
     observaciones {
+      tipo
       descripcion
     }
     creadoPor {

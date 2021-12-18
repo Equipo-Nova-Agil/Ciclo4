@@ -20,4 +20,8 @@ const Enum_TipoObjetivo = {
   ESPECIFICO: 'Específico',
 };
 
-export { Enum_Rol, Enum_EstadoUsuario, Enum_EstadoProyecto, Enum_TipoObjetivo };
+const Enum_TipoObservacion = {
+  OBSERVACION: 'Observacion',
+};
+
+export { Enum_Rol, Enum_EstadoUsuario, Enum_EstadoProyecto, Enum_TipoObjetivo, Enum_TipoObservacion };
