@@ -308,10 +308,16 @@ const FilaProyectos = ({ proyecto, usuario }) => {
       toast.error("Proyecto no se pudo eliminar");
     } else {
       toast.success("Proyecto eliminado con éxito");
-      window.location.href = window.location.href;
+      //window.location.href = window.location.href;
     }
     setOpenDialogEliminar(false);
   };
+
+    useEffect(() => {
+      if (mutationDataDelete) {
+          window.location.href = window.location.href;
+      }
+    }, [mutationDataDelete]);
 
   const [
     editProyecto,
@@ -343,17 +349,31 @@ const FilaProyectos = ({ proyecto, usuario }) => {
       }
     }
 
+    // editProyecto({
+    //   //variables: { ...infoNuevoProyecto, lidera}
+    //   variables: {
+    //     _id: infoNuevoProyecto._id,
+    //     nombre: infoNuevoProyecto.nombre,
+    //     fechaInicio: infoNuevoProyecto.fechaInicio,
+    //     fechaFin: infoNuevoProyecto.fechaFin,
+    //     lider: lidera,
+    //     presupuesto: infoNuevoProyecto.presupuesto,
+    //     fase: faseactual,
+    //     estado: estadito,
+    //   },
+    // });
+
+    // variables: {
+    //   filtro: { rol: "LIDER", estado: "AUTORIZADO" },
+    // },
+
     editProyecto({
-      //variables: { ...infoNuevoProyecto, lidera}
       variables: {
         _id: infoNuevoProyecto._id,
-        nombre: infoNuevoProyecto.nombre,
-        fechaInicio: infoNuevoProyecto.fechaInicio,
-        fechaFin: infoNuevoProyecto.fechaFin,
-        lider: lidera,
-        presupuesto: infoNuevoProyecto.presupuesto,
-        fase: faseactual,
-        estado: estadito,
+        campos: {
+          fase: faseactual,
+          estado: estadito
+        },
       },
     });
 
@@ -379,17 +399,28 @@ const FilaProyectos = ({ proyecto, usuario }) => {
       fechaFinal = Date.now();
     }
 
+    // editProyecto({
+    //   //variables: { ...infoNuevoProyecto}
+    //   variables: {
+    //     _id: infoNuevoProyecto._id,
+    //     nombre: infoNuevoProyecto.nombre,
+    //     fechaInicio: infoNuevoProyecto.fechaInicio,
+    //     fechaFin: fechaFinal,
+    //     lider: lidera,
+    //     presupuesto: infoNuevoProyecto.presupuesto,
+    //     fase: lafase,
+    //     estado: estadito,
+    //   },
+    // });
+
     editProyecto({
-      //variables: { ...infoNuevoProyecto}
       variables: {
         _id: infoNuevoProyecto._id,
-        nombre: infoNuevoProyecto.nombre,
-        fechaInicio: infoNuevoProyecto.fechaInicio,
-        fechaFin: fechaFinal,
-        lider: lidera,
-        presupuesto: infoNuevoProyecto.presupuesto,
-        fase: lafase,
-        estado: estadito,
+        campos: {
+          fase: lafase,
+          estado: estadito,
+          fechaFin: fechaFinal
+        },
       },
     });
 
@@ -550,7 +581,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                 title="Eliminar"
                 onClick={() => setOpenDialogEliminar(true)}
               >
-                {proyecto.fase === "TERMINADO" ? (
+                {proyecto.fase === "TERMINADO" ||
+                proyecto.fase === "DESARROLLO" ? (
                   <i className="fas fa-trash-alt text-yellow-500 hover:text-red-700"></i>
                 ) : (
                   <i className="fas fa-trash-alt text-red-500 hover:text-green-700"></i>
@@ -571,9 +603,14 @@ const FilaProyectos = ({ proyecto, usuario }) => {
               ) : (
                 <>
                   El proyecto "{proyecto.nombre}", no puede cambiar de{" "}
-                  <span className="text-red-600">fase </span>en este momento.
+                  <span className="text-red-600">fase </span>en este momento.<br /><br /><span className="text-green-600">NOTA:</span> Se encuentra en
+                  {
+                    proyecto.fase==="DESARROLLO" ? (" estado "+proyecto.estado.toLowerCase()):
+                    (" fase "+proyecto.fase.toLowerCase())
+                  }
                 </>
               )}
+              .
             </h1>
             <div className="flex w-full items-center justify-center my-4">
               {proyecto.estado === "ACTIVO" &&
@@ -609,9 +646,24 @@ const FilaProyectos = ({ proyecto, usuario }) => {
         </Dialog>
         <Dialog open={openDialogEliminar}>
           <div className="p-8 flex flex-col">
-            {proyecto.fase !== "TERMINADO" ? (
+            {proyecto.fase === "TERMINADO" || proyecto.fase === "DESARROLLO" ? (
               <>
                 <h1 className="text-gray-900 text-2xl font-bold">
+                  El proyecto "{proyecto.nombre}"{" "}
+                  <span className="text-red-600">no puede ser eliminado.<br /><br /></span><span className="text-green-600">NOTA:</span> Se encuentra en fase {proyecto.fase.toLowerCase()}.
+                </h1>
+                <div className="flex w-full items-center justify-center my-4">
+                  <button
+                    onClick={() => setOpenDialogEliminar(false)}
+                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+              <h1 className="text-gray-900 text-2xl font-bold">
                   ¿Está seguro de querer{" "}
                   <span className="text-red-600">eliminar</span> el proyecto "
                   {proyecto.nombre}
@@ -629,21 +681,6 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                     className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
                   >
                     No
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h1 className="text-gray-900 text-2xl font-bold">
-                  El proyecto "{proyecto.nombre}"{" "}
-                  <span className="text-red-600">no puede ser eliminado.</span>
-                </h1>
-                <div className="flex w-full items-center justify-center my-4">
-                  <button
-                    onClick={() => setOpenDialogEliminar(false)}
-                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
-                  >
-                    Cerrar
                   </button>
                 </div>
               </>
@@ -670,7 +707,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
               ) : (
                 <h1 className="text-gray-900 text-2xl font-bold">
                   <span className="text-red-600">No se puede activar</span> el
-                  proyecto "{proyecto.nombre}"
+                  proyecto "{proyecto.nombre}".
+                  <br /><br /><span className="text-green-600">NOTA:</span> Se encuentra en fase {proyecto.fase.toLowerCase()}.
                 </h1>
               )}
 

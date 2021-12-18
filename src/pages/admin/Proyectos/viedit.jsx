@@ -8,7 +8,7 @@ import { obtenerProyecto } from "graphql/Proyectos/Queries";
 import { editarProyecto } from "graphql/Proyectos/Mutations";
 import { Enum_EstadoProyecto, Enum_FaseProyecto } from "utils/enum";
 import { obtenerUsuariosPorFiltro } from "graphql/Usuarios/Queries";
-import { obtenerAvancesPorProyecto } from "graphql/Avances/Queries";
+//import { obtenerAvancesPorProyecto } from "graphql/Avances/Queries";
 import { obtenerIncripcionesPorProyecto } from "graphql/Incripciones/Queries";
 
 import Input from "componets/Input";
@@ -38,11 +38,11 @@ const VieditProyectos = (vistaProyecto) => {
   // const { form, formData, updateFormData } = useFormData(null);
 
   //Avances del proyecto ...filtrarAvance
-  const {
-    data: queryAvances,
-    error: queryAvancesError,
-    loading: queryAvancesLoading,
-  } = useQuery(obtenerAvancesPorProyecto, { variables: { proyecto: _id } });
+  // const {
+  //   data: queryAvances,
+  //   error: queryAvancesError,
+  //   loading: queryAvancesLoading,
+  // } = useQuery(obtenerAvancesPorProyecto, { variables: { proyecto: _id } });
 
   //Inscripciones del proyecto....
   const {
@@ -678,17 +678,27 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
 
     if (datosUsuario.rol === "LIDER") {
       if (Objetivos.length > 1) {
+        // editProyecto({
+        //   variables: {
+        //     _id: proyecto._id,
+        //     nombre: nuevoProyecto.nombre,
+        //     presupuesto: parseFloat(nuevoProyecto.presupuesto),
+        //     fechaInicio: proyecto.fechaInicio,
+        //     fechaFin: proyecto.fechaFin,
+        //     estado: proyecto.estado,
+        //     fase: proyecto.fase,
+        //     lider: proyecto.lider._id,
+        //     objetivos: Object.values(Objetivos),
+        //   },
+        // });
         editProyecto({
           variables: {
             _id: proyecto._id,
-            nombre: nuevoProyecto.nombre,
-            presupuesto: parseFloat(nuevoProyecto.presupuesto),
-            fechaInicio: proyecto.fechaInicio,
-            fechaFin: proyecto.fechaFin,
-            estado: proyecto.estado,
-            fase: proyecto.fase,
-            lider: proyecto.lider._id,
-            objetivos: Object.values(Objetivos),
+            campos: {
+              nombre: nuevoProyecto.nombre,
+              presupuesto: parseFloat(nuevoProyecto.presupuesto),
+              objetivos: Object.values(Objetivos)
+            },
           },
         });
       } else {
@@ -699,16 +709,24 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
     }
 
     if (datosUsuario.rol === "ADMINISTRADOR") {
+      // editProyecto({
+      //   variables: {
+      //     _id: proyecto._id,
+      //     nombre: proyecto.nombre,
+      //     presupuesto: parseFloat(proyecto.presupuesto),
+      //     fechaInicio: proyecto.fechaInicio,
+      //     fechaFin: proyecto.fechaFin,
+      //     estado: proyecto.estado,
+      //     fase: proyecto.fase,
+      //     lider: nuevoProyecto.lider
+      //   },
+      // });
       editProyecto({
         variables: {
           _id: proyecto._id,
-          nombre: proyecto.nombre,
-          presupuesto: parseFloat(proyecto.presupuesto),
-          fechaInicio: proyecto.fechaInicio,
-          fechaFin: proyecto.fechaFin,
-          estado: proyecto.estado,
-          fase: proyecto.fase,
-          lider: nuevoProyecto.lider
+          campos: {
+            lider: nuevoProyecto.lider
+          },
         },
       });
     }
