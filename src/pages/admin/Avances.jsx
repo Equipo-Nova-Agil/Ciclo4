@@ -150,7 +150,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
         <AccordionStyled>
           {/* ENCABEZADO ARCORDEON */}
           <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
-            <div className='flex w-full justify-between items-center'>
+            <div className='flex w-full items-center'>
 
               <span className='font-bold text-gray-600 pr-8'>ID: {avance._id.slice(20)}</span>
               <div className='font-extrabold text-gray-600 uppercase justify-center items-center'>
@@ -187,11 +187,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
   
               <div>
                 <span className='font-extrabold'>Fecha: </span>
-                <input 
-                  type="date" 
-                  className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
-                  defaultValue={infoNuevoAvance.fecha}
-                  onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, fecha: e.target.value })}/>
+                {avance.fecha.slice(0, -14)}
               </div>
               <div>
                 <span className='font-extrabold'>Creado Por: </span>
@@ -239,7 +235,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
         <>
         <AccordionStyled>
           <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
-            <div className='flex w-full justify-center items-center'>
+            <div className='flex w-full  items-center'>
 
               <span className='font-bold text-gray-600 pr-1'>ID: </span>
               <span className=' text-gray-600 pr-8'>{avance._id.slice(20)}</span>
@@ -434,7 +430,10 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 const ListaObservaciones = ({ tipo, descripcion }) => {
   return (
     <div className='mx-5 my-4 text-gray-600 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
-      <div className='text-md font-bold'>Observación: {tipo}</div>
+      <div className='text-md font-bold'>
+        Observación: 
+        {/* {tipo} */}
+      </div>
       <div>{descripcion}</div>
       <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
         <div className='text-indigo-600 text-sm underline'>Editar</div>
@@ -473,7 +472,7 @@ const Observaciones = () => {
         {!maxObservaciones && (
           <i
             onClick={() => setListaObservaciones([...listaObservaciones, componenteObservacionAgregada()])}
-            className='fas fa-plus rounded-full bg-green-500 hover:bg-green-400 text-white p-2 mx-2 cursor-pointer'
+            className='fas fa-plus rounded-full bg-green-500 hover:bg-green-400 text-white p-1 mx-2 cursor-pointer'
           />
         )}
         {listaObservaciones.map((observacion) => {
@@ -489,22 +488,30 @@ const FormularioObservacion = ({ id }) => {
   return (
     <div>
     
-    <div className='flex items-center'>
-      <DropDown
-        name={`nested||objetivos||${id}||tipo`}
-        options={Enum_TipoObservacion}
-        label='Tipo: '
-        required={true}
-      />
-      <Input
-        name={`nested||objetivos||${id}||descripcion`}
-        label='Descripción: '
-        type='text'
-        required={true}
-      />
+    <div className='flex flex-col items-center'>
+      <div className='pt-4 pb-2'>
+        <DropDown
+          name={`nested||observaciones||${id}||tipo`}
+          options={Enum_TipoObservacion}
+          className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm text-center shadow-md focus:outline-none focus:ring w-48'
+          label='Tipo: '
+          required={true}
+        />
+      </div>
+
+      <div className='-ml-12'>
+        <Input
+          name={`nested||observaciones||${id}||descripcion`}
+          label='Descripción: '
+          type='text'
+          className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-48'
+          required={true}
+        />
+
+      </div>
       <i
         onClick={() => eliminarObservacion(id)}
-        className='fas fa-minus rounded-full bg-red-500 hover:bg-red-400 text-white p-2 mx-2 cursor-pointer mt-6'
+        className='fas fa-minus rounded-full bg-red-500 hover:bg-red-400 text-white p-1 mx-2 cursor-pointer mt-6'
       />
     </div>
 
