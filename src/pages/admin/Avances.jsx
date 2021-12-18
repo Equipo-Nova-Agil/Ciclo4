@@ -214,12 +214,6 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
               
             </div>
   
-            {/* OBSERVACIONES AVANCES */}
-            {/* <div className='flex'>
-              {avance.observaciones.map((observacion) => {
-                return <ListaObservaciones tipo={observacion.tipo} descripcion={observacion.descripcion} />;
-              })}
-            </div> */}
   
           </AccordionDetailsStyled>
         </AccordionStyled>
@@ -291,11 +285,11 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
             
   
             {/* OBSERVACIONES AVANCES */}
-            {/* <div className='flex'>
+            <div className='flex'>
               {avance.observaciones.map((observacion) => {
                 return <ListaObservaciones tipo={observacion.tipo} descripcion={observacion.descripcion} />;
               })}
-            </div> */}
+            </div>
   
           </AccordionDetailsStyled>
         </AccordionStyled>
@@ -434,7 +428,7 @@ const ListaObservaciones = ({ tipo, descripcion }) => {
         Observación: 
         {/* {tipo} */}
       </div>
-      <div>{descripcion}</div>
+      <div className='text-center justify-center'>{descripcion}</div>
       <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
         <div className='text-indigo-600 text-sm underline'>Editar</div>
       </PrivateComponent>
