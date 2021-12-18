@@ -17,7 +17,7 @@ import useFormData from '../../hooks/useFormData';
 import {obtenerAvances, filtrarAvance} from '../../graphql/Avances/Queries.js';
 import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
 import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
-import {crearAvance, editarAvance, eliminarAvance} from '../../graphql/Avances/Mutations'
+import {crearAvance, editarAvance, eliminarAvance, crearObservacion} from '../../graphql/Avances/Mutations'
 
 //COMPONETS
 import Input from '../../componets/Input';
@@ -50,6 +50,10 @@ const Avances = () => {
       setTextoBoton('Todos Los Avances');
     }
   }, [mostrarAvances]);
+
+  useEffect(() => {
+    console.log('Datos Avances Desde El Backend', dataAvances);
+  }, [dataAvances]);
 
   useEffect(() => {
     if (errorAvances) {
@@ -86,26 +90,30 @@ const Avances = () => {
                 </PrivateComponent>
                 )}
               </div>
+
               {agregarObservaciones & !mostrarAvances ? (
-                <Observaciones
+                
+                <AgregarObservaciones
                   setAgregarObservaciones={setAgregarObservaciones}
                   agregarObservaciones={agregarObservaciones}
                   avance={avance}/>
+                  
               ) : mostrarAvances ? (
+
                 <ListaAvances
                   setAgregarObservaciones={setAgregarObservaciones}
                   agregarObservaciones={agregarObservaciones}/>
         
               ) : (
+
                 <FormularioCreacionAvance
-                setMostrarAvances={setMostrarAvances}
-              />
+                setMostrarAvances={setMostrarAvances}/>
             )}
             </div>
           );
 };
 
-const ListaAvances = ()=> {
+const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones})=> {
   const { data: dataAvances, loading: loadingAvances} = useQuery(obtenerAvances);
   if (loadingAvances) return <div>
     <h1 className='text-3xl font-extrabold'>Cargando...</h1>
@@ -115,7 +123,10 @@ const ListaAvances = ()=> {
     return (
     <div className='p-4 flex w-10/12 flex-col'>
       {dataAvances && dataAvances.Avances.map((avance) => {
-        return <AcordionAvances avance={avance} />;
+        return <AcordionAvances 
+                avance={avance} 
+                agregarObservaciones={agregarObservaciones}
+                setAgregarObservaciones={setAgregarObservaciones}/>;
       })}
     </div>
   );
@@ -130,10 +141,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
   
   const [infoNuevoAvance, setInfoNuevoAvance] = useState({
     _id: avance._id,
-    fecha: avance.fecha,
-    proyecto: avance.proyecto,
-    descripcion: avance.descripcion,
-    creadoPor: avance.creadoPor, 
+    descripcion: avance.descripcion, 
   });
 
   const actualizarAvance = () => {
@@ -141,6 +149,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
     modificarAvance({ 
       variables: { ...infoNuevoAvance }
     })
+    setEdit(false);
   };
 
   return (
@@ -206,7 +215,6 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
                 rows="4"
                 cols="25"
                 className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
-                // defaultValue={infoNuevoAvance.descripcion}
                 onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, descripcion: e.target.value })}
                 />
               </div>
@@ -274,9 +282,9 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
               <h1 className='font-bold text-gray-600 text-center mt-8 mb-2'>Observaciones Del Líder:</h1>
               <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
                 <button
-                  className='bg-yellow-300 rounded-lg p-1 text-sm text-gray-600 hover:text-blue-900'
+                  className='bg-yellow-300 rounded-lg ml-6 p-1 text-sm text-gray-600 hover:text-blue-900'
                   type="button"
-                  title="Ver Detalles"
+                  title="Agregar Observaciones"
                   onClick={() => setAgregarObservaciones (!agregarObservaciones)}>
                   <i className="fa fa-eye "></i> Agregar
                 </button>
@@ -319,7 +327,7 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 
   const proyectosInscritos= dataUsuarios && dataUsuarios.Usuarios[0].inscripciones.filter(p => (p.proyecto.fase === 'INICIADO')||(p.proyecto.fase ==='DESARROLLO'));
   console.log('Lista Proyectos Inscritos', proyectosInscritos)
-  const [nuevoAvance, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
+  const [nuevoAvance, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearObservacion, {refetchQueries:[{ query: obtenerAvances }]});
 
   useEffect(() => {
     if (loadingUsuarios) return <div>
@@ -363,9 +371,6 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
     
       <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
         
-
-        
-
         <div className='flex flex-col m-4 justify-center items-center'>
 
         <label className='flex flex-col py-2 text-gray-800 font-bold text-center' for='fecha'>
@@ -460,9 +465,7 @@ const Observaciones = () => {
   return (
     <ObservacionContext.Provider value={{ eliminarObservacion }}>
       <div>
-        <span className='flex flex-col mt-2 py-2 font-bold text-gray-800 text-center'>
-          Observaciones del Líder
-        </span>
+      <h2 className='text-2xl text-center font-extrabold pb-4 mb-4 mt-4 text-gray-800'>Observaciones</h2>
         {!maxObservaciones && (
           <i
             onClick={() => setListaObservaciones([...listaObservaciones, componenteObservacionAgregada()])}
@@ -475,6 +478,66 @@ const Observaciones = () => {
       </div>
     </ObservacionContext.Provider>
   );
+};
+
+const AgregarObservaciones = ({setMostrarObservaciones, setAgregarObservaciones, agregarObservaciones, avance}) => {
+  const { form, formData, updateFormData } = useFormData();
+  const [nuevaObservacion, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    formData.observaciones = Object.values(formData.observaciones);
+
+    nuevaObservacion({
+      variables: formData,
+    });
+    toast.success('Observación Creada Exitosamente', 
+    {
+      position: toast.POSITION.BOTTOM_CENTER,
+      theme: "colored",
+      autoClose: 3000
+    });
+    setMostrarObservaciones(true);
+  };
+  return(
+    <div className='flex flex-col items-center justify-center'>
+      
+      <button
+        className='fondo1 rounded-lg ml-6 mb-4 p-1 text-sm text-gray-200 hover:text-blue-900'
+        type="button"
+        title="Agregar Observaciones"
+        onClick={() => setAgregarObservaciones (!agregarObservaciones)}>
+        <i className="fa fa-arrow-left "></i> Regresar
+      </button>
+
+      <div className='flex justify-center items-center'>
+        <h1 className='py-2 px-2 text-gray-800 font-bold'>ID: </h1>
+        <h2>{avance._id}</h2>
+      </div>
+      <div className='flex justify-center items-center'>
+        <h1 className='py-2 px-2 text-gray-800 font-bold'>Proyecto: </h1>
+        <h2>Nombre del Proyecto</h2>
+      </div>
+
+      <div className='flex m-4 pt-6 justify-center items-center'>
+
+        <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
+
+          <Observaciones/>
+
+          <div className='flex m-4 justify-center items-center'>
+            <ButtonLoading 
+              text='Agregar Observaciones' 
+              loading={false} 
+              disabled={false}
+              className='fondo1 text-white active:bg-gray-700 text-md font-bold mt-5 px-6 py-4 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-60 transform hover:translate-y-1 transition-transform ease-in duration-200' />
+        </div>
+
+        </form>
+      </div>
+    </div>
+
+  )
 };
 
 const FormularioObservacion = ({ id }) => {

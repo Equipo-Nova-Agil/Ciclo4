@@ -33,20 +33,12 @@ const crearAvance = gql `
 
 const editarAvance = gql `
     mutation EditarAvance (
-        $_id: String! 
-        $fecha: Date! 
-        $proyecto: String! 
-        $descripcion: String! 
-        $creadoPor: String!
-        $observaciones: [crearObservacion]) 
+        $_id: String!, 
+        $campos: camposAvance!) 
         {
         editarAvance(
-            _id: $_id
-            fecha: $fecha
-            proyecto: $proyecto
-            descripcion: $descripcion
-            creadoPor: $creadoPor
-            observaciones: $observaciones
+            _id: $_id, 
+            campos: $campos
         ){
             _id
             fecha
@@ -87,5 +79,25 @@ const eliminarAvance = gql `
     }
 `;
 
+const crearObservacion = gql `
+    mutation CrearObservacion(
+        $idAvance: String!, 
+        $campos: camposObservacion!
+        ){
+            crearObservacion(
+                idAvance: $idAvance, 
+                campos: $campos
+            ) 
+            {
+            _id
+            observaciones {
+                _id
+                tipo
+                descripcion
+                }
+            }
+        }
+    
+`;
 
-export {crearAvance, editarAvance, eliminarAvance};
+export {crearAvance, editarAvance, eliminarAvance, crearObservacion};
