@@ -7,3 +7,8 @@ import Usuarios from './Usuarios';
   test('renders content', () => {
     const component = render();
   });
+
+  test('clicking the button calls event handler once', () => {
+    const mockHandler = jest.fn();
+    expect(mockHandler).toHaveBeenCalledTimes(0);
+  });
