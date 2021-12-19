@@ -6,5 +6,4 @@ import Avances from './Avances';
 
     test('renders content', () => {
         const component = render();
-        console.log(component)
     });

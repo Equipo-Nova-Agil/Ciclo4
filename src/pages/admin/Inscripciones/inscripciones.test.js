@@ -6,5 +6,4 @@ import InscriptionRow from './InscriptionRow';
 
     test('renders content', () => {
         const component = render();
-        console.log(component)
     });

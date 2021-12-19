@@ -6,5 +6,4 @@ import Proyectos from './Proyectos';
 
     test('renders content', () => {
         const component = render();
-        console.log(component)
     });
