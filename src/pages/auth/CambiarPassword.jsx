@@ -4,37 +4,56 @@ import { Link } from 'react-router-dom';
 import Input from '../../componets/Input';
 import ButtonLoading from '../../componets/ButtonLoading';
 import useFormData from 'hooks/useFormData';
+import { useUser } from "context/userContext";
 import { useMutation } from '@apollo/client';
-import {Acceder} from '../../graphql/Autenticacion/Mutations'
+import { ChangePassword } from '../../graphql/Autenticacion/Mutations'
 import '../../styles/styles.css'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from 'context/authContext';
 import {useNavigate} from 'react-router-dom';
 
-const Login = () => {
+const CambiarPassword = () => {
   const navigate = useNavigate();
   const { setToken } = useAuth();
+  const { userData } = useUser();
   const { form, formData, updateFormData } = useFormData();
 
-  const [login, { data: dataMutation, loading: mutationLoading, error: mutationError }] =
-    useMutation(Acceder);
+  const [reseteo, { data: dataMutation, loading: mutationLoading, error: mutationError }] =
+    useMutation(ChangePassword);
 
   const submitForm = (e) => {
     e.preventDefault();
 
-    login({
-      variables: formData,
+    reseteo({
+      variables: { id: userData._id, ...formData },
     });
   };
   
   useEffect(() => {
     console.log ('Datos Inicio de Sesión', dataMutation);
     if (dataMutation) {
-      if (dataMutation.login.token){
-      setToken(dataMutation.login.token);
+      if (dataMutation.cambiarPassword.token){
+        console.log(dataMutation.cambiarPassword.token)
+        toast.success("Cambio de contraseña realizado exitosamente", {
+          //position: toast.POSITION.BOTTOM_CENTER,
+          theme: "colored",
+          autoClose: 3000
+        });
+      setToken(dataMutation.cambiarPassword.token);
       navigate('/admin');
     }
+    if (dataMutation.cambiarPassword.error)
+      {
+        toast.error("EL cambio de contraseña no se pudo realizar, verifique los datos ingresados", {
+          //position: toast.POSITION.BOTTOM_CENTER,
+          theme: "colored",
+          autoClose: 3000
+        });
+      }
   }
   },[dataMutation, setToken, navigate])
+
   return (
     
             <div className="container mt-3 mb-0 px-4 ">
@@ -55,7 +74,7 @@ const Login = () => {
                       <div className="relative w-full mb-3">
                         <label className="block uppercase text-gray-700 text-xs font-bold mb-2" for="grid-password">Contraseña Actual</label>
                         <Input 
-                          name='correo' 
+                          name='passwordActual' 
                           type='password' 
                           className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full'
                           placeholder="Escribe tu contraseña actual"
@@ -64,7 +83,7 @@ const Login = () => {
                       <div className="relative w-full mb-3">
                         <label className="block uppercase text-gray-700 text-xs font-bold mb-2" for="grid-password">Nueva Contraseña</label>
                         <Input 
-                          name='password' 
+                          name='passwordNuevo' 
                           type='password' 
                           className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full'
                           placeholder="Escribe tu nueva contraseña"
@@ -99,4 +118,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default CambiarPassword;
