@@ -294,6 +294,7 @@ const FilaUsuarios = ({usuario})  => {
               </h1>
               <div className='flex w-full items-center justify-center my-4'>
                 <button
+                  
                   onClick={() => eliminarUser()}
                   className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
                 >
