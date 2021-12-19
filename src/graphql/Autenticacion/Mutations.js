@@ -35,6 +35,24 @@ const Acceder = gql`
   }
 `;
 
+const ChangePassword = gql`
+mutation CambiarPassword($id: String!, $passwordActual: String!, $passwordNuevo: String!) {
+  cambiarPassword(_id: $id, passwordActual: $passwordActual, passwordNuevo: $passwordNuevo) {
+    token
+    error
+  }
+}
+`;
+
+const ResetPassword = gql`
+mutation ResetPassword($correo: String!) {
+  resetPassword(correo: $correo) {
+    token
+    error
+  }
+}
+`;
+
 const Actualizar_Token = gql`
   mutation RefreshToken {
     refreshToken {
@@ -44,4 +62,4 @@ const Actualizar_Token = gql`
   }
 `;
 
-export { Registrarse, Acceder, Actualizar_Token };
+export { Registrarse, Acceder, ChangePassword, ResetPassword, Actualizar_Token };
