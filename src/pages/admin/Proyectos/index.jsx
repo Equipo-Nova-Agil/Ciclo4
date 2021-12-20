@@ -25,39 +25,7 @@ const Proyectos = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
   const [proyectos, setProyectos] = useState([]);
   const [textoBoton, setTextoBoton] = useState("Nuevo Proyecto");
-  const [ejecutarConsulta, setEjecutarConsulta] = useState(true);
-
   const { userData } = useUser();
-
-  //LISTADO PROYECTOS
-  const {
-    loading: loadingProyectos,
-    data: dataProyectos,
-    error: errorProyectos,
-    refetch
-  } = useQuery(obtenerProyectos);
-
-  //LISTADO LIDERES
-  const {
-    loading: loadLideres,
-    data: dataLideres,
-    error: errorLideres,
-  } = useQuery(obtenerUsuariosPorFiltro, {
-    variables: {
-      filtro: { rol: "LIDER", estado: "AUTORIZADO" },
-    },
-  });
-
-  useEffect(() => {
-    if (ejecutarConsulta && dataProyectos) {
-      setProyectos(dataProyectos);
-      //console.log(JSON.stringify(setProyectos));
-      setEjecutarConsulta(false);
-    }
-    if (errorProyectos) {
-      console.error("Error: ", errorProyectos);
-    }
-  }, [ejecutarConsulta]);
 
   useEffect(() => {
     if (mostrarTabla) {
@@ -65,32 +33,7 @@ const Proyectos = () => {
     } else {
       setTextoBoton("Mostrar Todos Los Proyectos");
     }
-    refetch()
   }, [mostrarTabla]);
-
-  useEffect(() => {
-    //console.log("Datos Proyectos Servidor", dataProyectos);
-    refetch()
-  }, [dataProyectos]);
-
-  useEffect(() => {
-    console.log("Se cargaron los lideres");//, dataLideres);
-  }, [dataLideres]);
-
-  useEffect(() => {
-    if (errorProyectos) {
-      toast.error("Error Consultando Proyectos");
-      //console.log("Error", errorProyectos);
-    }
-  }, [errorProyectos]);
-
-  if (loadingProyectos)
-    return (
-      <div>
-        <h1 className="text-3xl font-extrabold">Cargando...</h1>
-        <ReactLoading type="bars" color="#11172d" height={467} width={175} />
-      </div>
-    );
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-start p-8">
@@ -112,17 +55,13 @@ const Proyectos = () => {
 
       {mostrarTabla ? (
         <TablaProyectos
-          listaProyectos={proyectos}
-          setEjecutarConsulta={setEjecutarConsulta}
           datosUsuario={userData}
           setMostrarTabla={setMostrarTabla}
         />
       ) : (
         <FormularioCreacionProyectos
           setMostrarTabla={setMostrarTabla}
-          listaProyectos={proyectos}
-          setProyectos={setProyectos}
-          lidera={userData.nombre + " " + userData.apellido}
+          datosUsuario={userData}
         />
       )}
       <ToastContainer position="bottom-center" autoClose={3000} />
@@ -131,17 +70,48 @@ const Proyectos = () => {
 };
 
 //==================================TABLA PROYECTOS==================================
-const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
+const TablaProyectos = ({ datosUsuario, setMostrarTabla}) => {
   const [busqueda, setBusqueda] = useState("");
-  const { data: dataProyectos,refetch } = useQuery(obtenerProyectos);
-  const [proyectosFiltrados, setProyectosFiltrados] = useState(
-    dataProyectos.Proyectos
-  );
-  const listaProyectos = dataProyectos.Proyectos;
-  const totalRegistros = useState(dataProyectos.Proyectos.length);
-  const [totalRegistrosFiltrados, setTotalRegistrosFiltrados] = useState(
-    proyectosFiltrados.length
-  );
+  const [proyectosFiltrados, setProyectosFiltrados] = useState([]);
+  const [totalRegistrosFiltrados, setTotalRegistrosFiltrados] = useState(proyectosFiltrados.length);
+  const [listaProyectos,setListaProyectos] = useState([]);
+  const [totalRegistros, setTotalRegistros] = useState(0);
+
+  //FILTRO
+  const filtroByRol = new Object();//, setFiltroByRol] = useState(new Object());
+  if(datosUsuario.rol==="LIDER")
+  {
+    filtroByRol.lider=datosUsuario._id;
+  }
+  //LISTADO PROYECTOS
+  const { loading: loadingProyectos,
+       data: dataProyectos,
+       error: errorProyectos,refetch } = useQuery(obtenerProyectos
+    ,
+    {
+      variables: {
+        filtro: filtroByRol
+      },
+    }
+    );
+  
+  useEffect(() => {
+    if(dataProyectos)
+    {
+      //console.log("Datos Proyectos Servidor", dataProyectos);
+      setProyectosFiltrados(dataProyectos.Proyectos);
+      setListaProyectos(dataProyectos.Proyectos);
+      setTotalRegistros(dataProyectos.Proyectos.length);
+    } 
+    refetch()
+  }, [dataProyectos]);
+
+  useEffect(() => {
+    if (errorProyectos) {
+      toast.error("Error Consultando Proyectos");
+      //console.log("Error", errorProyectos);
+    }
+  }, [errorProyectos]);
 
   useEffect(() => {
     setProyectosFiltrados(
@@ -157,6 +127,20 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
   useEffect(() => {
     setTotalRegistrosFiltrados(proyectosFiltrados.length);
   }, [busqueda, proyectosFiltrados, listaProyectos]);
+
+  useEffect(() => {
+    if (setMostrarTabla) {
+      refetch()
+    }
+  }, [setMostrarTabla]);
+
+  if (loadingProyectos)
+  return (
+    <div>
+      <h1 className="text-3xl font-extrabold">Cargando proyectos...</h1>
+      <ReactLoading type="bars" color="#11172d" height={467} width={175} />
+    </div>
+  );
 
   return (
     <div className="container mx-auto antialiased font-sans bg-white">
@@ -244,10 +228,10 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
                   </div>
                 ) : (
                   <div role="alert">
-                    <div class="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
+                    <div className="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
                       Notificación
                     </div>
-                    <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+                    <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
                       <p className="text-2xl">
                         Sin información para visualizar
                       </p>
@@ -324,7 +308,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
     {
       data: mutationDataEdit,
       loading: mutationLoadingEdit,
-      error: mutationErrorEdit,
+      error: mutationErrorEdit
     },
   ] = useMutation(editarProyecto);
 
@@ -779,8 +763,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 };
 
 //==================================FORMULARIO==================================
-const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
-  const { userData } = useUser();
+const FormularioCreacionProyectos = ({ setMostrarTabla, datosUsuario }) => {
+  const lidera=datosUsuario.nombre + " " + datosUsuario.apellido;
   // const form = useRef(null);
   const { form, formData, updateFormData } = useFormData();
 
@@ -848,7 +832,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
           fechaFin: nuevoProyecto.fechaFin,
           estado: "INACTIVO",
           fase: "NULO",
-          lider: userData._id,
+          lider: datosUsuario._id,
           objetivos: Object.values(Objetivos),
         },
       });
@@ -868,7 +852,14 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
     }
   }, [mutationDataCreate]);
 
-  if (loadLideres) return <div>...Construyendo formulario</div>;
+  if (loadLideres)
+  return (
+    <div>
+      <h1 className="text-3xl font-extrabold">Construyendo formulario...</h1>
+      <ReactLoading type="bars" color="#11172d" height={467} width={175} />
+    </div>
+  );
+
 
   return (
     <div className="container mx-auto items-center justify-center">
