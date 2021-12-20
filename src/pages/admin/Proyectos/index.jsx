@@ -18,6 +18,7 @@ import {
 } from "graphql/Proyectos/Mutations.js";
 import { obtenerUsuariosPorFiltro } from "graphql/Usuarios/Queries.js";
 import { crearInscripcion } from "graphql/Incripciones/Mutations.js";
+import { obtenerConteoInscripcionesPorProyecto } from "graphql/Incripciones/Queries";
 import useFormData from "hooks/useFormData";
 //import Paginacion from "componets/Paginacion.jsx";
 
@@ -25,39 +26,7 @@ const Proyectos = () => {
   const [mostrarTabla, setMostrarTabla] = useState(true);
   const [proyectos, setProyectos] = useState([]);
   const [textoBoton, setTextoBoton] = useState("Nuevo Proyecto");
-  const [ejecutarConsulta, setEjecutarConsulta] = useState(true);
-
   const { userData } = useUser();
-
-  //LISTADO PROYECTOS
-  const {
-    loading: loadingProyectos,
-    data: dataProyectos,
-    error: errorProyectos,
-    refetch
-  } = useQuery(obtenerProyectos);
-
-  //LISTADO LIDERES
-  const {
-    loading: loadLideres,
-    data: dataLideres,
-    error: errorLideres,
-  } = useQuery(obtenerUsuariosPorFiltro, {
-    variables: {
-      filtro: { rol: "LIDER", estado: "AUTORIZADO" },
-    },
-  });
-
-  useEffect(() => {
-    if (ejecutarConsulta && dataProyectos) {
-      setProyectos(dataProyectos);
-      console.log(JSON.stringify(setProyectos));
-      setEjecutarConsulta(false);
-    }
-    if (errorProyectos) {
-      console.error("Error: ", errorProyectos);
-    }
-  }, [ejecutarConsulta]);
 
   useEffect(() => {
     if (mostrarTabla) {
@@ -65,32 +34,7 @@ const Proyectos = () => {
     } else {
       setTextoBoton("Mostrar Todos Los Proyectos");
     }
-    refetch()
   }, [mostrarTabla]);
-
-  useEffect(() => {
-    console.log("Datos Proyectos Servidor", dataProyectos);
-    refetch()
-  }, [dataProyectos]);
-
-  useEffect(() => {
-    console.log("Datos Lideres Servidor", dataLideres);
-  }, [dataLideres]);
-
-  useEffect(() => {
-    if (errorProyectos) {
-      toast.error("Error Consultando Proyectos");
-      console.log("Error", errorProyectos);
-    }
-  }, [errorProyectos]);
-
-  if (loadingProyectos)
-    return (
-      <div>
-        <h1 className="text-3xl font-extrabold">Cargando...</h1>
-        <ReactLoading type="bars" color="#11172d" height={467} width={175} />
-      </div>
-    );
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-start p-8">
@@ -112,17 +56,13 @@ const Proyectos = () => {
 
       {mostrarTabla ? (
         <TablaProyectos
-          listaProyectos={proyectos}
-          setEjecutarConsulta={setEjecutarConsulta}
           datosUsuario={userData}
           setMostrarTabla={setMostrarTabla}
         />
       ) : (
         <FormularioCreacionProyectos
           setMostrarTabla={setMostrarTabla}
-          listaProyectos={proyectos}
-          setProyectos={setProyectos}
-          lidera={userData.nombre + " " + userData.apellido}
+          datosUsuario={userData}
         />
       )}
       <ToastContainer position="bottom-center" autoClose={3000} />
@@ -133,15 +73,44 @@ const Proyectos = () => {
 //==================================TABLA PROYECTOS==================================
 const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
   const [busqueda, setBusqueda] = useState("");
-  const { data: dataProyectos,refetch } = useQuery(obtenerProyectos);
-  const [proyectosFiltrados, setProyectosFiltrados] = useState(
-    dataProyectos.Proyectos
-  );
-  const listaProyectos = dataProyectos.Proyectos;
-  const totalRegistros = useState(dataProyectos.Proyectos.length);
-  const [totalRegistrosFiltrados, setTotalRegistrosFiltrados] = useState(
-    proyectosFiltrados.length
-  );
+  const [proyectosFiltrados, setProyectosFiltrados] = useState([]);
+  const [totalRegistrosFiltrados, setTotalRegistrosFiltrados] = useState(proyectosFiltrados.length);
+  const [listaProyectos, setListaProyectos] = useState([]);
+  const [totalRegistros, setTotalRegistros] = useState(0);
+
+  //FILTRO
+  const filtroByRol = new Object();//, setFiltroByRol] = useState(new Object());
+  if (datosUsuario.rol === "LIDER") {
+    filtroByRol.lider = datosUsuario._id;
+  }
+  //LISTADO PROYECTOS
+  const { loading: loadingProyectos,
+    data: dataProyectos,
+    error: errorProyectos, refetch } = useQuery(obtenerProyectos
+      ,
+      {
+        variables: {
+          filtro: filtroByRol
+        },
+      }
+    );
+
+  useEffect(() => {
+    if (dataProyectos) {
+      //console.log("Datos Proyectos Servidor", dataProyectos);
+      setProyectosFiltrados(dataProyectos.Proyectos);
+      setListaProyectos(dataProyectos.Proyectos);
+      setTotalRegistros(dataProyectos.Proyectos.length);
+    }
+    refetch()
+  }, [dataProyectos]);
+
+  useEffect(() => {
+    if (errorProyectos) {
+      toast.error("Error Consultando Proyectos");
+      //console.log("Error", errorProyectos);
+    }
+  }, [errorProyectos]);
 
   useEffect(() => {
     setProyectosFiltrados(
@@ -158,106 +127,120 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
     setTotalRegistrosFiltrados(proyectosFiltrados.length);
   }, [busqueda, proyectosFiltrados, listaProyectos]);
 
+  useEffect(() => {
+    if (setMostrarTabla) {
+      refetch()
+    }
+  }, [setMostrarTabla]);
+
+  if (loadingProyectos)
+    return (
+      <div>
+        <h1 className="text-3xl font-extrabold">Cargando proyectos...</h1>
+        <ReactLoading type="bars" color="#11172d" height={467} width={175} />
+      </div>
+    );
+
   return (
-    <div>
+    <div className="container mx-auto antialiased font-sans bg-white">
       {datosUsuario.estado === "AUTORIZADO" ? (
-        <body className="antialiased font-sans bg-white">
-          <div className="container mx-auto px-4 sm:px-8">
-            <div className="py-8">
-              {/* BUSCADOR */}
-              <div className="my-2 mx-2 flex sm:flex-row flex-col">
-                <div className="block relative">
-                  <span className="h-full absolute inset-y-0 left-0 flex items-center pl-2">
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-4 w-4 fill-current text-gray-500"
-                    >
-                      <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
-                    </svg>
-                  </span>
-                  <input
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    placeholder="Buscar"
-                    className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
-                  />
-                </div>
+        //<body className="antialiased font-sans bg-white"> 
+        <div className="px-4 sm:px-8">
+          <div className="py-8">
+            {/* BUSCADOR */}
+            <div className="my-2 mx-2 flex sm:flex-row flex-col">
+              <div className="block relative">
+                <span className="h-full absolute inset-y-0 left-0 flex items-center pl-2">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 fill-current text-gray-500"
+                  >
+                    <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
+                  </svg>
+                </span>
+                <input
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  placeholder="Buscar"
+                  className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
+                />
               </div>
-              {/* TABLA */}
-              <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                {proyectosFiltrados.length > 0 ? (
-                  <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-                    <table className="min-w-full leading-normal">
-                      <thead>
-                        <tr>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-20">
-                            <i className="fas fa-passport"></i>
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Proyecto
-                          </th>
-                          <th
-                            hidden
-                            className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32"
-                          >
-                            Presupuesto
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Inicio
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Fin
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Líder
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Fase
-                          </th>
-                          <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Estado
-                          </th>
-                          <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                            Acciones
-                          </th>
-                        </tr>
-                      </thead>
-                      {/* ARRAY TABLA */}
-                      <tbody>
-                        {proyectosFiltrados &&
-                          proyectosFiltrados.map((proyecto) => {
-                            return (
-                              <FilaProyectos
-                                key={proyecto._id}
-                                proyecto={proyecto}
-                                usuario={datosUsuario._id}
-                              />
-                            );
-                          })}
-                      </tbody>
-                    </table>
-                    {/* <Paginacion
+            </div>
+            {/* TABLA */}
+            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+              {proyectosFiltrados.length > 0 ? (
+                <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                  <table className="min-w-full leading-normal">
+                    <thead>
+                      <tr>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-10">
+                          <i className="fas fa-passport"></i>
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
+                          Proyecto
+                        </th>
+                        <th
+                          hidden
+                          className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32"
+                        >
+                          Presupuesto
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Inicio
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Fin
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
+                          Líder
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Fase
+                        </th>
+                        <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Estado
+                        </th>
+                        <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    {/* ARRAY TABLA */}
+                    <tbody>
+                      {proyectosFiltrados &&
+                        proyectosFiltrados.map((proyecto) => {
+                          return (
+                            <FilaProyectos
+                              key={proyecto._id}
+                              proyecto={proyecto}
+                              usuario={datosUsuario._id}
+                            />
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                  {/* <Paginacion
                       fin={totalRegistrosFiltrados}
                       registros={totalRegistros}
                       limite={10}
                     /> */}
+                </div>
+              ) : (
+                <div role="alert">
+                  <div className="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
+                    Notificación
                   </div>
-                ) : (
-                  <div role="alert">
-                    <div class="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
-                      Notificación
-                    </div>
-                    <div class="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-                      <p className="text-2xl">
-                        Sin información para visualizar
-                      </p>
-                    </div>
+                  <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+                    <p className="text-2xl">
+                      Sin información para visualizar
+                    </p>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
-        </body>
+        </div>
+        //</body>
       ) : (
         <ComponenteNoAutorizado></ComponenteNoAutorizado>
       )}
@@ -276,6 +259,20 @@ const FilaProyectos = ({ proyecto, usuario }) => {
   const [openDialogAprobarProyecto, setOpenDialogAprobarProyecto] =
     useState(false);
   const [openDialogInscribirse, setOpenDialogInscribirse] = useState(false);
+
+  // CUENTAS DE INSCRIPCIONES
+  const { loading: loadingConteo,
+    data: dataConteo,
+    error: errorConteo } = useQuery(obtenerConteoInscripcionesPorProyecto
+      ,
+      {
+        variables: {
+          "proyecto": proyecto._id,
+          "estudiante": usuario
+        },
+      }
+    );
+  //console.log("Inscripciones",dataConteo)
 
   //const { _id } = useParams();
   const [infoNuevoProyecto, setInfoNuevoProyecto] = useState({
@@ -303,7 +300,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
     deleteProyecto({
       variables: { _id: infoNuevoProyecto._id },
     });
-    console.log("id", infoNuevoProyecto._id);
+    //console.log("id", infoNuevoProyecto._id);
     if (mutationErrorDelete) {
       toast.error("Proyecto no se pudo eliminar");
     } else {
@@ -313,18 +310,18 @@ const FilaProyectos = ({ proyecto, usuario }) => {
     setOpenDialogEliminar(false);
   };
 
-    useEffect(() => {
-      if (mutationDataDelete) {
-          window.location.href = window.location.href;
-      }
-    }, [mutationDataDelete]);
+  useEffect(() => {
+    if (mutationDataDelete) {
+      window.location.href = window.location.href;
+    }
+  }, [mutationDataDelete]);
 
   const [
     editProyecto,
     {
       data: mutationDataEdit,
       loading: mutationLoadingEdit,
-      error: mutationErrorEdit,
+      error: mutationErrorEdit
     },
   ] = useMutation(editarProyecto);
 
@@ -337,10 +334,10 @@ const FilaProyectos = ({ proyecto, usuario }) => {
     let fechaInicial = infoNuevoProyecto.fechaInicio; //fechaActual.toISOString().substr(0, 10);
     let fechaFinal = infoNuevoProyecto.fechaFin;
     if (proyecto.estado === "ACTIVO") {
-      console.log("Estamos en inactivar proyecto", infoNuevoProyecto);
+      //console.log("Estamos en inactivar proyecto", infoNuevoProyecto);
       estadito = "INACTIVO";
     } else {
-      console.log("Estamos en activar proyecto", infoNuevoProyecto);
+      //console.log("Estamos en activar proyecto", infoNuevoProyecto);
       estadito = "ACTIVO";
       if (proyecto.fase === "NULO" || proyecto.fase === "") {
         faseactual = "INICIADO";
@@ -379,7 +376,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 
     if (mutationErrorEdit) {
       toast.error("Proyecto no se pudo editar");
-      console.log("error,", mutationErrorEdit);
+      //console.log("error,", mutationErrorEdit);
     } else {
       toast.success("Proyecto editado con éxito");
     }
@@ -388,7 +385,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 
   //EDITAR FASE/terminar
   const editarFaseProyecto = () => {
-    console.log("Estamos en cambio de fase del proyecto", infoNuevoProyecto);
+    //console.log("Estamos en cambio de fase del proyecto", infoNuevoProyecto);
     let lidera = infoNuevoProyecto.lider._id;
     let estadito = infoNuevoProyecto.estado;
     let lafase = infoNuevoProyecto.fase;
@@ -426,7 +423,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 
     if (mutationErrorEdit) {
       toast.error("Proyecto no se pudo editar");
-      console.log("error,", mutationErrorEdit);
+      //console.log("error,", mutationErrorEdit);
     } else {
       toast.success("Proyecto editado con éxito");
     }
@@ -451,7 +448,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
         estado: "PENDIENTE",
       },
     });
-    console.log("id", infoNuevoProyecto._id);
+    //console.log("id", infoNuevoProyecto._id);
     if (mutationErrorInscripcion) {
       toast.error("No se pudo enviar la inscripción");
     } else {
@@ -465,7 +462,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-24">
         {proyecto._id.slice(20)}
       </td>
-      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-justify w-32">
+      <td className="px-3 py-3 uppercase border-b border-gray-300 rounded-lg bg-white text-sm text-justify">
         {proyecto.nombre}
       </td>
       <td
@@ -480,7 +477,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
         {proyecto.fechaFin.split("T")[0]}
       </td>
-      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-justify w-32">
+      <td className="px-3 py-3 uppercase border-b border-gray-300 rounded-lg bg-white text-sm text-justify">
         {proyecto.lider.nombre} {proyecto.lider.apellido}
       </td>
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
@@ -491,8 +488,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
           proyecto.estado === "ACTIVO"
             ? "relative inline-block m-4 px-5 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
             : proyecto.fase !== "TERMINADO"
-            ? "relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
-            : "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+              ? "relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+              : "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
         }
       >
         {proyecto.estado}
@@ -511,7 +508,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
               {
                 //Editar proyecto cambiar fase
                 proyecto.estado === "ACTIVO" &&
-                proyecto.fase === "DESARROLLO" ? (
+                  proyecto.fase === "DESARROLLO" ? (
                   <button
                     type="button"
                     title="Terminar proyecto"
@@ -568,7 +565,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                 onClick={() => setOpenDialogInscribirse(true)}
               >
                 {proyecto.estado === "ACTIVO" &&
-                proyecto.fase !== "TERMINADO" ? (
+                  proyecto.fase !== "TERMINADO" ? (
                   <i className="fas fa-folder-plus hover:text-green-700"></i>
                 ) : (
                   <i className="fas fa-folder-plus hover:text-red-700"></i>
@@ -581,11 +578,11 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                 title="Eliminar"
                 onClick={() => setOpenDialogEliminar(true)}
               >
-                {proyecto.fase === "TERMINADO" ||
-                proyecto.fase === "DESARROLLO" ? (
-                  <i className="fas fa-trash-alt text-yellow-500 hover:text-red-700"></i>
-                ) : (
+                {proyecto.fase === "NULO" ||
+                  proyecto.fase === "" ? (
                   <i className="fas fa-trash-alt text-red-500 hover:text-green-700"></i>
+                ) : (
+                  <i className="fas fa-trash-alt text-yellow-500 hover:text-red-700"></i>
                 )}
               </button>
             </PrivateComponent>
@@ -595,7 +592,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
           <div className="p-8 flex flex-col">
             <h1 className="text-gray-900 text-2xl font-bold">
               {proyecto.estado === "ACTIVO" &&
-              proyecto.fase === "DESARROLLO" ? (
+                proyecto.fase === "DESARROLLO" ? (
                 <>
                   ¿Está seguro de querer cambiar el proyecto "{proyecto.nombre}"
                   a fase <span className="text-green-600"> terminado</span> ?
@@ -605,8 +602,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                   El proyecto "{proyecto.nombre}", no puede cambiar de{" "}
                   <span className="text-red-600">fase </span>en este momento.<br /><br /><span className="text-green-600">NOTA:</span> Se encuentra en
                   {
-                    proyecto.fase==="DESARROLLO" ? (" estado "+proyecto.estado.toLowerCase()):
-                    (" fase "+proyecto.fase.toLowerCase())
+                    proyecto.fase === "DESARROLLO" ? (" estado " + proyecto.estado.toLowerCase()) :
+                      (" fase " + proyecto.fase.toLowerCase())
                   }
                 </>
               )}
@@ -614,7 +611,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
             </h1>
             <div className="flex w-full items-center justify-center my-4">
               {proyecto.estado === "ACTIVO" &&
-              proyecto.fase === "DESARROLLO" ? (
+                proyecto.fase === "DESARROLLO" ? (
                 <>
                   <button
                     onClick={() => {
@@ -646,24 +643,9 @@ const FilaProyectos = ({ proyecto, usuario }) => {
         </Dialog>
         <Dialog open={openDialogEliminar}>
           <div className="p-8 flex flex-col">
-            {proyecto.fase === "TERMINADO" || proyecto.fase === "DESARROLLO" ? (
+            {proyecto.fase === "NULO" || proyecto.fase === "" ? (
               <>
                 <h1 className="text-gray-900 text-2xl font-bold">
-                  El proyecto "{proyecto.nombre}"{" "}
-                  <span className="text-red-600">no puede ser eliminado.<br /><br /></span><span className="text-green-600">NOTA:</span> Se encuentra en fase {proyecto.fase.toLowerCase()}.
-                </h1>
-                <div className="flex w-full items-center justify-center my-4">
-                  <button
-                    onClick={() => setOpenDialogEliminar(false)}
-                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
-                  >
-                    Cerrar
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-              <h1 className="text-gray-900 text-2xl font-bold">
                   ¿Está seguro de querer{" "}
                   <span className="text-red-600">eliminar</span> el proyecto "
                   {proyecto.nombre}
@@ -681,6 +663,22 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                     className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
                   >
                     No
+                  </button>
+                </div>
+              </>
+
+            ) : (
+              <>
+                <h1 className="text-gray-900 text-2xl font-bold">
+                  El proyecto "{proyecto.nombre}"{" "}
+                  <span className="text-red-600">no puede ser eliminado.<br /><br /></span><span className="text-green-600">NOTA:</span> Se encuentra en fase {proyecto.fase.toLowerCase()}.
+                </h1>
+                <div className="flex w-full items-center justify-center my-4">
+                  <button
+                    onClick={() => setOpenDialogEliminar(false)}
+                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                  >
+                    Cerrar
                   </button>
                 </div>
               </>
@@ -736,39 +734,64 @@ const FilaProyectos = ({ proyecto, usuario }) => {
         <Dialog open={openDialogInscribirse}>
           <div className="p-8 flex flex-col">
             <>
-              {proyecto.estado !== "INACTIVO" ? (
+              {proyecto.estado !== "INACTIVO" && proyecto.fase !== "TERMINADO" && dataConteo && dataConteo.CountInscripcionesPorProyecto.pendientes === 0 && dataConteo.CountInscripcionesPorProyecto.abiertas === 0 ? (
                 <h1 className="text-gray-900 text-2xl font-bold">
                   ¿Está seguro de querer{" "}
                   <span className="text-green-600">inscribirse</span> en el
                   proyecto "{proyecto.nombre}"?
                 </h1>
               ) : (
-                <h1 className="text-gray-900 text-2xl font-bold">
-                  El proyecto "{proyecto.nombre}"
-                  <span className="text-red-600"> no acepta inscripciones</span>{" "}
-                  en este momento
-                </h1>
+                <>
+                  {proyecto.estado === "INACTIVO" || proyecto.fase === "TERMINADO" ? (
+                    <h1 className="text-gray-900 text-2xl font-bold">
+                      El proyecto "{proyecto.nombre}"
+                      <span className="text-red-600"> no acepta inscripciones</span>{" "}
+                      en este momento.
+                    </h1>
+                  ) : (
+                    <h1 className="text-gray-900 text-2xl font-bold">
+                      En este momento <span className="text-red-600">{dataConteo && dataConteo.CountInscripcionesPorProyecto.pendientes > 0 ? ("tienes solicitud pendiente de aceptación") : ("te encuentras inscrito")}
+
+                      </span>{" "}en el proyecto "{proyecto.nombre}"
+                    </h1>
+                  )
+                  }
+                </>
+
+
               )}
 
               <div className="flex w-full items-center justify-center my-4">
-                {proyecto.estado !== "INACTIVO" &&
-                  proyecto.fase !== "TERMINADO" && (
+                {proyecto.estado !== "INACTIVO" && proyecto.fase !== "TERMINADO" && dataConteo && dataConteo.CountInscripcionesPorProyecto.pendientes === 0 && dataConteo.CountInscripcionesPorProyecto.abiertas === 0 ? (
+                  <>
+                    <h1 className="text-gray-900 text-2xl font-bold">
+                      ¿Está seguro de querer{" "}
+                      <span className="text-green-600">inscribirse</span> en el
+                      proyecto "{proyecto.nombre}"?
+                    </h1>
                     <button
                       onClick={() => inscribirseEnProyecto()}
                       className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
                     >
                       Sí
                     </button>
-                  )}
-                <button
-                  onClick={() => setOpenDialogInscribirse(false)}
-                  className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
-                >
-                  {proyecto.estado !== "INACTIVO" &&
-                  proyecto.fase !== "TERMINADO"
-                    ? "No"
-                    : "Cerrar"}
-                </button>
+                    <button
+                      onClick={() => setOpenDialogInscribirse(false)}
+                      className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                    >
+                      No
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setOpenDialogInscribirse(false)}
+                      className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                    >
+                      Cerrar
+                    </button>
+                  </>
+                )}
               </div>
             </>
           </div>
@@ -779,8 +802,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 };
 
 //==================================FORMULARIO==================================
-const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
-  const { userData } = useUser();
+const FormularioCreacionProyectos = ({ setMostrarTabla, datosUsuario }) => {
+  const lidera = datosUsuario.nombre + " " + datosUsuario.apellido;
   // const form = useRef(null);
   const { form, formData, updateFormData } = useFormData();
 
@@ -798,7 +821,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
 
   //no se esta usando
   useEffect(() => {
-    console.log(dataLideres);
+    //console.log(dataLideres);
     if (dataLideres) {
       const lu = {};
       dataLideres.Usuarios.forEach((elemento) => {
@@ -848,7 +871,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
           fechaFin: nuevoProyecto.fechaFin,
           estado: "INACTIVO",
           fase: "NULO",
-          lider: userData._id,
+          lider: datosUsuario._id,
           objetivos: Object.values(Objetivos),
         },
       });
@@ -860,7 +883,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
   };
 
   useEffect(() => {
-    console.log("Mutación creacion", mutationDataCreate);
+    //console.log("Mutación creacion", mutationDataCreate);
     if (mutationDataCreate) {
       toast.success("El proyecto fue creado");
       refetch()
@@ -868,7 +891,14 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
     }
   }, [mutationDataCreate]);
 
-  if (loadLideres) return <div>...Construyendo formulario</div>;
+  if (loadLideres)
+    return (
+      <div>
+        <h1 className="text-3xl font-extrabold">Construyendo formulario...</h1>
+        <ReactLoading type="bars" color="#11172d" height={467} width={175} />
+      </div>
+    );
+
 
   return (
     <div className="container mx-auto items-center justify-center">
@@ -1095,7 +1125,7 @@ const TablaObjetivos = ({ setObjEspecificosTabla }) => {
 
   const agregarNuevoObjEspecificos = (objetivo) => {
     setFilasTabla([...filasTabla, objetivo]);
-    console.log("Tabla Objetivos Especificos", filasTabla);
+    //console.log("Tabla Objetivos Especificos", filasTabla);
   };
 
   const eliminarObjEspecificos = (objEspecificosAEliminar) => {
@@ -1124,7 +1154,7 @@ const TablaObjetivos = ({ setObjEspecificosTabla }) => {
   }) => {
     const [objetivo, setObjetivo] = useState(obj);
     useEffect(() => {
-      console.log("Fila objetivo ...objetivo", objetivo);
+      console.log("Fila objetivo ...objetivo");//, objetivo);
     }, [objetivo]);
 
     return (
@@ -1187,7 +1217,7 @@ const TablaObjetivos = ({ setObjEspecificosTabla }) => {
               document.getElementById("objetivoEspecífico").value &&
               document.getElementById("objetivoEspecífico").value.length > 5
             ) {
-              console.log(document.getElementById("objetivoEspecífico").value);
+              //console.log(document.getElementById("objetivoEspecífico").value);
               var myObjetivo = {
                 descripcion:
                   document.getElementById("objetivoEspecífico").value,
