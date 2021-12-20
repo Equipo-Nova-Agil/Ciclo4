@@ -113,17 +113,19 @@ const Registro = () => {
                       <ButtonLoading
                         disabled={Object.keys(formData).length === 0}
                         loading={false}
-                        className='bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-full transform hover:translate-y-1 transition-transform ease-in duration-200'
+                        className='bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 mt-2 w-full transform hover:translate-y-1 transition-transform ease-in duration-200'
                         text='Registrarse'/>
 
                     </form>
                     <div className="mt-2 text-center">
-                      <span className="text-gray-600"><small>¿Ya tienen una cuenta?</small></span>
-                      <span className="text-gray-300">|</span>
-                      <Link to='/auth/login'>
-                        <a href="#" className="text-gray-600 hover:text-blue-600"><small>Inicia Sesión</small></a>
+                      <span className="text-gray-500 font-bold">¿Ya tienen una cuenta?</span>
+                      <span className="text-gray-900"> | </span>
+                      <Link to='/auth/login' className="text-gray-500 font-bold hover:text-gray-900">
+                        Inicia Sesión
                       </Link>
                     </div>
+
+                    
 
                     
                   </div>
