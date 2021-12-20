@@ -93,7 +93,7 @@ const Avances = () => {
 
               {agregarObservaciones & !mostrarAvances ? (
                 
-                <AgregarObservaciones
+                <FormularioCreacionObservaciones
                   setAgregarObservaciones={setAgregarObservaciones}
                   agregarObservaciones={agregarObservaciones}
                   avance={avance}
@@ -192,7 +192,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
     setIdAv (idAv);
     setAgregarObservaciones (!agregarObservaciones);
     if (setAgregarObservaciones){
-      <AgregarObservaciones
+      <FormularioCreacionObservaciones
       idAv={idAv}
       />
     }
@@ -346,7 +346,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
             <div className='flex'>
               {avance.observaciones.map((observacion, index) => {
                 console.log('ObservacionesID',avance._id)
-                return <ListaObservaciones
+                return <Observaciones
                         key={nanoid()}
                         index={index}
                         _id={observacion._id}
@@ -546,59 +546,6 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 
 };
 
-const Observacion = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [eliminarObservacion, { data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, {
-    refetchQueries: [{ query: obtenerAvances }],
-  });
-
-  useEffect(() => {
-    if (dataMutationEliminar) {
-      toast.success('Observación Eliminada Existósamente');
-    }
-  }, [dataMutationEliminar]);
-
-  const ejecutarEliminacion = (idAvance) => {
-
-    eliminarObservacion({ variables: { idAvance, idObservacion: _id } });
-  };
-
-  if (eliminarLoading)
-    return (
-      <ReactLoading
-        data-testid='loading-in-button'
-        type='spin'
-        height={100}
-        width={100}
-      />
-    );
-  return (
-    <div className='mx-5 my-4 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
-      <div className='text-lg font-bold'>{tipo}</div>
-      <div>{descripcion}</div>
-      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
-        <div className='flex my-2'>
-          <button type='button' onClick={() => setShowEditDialog(true)}>
-            <i className='fas fa-pen mx-2 text-yellow-500 hover:text-yellow-200 cursor-pointer' />
-          </button>
-          <button type='button' onClick={ejecutarEliminacion(avance._id)}>
-            <i className='fas fa-trash mx-2 text-red-500 hover:text-red-200 cursor-pointer' />
-          </button>
-        </div>
-        <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)}>
-          <EditarObservacion
-            descripcion={descripcion}
-            tipo={tipo}
-            index={index}
-            idAvance={idAvance}
-            setShowEditDialog={setShowEditDialog}
-          />
-        </Dialog>
-      </PrivateComponent>
-    </div>
-  );
-};
-
 const EditarObservacion = ({descripcion, tipo, index, idAvance, setShowEditDialog,}) => {
   const { form, formData, updateFormData } = useFormData();
 
@@ -664,7 +611,7 @@ const EditarObservacion = ({descripcion, tipo, index, idAvance, setShowEditDialo
   );
 };
 
-const ListaObservaciones = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
+const Observaciones = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [borrarObservacion,{ data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, 
     {
@@ -725,7 +672,7 @@ const ListaObservaciones = ({ index, _id, idAvance, tipo, descripcion, avance })
   );
 };
 
-const Observaciones = ({idAvance, avance}) => {
+const MenuObservaciones = ({idAvance, avance}) => {
   const [listaObservaciones, setListaObservaciones] = useState([]);
   const [maxObservaciones, setMaxObservaciones] = useState(false);
 
@@ -766,7 +713,7 @@ const Observaciones = ({idAvance, avance}) => {
   );
 };
 
-const AgregarObservaciones = ({setMostrarObservaciones, setAgregarObservaciones, agregarObservaciones, avance, idAv, setIdAv}) => {
+const FormularioCreacionObservaciones = ({setMostrarObservaciones, setAgregarObservaciones, agregarObservaciones, avance, idAv, setIdAv}) => {
   const { form, formData, updateFormData } = useFormData();
   
   const idAvance = idAv
@@ -824,7 +771,7 @@ const AgregarObservaciones = ({setMostrarObservaciones, setAgregarObservaciones,
 
         <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
 
-          <Observaciones idAvance={avance._id}/>
+          <MenuObservaciones idAvance={avance._id}/>
 
           <div className='flex m-4 justify-center items-center'>
             <ButtonLoading 
