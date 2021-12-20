@@ -17,7 +17,7 @@ import useFormData from '../../hooks/useFormData';
 import {obtenerAvances, filtrarAvance} from '../../graphql/Avances/Queries.js';
 import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
 import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
-import {crearAvance, editarAvance, eliminarAvance, crearObservacion} from '../../graphql/Avances/Mutations'
+import {crearAvance, editarAvance, eliminarAvance, crearObservacion, editarObservacion, eliminarObservacion} from '../../graphql/Avances/Mutations'
 
 //COMPONETS
 import Input from '../../componets/Input';
@@ -33,7 +33,7 @@ const Avances = () => {
   const [agregarObservaciones, setAgregarObservaciones] = useState(false);
   const [textoBoton, setTextoBoton] = useState('Nuevo Avance');
   const [avance, setAvance] = useState({})
-  const {loading: loadingAvances, data: dataAvances, error:errorAvances} = useQuery (obtenerAvances);
+  const {data: dataAvances, loading: loadingAvances, error:errorAvances} = useQuery (obtenerAvances);
   
   useEffect(() => {
     if (agregarObservaciones) {
@@ -96,7 +96,9 @@ const Avances = () => {
                 <AgregarObservaciones
                   setAgregarObservaciones={setAgregarObservaciones}
                   agregarObservaciones={agregarObservaciones}
-                  avance={avance}/>
+                  avance={avance}
+                  _id = {avance._id}
+                  idAvance={avance._id}/>
                   
               ) : mostrarAvances ? (
 
@@ -123,10 +125,15 @@ const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones})=> {
     return (
     <div className='p-4 flex w-10/12 flex-col'>
       {dataAvances && dataAvances.Avances.map((avance) => {
-        return <AcordionAvances 
+        console.log('Lo que sea', avance._id)
+        return <AcordionAvances
+                key={avance._id}  
                 avance={avance} 
                 agregarObservaciones={agregarObservaciones}
-                setAgregarObservaciones={setAgregarObservaciones}/>;
+                setAgregarObservaciones={setAgregarObservaciones}
+                idAvance={avance._id}
+                
+                />;
       })}
     </div>
   );
@@ -137,19 +144,58 @@ const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones})=> {
 const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones}) => {
   const [edit, setEdit] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const [modificarAvance, { data: mutacionAvance, loading, error }] = useMutation(editarAvance, {refetchQueries:[{ query: obtenerAvances}]});
-  
+  const [modificarAvance, { data: mutacionEditarAvance, loading:loadingEditarAvance, error: errorEditarAvance }] = useMutation(editarAvance);
+    // , {refetchQueries:[{ query: obtenerAvances}]});
+  const [idAv, setIdAv] = useState("");
+
   const [infoNuevoAvance, setInfoNuevoAvance] = useState({
     _id: avance._id,
-    descripcion: avance.descripcion, 
+    descripcion: avance.descripcion,
+    fecha: avance.fecha,
+    proyecto: avance.proyecto,
+    creadoPor: avance.creadoPor, 
   });
 
+  useEffect(() => {
+    if (errorEditarAvance) {
+      toast.error('Error Consultando Avances', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
+    }
+  }, [errorEditarAvance]);
+
+  if (loadingEditarAvance) return <div>
+    <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+    <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+    </div>;
+
+  
+
   const actualizarAvance = () => {
-    console.log("Le Di a Editar Proyecto:", infoNuevoAvance)
+    console.log("Editar Proyecto:", infoNuevoAvance)
     modificarAvance({ 
-      variables: { ...infoNuevoAvance }
+      variables: {
+        _id: avance._id,
+        campos: infoNuevoAvance,
+
+        // ...infoNuevoAvance 
+      }
     })
     setEdit(false);
+  };
+
+  const nuevaObservacion = (idAv)=> {
+    console.log('idAv', idAv);
+    setIdAv (idAv);
+    setAgregarObservaciones (!agregarObservaciones);
+    if (setAgregarObservaciones){
+      <AgregarObservaciones
+      idAv={idAv}
+      />
+    }
   };
 
   return (
@@ -191,7 +237,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
             {/* </PrivateComponent> */}
             
   
-            {/* EDICION DATOS PROYECTOS */}
+            {/* EDICION DATOS AVANCES */}
             <div className='flex justify-between items-center px-2 py-4 text-gray-600'>
   
               <div>
@@ -214,9 +260,11 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
                 name='descripcion'
                 rows="4"
                 cols="25"
+                defaultValue={avance.descripcion}
                 className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
                 onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, descripcion: e.target.value })}
                 />
+                
               </div>
   
               
@@ -228,7 +276,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
         {/* <Dialog
           open={showDialog}
           onClose={() => {setShowDialog(false);}}>
-          <FormularioEditarProyecto _id = {proyecto._id} />
+          EditarAvance _id = {avance._id} />
         </Dialog> */}
         </>
 
@@ -253,6 +301,10 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
               <i
                 className='mx-4 fas fa-edit text-gray-600 hover:text-yellow-600'
                 onClick={() => setEdit(!edit)}
+              />
+              <i
+                // className='mx-4 fas fa-edit text-gray-600 hover:text-yellow-600'
+                // onClick={() => {setShowDialog(true);}}
               />
             </PrivateComponent>
   
@@ -285,22 +337,35 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
                   className='bg-yellow-300 rounded-lg ml-6 p-1 text-sm text-gray-600 hover:text-blue-900'
                   type="button"
                   title="Agregar Observaciones"
-                  onClick={() => setAgregarObservaciones (!agregarObservaciones)}>
+                  onClick={() => nuevaObservacion(avance._id)}>
                   <i className="fa fa-eye "></i> Agregar
                 </button>
               </PrivateComponent>
 
-            
-  
             {/* OBSERVACIONES AVANCES */}
             <div className='flex'>
-              {avance.observaciones.map((observacion) => {
-                return <ListaObservaciones tipo={observacion.tipo} descripcion={observacion.descripcion} />;
+              {avance.observaciones.map((observacion, index) => {
+                console.log('ObservacionesID',avance._id)
+                return <ListaObservaciones
+                        key={nanoid()}
+                        index={index}
+                        _id={observacion._id}
+                        idAvance={avance._id} 
+                        tipo={observacion.tipo} 
+                        descripcion={observacion.descripcion} />;
               })}
             </div>
   
           </AccordionDetailsStyled>
         </AccordionStyled>
+        {/* <Dialog
+        open={showDialog}
+        onClose={() => {
+          setShowDialog(false);
+        }}
+      >
+        <EditarAvance _id={avance._id} />
+      </Dialog> */}
         
       </>
       )
@@ -308,6 +373,61 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
   );
 
 
+};
+
+const EditarAvance = ({ _id}) => {
+  const { form, formData, updateFormData } = useFormData();
+  const [modificarAvance, { data, loading, error }] = useMutation(editarAvance);
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Error Consultando Avances', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
+    }
+  }, [error]);
+
+  if (loading) return <div>
+    <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+    <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+    </div>;
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    modificarAvance({
+      variables: {
+        _id,
+        campos: formData,
+      },
+    });
+  };
+
+  return (
+    
+    <div className='p-4'>
+      <h1 className='font-bold'>Editar Avance</h1>
+      <form
+        ref={form}
+        onChange={updateFormData}
+        onSubmit={submitForm}
+        className='flex flex-col items-center'>
+
+        <TextArea
+          name='descripcion'
+          label='descripcion'
+          rows="4"
+          cols="25"
+          // defaultValue={avance.descripcion}
+          className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+          />
+
+        <ButtonLoading disabled={false} loading={loading} text='Confirmar' />
+      </form>
+    </div>
+  );
 };
 
 const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
@@ -327,7 +447,7 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 
   const proyectosInscritos= dataUsuarios && dataUsuarios.Usuarios[0].inscripciones.filter(p => (p.proyecto.fase === 'INICIADO')||(p.proyecto.fase ==='DESARROLLO'));
   console.log('Lista Proyectos Inscritos', proyectosInscritos)
-  const [nuevoAvance, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearObservacion, {refetchQueries:[{ query: obtenerAvances }]});
+  const [nuevoAvance, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
 
   useEffect(() => {
     if (loadingUsuarios) return <div>
@@ -373,7 +493,7 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
         
         <div className='flex flex-col m-4 justify-center items-center'>
 
-        <label className='flex flex-col py-2 text-gray-800 font-bold text-center' for='fecha'>
+          <label className='flex flex-col py-2 text-gray-800 font-bold text-center' htmlFor='fecha'>
             Fecha: 
           </label>
           <Input 
@@ -382,7 +502,7 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
             required={true} 
             type='date'/>
 
-          <label className='flex flex-col mr-2 py-2 text-gray-800 font-bold text-center' for='proyecto'>
+          <label className='flex flex-col mr-2 py-2 text-gray-800 font-bold text-center' htmlFor='proyecto'>
             Proyecto: 
           </label>
           <DropDown 
@@ -393,7 +513,7 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
         </div>
 
         <div className='justify-center items-center'>
-          <label className='flex flex-col mt-2 py-2 font-bold text-gray-800 text-center' for='descripcion'>
+          <label className='flex flex-col mt-2 py-2 font-bold text-gray-800 text-center' htmlFor='descripcion'>
             Descripción Del Avance:
           </label>
           <TextArea
@@ -426,22 +546,185 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 
 };
 
-const ListaObservaciones = ({ tipo, descripcion }) => {
+const Observacion = ({ index, _id, idAvance, tipo, descripcion }) => {
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [eliminarObservacion, { data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, {
+    refetchQueries: [{ query: obtenerAvances }],
+  });
+
+  useEffect(() => {
+    if (dataMutationEliminar) {
+      toast.success('Observación Eliminada Existósamente');
+    }
+  }, [dataMutationEliminar]);
+
+  const ejecutarEliminacion = () => {
+    eliminarObservacion({ variables: { idAvance, idObservacion: _id } });
+  };
+
+  if (eliminarLoading)
+    return (
+      <ReactLoading
+        data-testid='loading-in-button'
+        type='spin'
+        height={100}
+        width={100}
+      />
+    );
   return (
-    <div className='mx-5 my-4 text-gray-600 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
-      <div className='text-md font-bold'>
-        Observación: 
-        {/* {tipo} */}
-      </div>
-      <div className='text-center justify-center'>{descripcion}</div>
+    <div className='mx-5 my-4 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
+      <div className='text-lg font-bold'>{tipo}</div>
+      <div>{descripcion}</div>
       <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
-        <div className='text-indigo-600 text-sm underline'>Editar</div>
+        <div className='flex my-2'>
+          <button type='button' onClick={() => setShowEditDialog(true)}>
+            <i className='fas fa-pen mx-2 text-yellow-500 hover:text-yellow-200 cursor-pointer' />
+          </button>
+          <button type='button' onClick={ejecutarEliminacion}>
+            <i className='fas fa-trash mx-2 text-red-500 hover:text-red-200 cursor-pointer' />
+          </button>
+        </div>
+        <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)}>
+          <EditarObservacion
+            descripcion={descripcion}
+            tipo={tipo}
+            index={index}
+            idAvance={idAvance}
+            setShowEditDialog={setShowEditDialog}
+          />
+        </Dialog>
       </PrivateComponent>
     </div>
   );
 };
 
-const Observaciones = () => {
+const EditarObservacion = ({descripcion, tipo, index, idAvance, setShowEditDialog,}) => {
+  const { form, formData, updateFormData } = useFormData();
+
+  const [modificarObservacion, { data: dataMutation, loading }] = useMutation(editarObservacion,
+    {
+      refetchQueries: [{ query: obtenerAvances }],
+    }
+  );
+
+  useEffect(() => {
+    if (dataMutation) {
+      toast.success('Observacion Editada Exitosamente', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
+      setShowEditDialog(false);
+    }
+  }, [dataMutation, setShowEditDialog]);
+
+  const submitForm = (e) => {
+    e.preventDefault();
+    modificarObservacion({
+      variables: {
+        idAvance,
+        indexObservacion: index,
+        campos: formData,
+      },
+    }).catch((error) => {
+      toast.error('Error Editando Observación', error);
+    });
+  };
+  return (
+    <div className='p-4'>
+      <h1 className='text-2xl font-bold text-gray-900 text-center py-4'>Editar Observación</h1>
+      <form className=' justify-center items-center flex flex-col' ref={form} onChange={updateFormData} onSubmit={submitForm}>
+        <DropDown
+          label=''
+          name='tipo'
+          required
+          options={Enum_TipoObservacion}
+          defaultValue={tipo}
+          className='hidden'
+        />
+        <TextArea
+          label=''
+          name='descripcion'
+          className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm text-center shadow-md focus:outline-none focus:ring w-48'
+          rows="5"
+          cols="15"
+          required
+          defaultValue={descripcion}
+        />
+        <ButtonLoading
+          text='Confirmar'
+          disabled={Object.keys(formData).length === 0}
+          className='fondo1 text-white active:bg-gray-700 justify-center items-center text-md font-bold mt-5 px-1 py-2 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 m-2 w-60 transform hover:translate-y-1 transition-transform ease-in duration-200'
+          loading={loading}
+        />
+      </form>
+    </div>
+  );
+};
+
+const ListaObservaciones = ({ index, _id, idAvance, tipo, descripcion }) => {
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [borrarObservacion,{ data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, 
+    {
+    refetchQueries: [{ query: obtenerAvances }],
+    });
+
+
+    useEffect(() => {
+      if (dataMutationEliminar) {
+        toast.success('Observacion Eliminada Satisfactoriamente', 
+        {
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "colored",
+          autoClose: 3000
+        })
+      }
+    }, [dataMutationEliminar]);
+  
+    const ejecutarEliminacion = () => {
+      borrarObservacion({ variables: { idAvance, idObservacion: _id } });
+    };
+  
+    if (eliminarLoading)
+      return (
+        <ReactLoading
+          data-testid='loading-in-button'
+          type='spin'
+          height={100}
+          width={100}
+        />
+      );
+  return (
+    <div className='mx-5 my-4 text-gray-600 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
+      <div className='text-md font-bold'>
+        Observación: 
+      </div>
+      <div className='text-center justify-center'>{descripcion}</div>
+      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+        <div className='flex  mt-4 mb-0'>
+          <button type='button' onClick={() => setShowEditDialog(true)}>
+            <i className='fas fa-edit mx-2  hover:text-yellow-600 cursor-pointer' />
+          </button>
+          <button type='button' onClick={ejecutarEliminacion}>
+            <i className='fas fa-trash mx-2 hover:text-red-600 cursor-pointer' />
+          </button>
+        </div>
+        <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)}>
+          <EditarObservacion
+            descripcion={descripcion}
+            tipo={tipo}
+            index={index}
+            idAvance={idAvance}
+            setShowEditDialog={setShowEditDialog}
+          />
+        </Dialog>
+      </PrivateComponent>
+    </div>
+  );
+};
+
+const Observaciones = ({idAvance, avance}) => {
   const [listaObservaciones, setListaObservaciones] = useState([]);
   const [maxObservaciones, setMaxObservaciones] = useState(false);
 
@@ -451,7 +734,9 @@ const Observaciones = () => {
 
   const componenteObservacionAgregada = () => {
     const id = nanoid();
-    return <FormularioObservacion key={id} id={id} />;
+    return <FormularioObservacion 
+              key={id} 
+              id={id} />;
   };
 
   useEffect(() => {
@@ -480,9 +765,24 @@ const Observaciones = () => {
   );
 };
 
-const AgregarObservaciones = ({setMostrarObservaciones, setAgregarObservaciones, agregarObservaciones, avance}) => {
+const AgregarObservaciones = ({setMostrarObservaciones, setAgregarObservaciones, agregarObservaciones, avance, idAv, setIdAv}) => {
   const { form, formData, updateFormData } = useFormData();
-  const [nuevaObservacion, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
+  
+  const idAvance = idAv
+  // const { data: dataAvances, loading: loadingAvances} = useQuery(obtenerAvances, {
+  //   variables: {
+  //     filtro: { _id: idAv },
+  //   },
+  // });
+
+
+  
+
+  console.log('idAv en Agregar observaciones', idAv);
+  
+  console.log('avance en Agregar observaciones', avance);
+
+  const [nuevaObservacion, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearObservacion, {refetchQueries:[{ query: obtenerAvances }]});
 
   const submitForm = (e) => {
     e.preventDefault();
@@ -523,7 +823,7 @@ const AgregarObservaciones = ({setMostrarObservaciones, setAgregarObservaciones,
 
         <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
 
-          <Observaciones/>
+          <Observaciones idAvance={avance._id}/>
 
           <div className='flex m-4 justify-center items-center'>
             <ButtonLoading 

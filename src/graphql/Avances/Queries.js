@@ -1,9 +1,9 @@
 import { gql} from '@apollo/client';
 
-const obtenerAvances = gql `
+const obtenerAvances  = gql `
 
-query Avances {
-  Avances {
+query Avances ($filtro: FiltroAvances){
+  Avances (filtro: $filtro){
     _id
     fecha
     proyecto {
