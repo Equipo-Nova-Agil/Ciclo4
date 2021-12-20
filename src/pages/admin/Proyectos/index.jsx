@@ -18,6 +18,7 @@ import {
 } from "graphql/Proyectos/Mutations.js";
 import { obtenerUsuariosPorFiltro } from "graphql/Usuarios/Queries.js";
 import { crearInscripcion } from "graphql/Incripciones/Mutations.js";
+import { obtenerConteoInscripcionesPorProyecto } from "graphql/Incripciones/Queries";
 import useFormData from "hooks/useFormData";
 //import Paginacion from "componets/Paginacion.jsx";
 
@@ -70,39 +71,37 @@ const Proyectos = () => {
 };
 
 //==================================TABLA PROYECTOS==================================
-const TablaProyectos = ({ datosUsuario, setMostrarTabla}) => {
+const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
   const [busqueda, setBusqueda] = useState("");
   const [proyectosFiltrados, setProyectosFiltrados] = useState([]);
   const [totalRegistrosFiltrados, setTotalRegistrosFiltrados] = useState(proyectosFiltrados.length);
-  const [listaProyectos,setListaProyectos] = useState([]);
+  const [listaProyectos, setListaProyectos] = useState([]);
   const [totalRegistros, setTotalRegistros] = useState(0);
 
   //FILTRO
   const filtroByRol = new Object();//, setFiltroByRol] = useState(new Object());
-  if(datosUsuario.rol==="LIDER")
-  {
-    filtroByRol.lider=datosUsuario._id;
+  if (datosUsuario.rol === "LIDER") {
+    filtroByRol.lider = datosUsuario._id;
   }
   //LISTADO PROYECTOS
   const { loading: loadingProyectos,
-       data: dataProyectos,
-       error: errorProyectos,refetch } = useQuery(obtenerProyectos
-    ,
-    {
-      variables: {
-        filtro: filtroByRol
-      },
-    }
+    data: dataProyectos,
+    error: errorProyectos, refetch } = useQuery(obtenerProyectos
+      ,
+      {
+        variables: {
+          filtro: filtroByRol
+        },
+      }
     );
-  
+
   useEffect(() => {
-    if(dataProyectos)
-    {
+    if (dataProyectos) {
       //console.log("Datos Proyectos Servidor", dataProyectos);
       setProyectosFiltrados(dataProyectos.Proyectos);
       setListaProyectos(dataProyectos.Proyectos);
       setTotalRegistros(dataProyectos.Proyectos.length);
-    } 
+    }
     refetch()
   }, [dataProyectos]);
 
@@ -135,112 +134,112 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla}) => {
   }, [setMostrarTabla]);
 
   if (loadingProyectos)
-  return (
-    <div>
-      <h1 className="text-3xl font-extrabold">Cargando proyectos...</h1>
-      <ReactLoading type="bars" color="#11172d" height={467} width={175} />
-    </div>
-  );
+    return (
+      <div>
+        <h1 className="text-3xl font-extrabold">Cargando proyectos...</h1>
+        <ReactLoading type="bars" color="#11172d" height={467} width={175} />
+      </div>
+    );
 
   return (
     <div className="container mx-auto antialiased font-sans bg-white">
       {datosUsuario.estado === "AUTORIZADO" ? (
         //<body className="antialiased font-sans bg-white"> 
-          <div className="px-4 sm:px-8">
-            <div className="py-8">
-              {/* BUSCADOR */}
-              <div className="my-2 mx-2 flex sm:flex-row flex-col">
-                <div className="block relative">
-                  <span className="h-full absolute inset-y-0 left-0 flex items-center pl-2">
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-4 w-4 fill-current text-gray-500"
-                    >
-                      <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
-                    </svg>
-                  </span>
-                  <input
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    placeholder="Buscar"
-                    className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
-                  />
-                </div>
+        <div className="px-4 sm:px-8">
+          <div className="py-8">
+            {/* BUSCADOR */}
+            <div className="my-2 mx-2 flex sm:flex-row flex-col">
+              <div className="block relative">
+                <span className="h-full absolute inset-y-0 left-0 flex items-center pl-2">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 fill-current text-gray-500"
+                  >
+                    <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
+                  </svg>
+                </span>
+                <input
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  placeholder="Buscar"
+                  className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
+                />
               </div>
-              {/* TABLA */}
-              <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                {proyectosFiltrados.length > 0 ? (
-                  <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-                    <table className="min-w-full leading-normal">
-                      <thead>
-                        <tr>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-10">
-                            <i className="fas fa-passport"></i>
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
-                            Proyecto
-                          </th>
-                          <th
-                            hidden
-                            className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32"
-                          >
-                            Presupuesto
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Inicio
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Fin
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
-                            Líder
-                          </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Fase
-                          </th>
-                          <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
-                            Estado
-                          </th>
-                          <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                            Acciones
-                          </th>
-                        </tr>
-                      </thead>
-                      {/* ARRAY TABLA */}
-                      <tbody>
-                        {proyectosFiltrados &&
-                          proyectosFiltrados.map((proyecto) => {
-                            return (
-                              <FilaProyectos
-                                key={proyecto._id}
-                                proyecto={proyecto}
-                                usuario={datosUsuario._id}
-                              />
-                            );
-                          })}
-                      </tbody>
-                    </table>
-                    {/* <Paginacion
+            </div>
+            {/* TABLA */}
+            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+              {proyectosFiltrados.length > 0 ? (
+                <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                  <table className="min-w-full leading-normal">
+                    <thead>
+                      <tr>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-10">
+                          <i className="fas fa-passport"></i>
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
+                          Proyecto
+                        </th>
+                        <th
+                          hidden
+                          className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32"
+                        >
+                          Presupuesto
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Inicio
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Fin
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
+                          Líder
+                        </th>
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Fase
+                        </th>
+                        <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          Estado
+                        </th>
+                        <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    {/* ARRAY TABLA */}
+                    <tbody>
+                      {proyectosFiltrados &&
+                        proyectosFiltrados.map((proyecto) => {
+                          return (
+                            <FilaProyectos
+                              key={proyecto._id}
+                              proyecto={proyecto}
+                              usuario={datosUsuario._id}
+                            />
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                  {/* <Paginacion
                       fin={totalRegistrosFiltrados}
                       registros={totalRegistros}
                       limite={10}
                     /> */}
+                </div>
+              ) : (
+                <div role="alert">
+                  <div className="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
+                    Notificación
                   </div>
-                ) : (
-                  <div role="alert">
-                    <div className="bg-green-500 text-2xl text-white font-bold rounded-t px-4 py-2">
-                      Notificación
-                    </div>
-                    <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-                      <p className="text-2xl">
-                        Sin información para visualizar
-                      </p>
-                    </div>
+                  <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+                    <p className="text-2xl">
+                      Sin información para visualizar
+                    </p>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
+        </div>
         //</body>
       ) : (
         <ComponenteNoAutorizado></ComponenteNoAutorizado>
@@ -260,6 +259,20 @@ const FilaProyectos = ({ proyecto, usuario }) => {
   const [openDialogAprobarProyecto, setOpenDialogAprobarProyecto] =
     useState(false);
   const [openDialogInscribirse, setOpenDialogInscribirse] = useState(false);
+
+  // CUENTAS DE INSCRIPCIONES
+  const { loading: loadingConteo,
+    data: dataConteo,
+    error: errorConteo } = useQuery(obtenerConteoInscripcionesPorProyecto
+      ,
+      {
+        variables: {
+          "proyecto": proyecto._id,
+          "estudiante": usuario
+        },
+      }
+    );
+  //console.log("Inscripciones",dataConteo)
 
   //const { _id } = useParams();
   const [infoNuevoProyecto, setInfoNuevoProyecto] = useState({
@@ -297,11 +310,11 @@ const FilaProyectos = ({ proyecto, usuario }) => {
     setOpenDialogEliminar(false);
   };
 
-    useEffect(() => {
-      if (mutationDataDelete) {
-          window.location.href = window.location.href;
-      }
-    }, [mutationDataDelete]);
+  useEffect(() => {
+    if (mutationDataDelete) {
+      window.location.href = window.location.href;
+    }
+  }, [mutationDataDelete]);
 
   const [
     editProyecto,
@@ -475,8 +488,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
           proyecto.estado === "ACTIVO"
             ? "relative inline-block m-4 px-5 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
             : proyecto.fase !== "TERMINADO"
-            ? "relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
-            : "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+              ? "relative inline-block m-4 px-3 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
+              : "relative inline-block m-4 px-3 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full"
         }
       >
         {proyecto.estado}
@@ -495,7 +508,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
               {
                 //Editar proyecto cambiar fase
                 proyecto.estado === "ACTIVO" &&
-                proyecto.fase === "DESARROLLO" ? (
+                  proyecto.fase === "DESARROLLO" ? (
                   <button
                     type="button"
                     title="Terminar proyecto"
@@ -552,7 +565,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                 onClick={() => setOpenDialogInscribirse(true)}
               >
                 {proyecto.estado === "ACTIVO" &&
-                proyecto.fase !== "TERMINADO" ? (
+                  proyecto.fase !== "TERMINADO" ? (
                   <i className="fas fa-folder-plus hover:text-green-700"></i>
                 ) : (
                   <i className="fas fa-folder-plus hover:text-red-700"></i>
@@ -566,7 +579,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                 onClick={() => setOpenDialogEliminar(true)}
               >
                 {proyecto.fase === "NULO" ||
-                proyecto.fase === "" ? (
+                  proyecto.fase === "" ? (
                   <i className="fas fa-trash-alt text-red-500 hover:text-green-700"></i>
                 ) : (
                   <i className="fas fa-trash-alt text-yellow-500 hover:text-red-700"></i>
@@ -579,7 +592,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
           <div className="p-8 flex flex-col">
             <h1 className="text-gray-900 text-2xl font-bold">
               {proyecto.estado === "ACTIVO" &&
-              proyecto.fase === "DESARROLLO" ? (
+                proyecto.fase === "DESARROLLO" ? (
                 <>
                   ¿Está seguro de querer cambiar el proyecto "{proyecto.nombre}"
                   a fase <span className="text-green-600"> terminado</span> ?
@@ -589,8 +602,8 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                   El proyecto "{proyecto.nombre}", no puede cambiar de{" "}
                   <span className="text-red-600">fase </span>en este momento.<br /><br /><span className="text-green-600">NOTA:</span> Se encuentra en
                   {
-                    proyecto.fase==="DESARROLLO" ? (" estado "+proyecto.estado.toLowerCase()):
-                    (" fase "+proyecto.fase.toLowerCase())
+                    proyecto.fase === "DESARROLLO" ? (" estado " + proyecto.estado.toLowerCase()) :
+                      (" fase " + proyecto.fase.toLowerCase())
                   }
                 </>
               )}
@@ -598,7 +611,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
             </h1>
             <div className="flex w-full items-center justify-center my-4">
               {proyecto.estado === "ACTIVO" &&
-              proyecto.fase === "DESARROLLO" ? (
+                proyecto.fase === "DESARROLLO" ? (
                 <>
                   <button
                     onClick={() => {
@@ -721,39 +734,64 @@ const FilaProyectos = ({ proyecto, usuario }) => {
         <Dialog open={openDialogInscribirse}>
           <div className="p-8 flex flex-col">
             <>
-              {proyecto.estado !== "INACTIVO" ? (
+              {proyecto.estado !== "INACTIVO" && proyecto.fase !== "TERMINADO" && dataConteo && dataConteo.CountInscripcionesPorProyecto.pendientes === 0 && dataConteo.CountInscripcionesPorProyecto.abiertas === 0 ? (
                 <h1 className="text-gray-900 text-2xl font-bold">
                   ¿Está seguro de querer{" "}
                   <span className="text-green-600">inscribirse</span> en el
                   proyecto "{proyecto.nombre}"?
                 </h1>
               ) : (
-                <h1 className="text-gray-900 text-2xl font-bold">
-                  El proyecto "{proyecto.nombre}"
-                  <span className="text-red-600"> no acepta inscripciones</span>{" "}
-                  en este momento
-                </h1>
+                <>
+                  {proyecto.estado === "INACTIVO" || proyecto.fase === "TERMINADO" ? (
+                    <h1 className="text-gray-900 text-2xl font-bold">
+                      El proyecto "{proyecto.nombre}"
+                      <span className="text-red-600"> no acepta inscripciones</span>{" "}
+                      en este momento.
+                    </h1>
+                  ) : (
+                    <h1 className="text-gray-900 text-2xl font-bold">
+                      En este momento <span className="text-red-600">{dataConteo && dataConteo.CountInscripcionesPorProyecto.pendientes > 0 ? ("tienes solicitud pendiente de aceptación") : ("te encuentras inscrito")}
+
+                      </span>{" "}en el proyecto "{proyecto.nombre}"
+                    </h1>
+                  )
+                  }
+                </>
+
+
               )}
 
               <div className="flex w-full items-center justify-center my-4">
-                {proyecto.estado !== "INACTIVO" &&
-                  proyecto.fase !== "TERMINADO" && (
+                {proyecto.estado !== "INACTIVO" && proyecto.fase !== "TERMINADO" && dataConteo && dataConteo.CountInscripcionesPorProyecto.pendientes === 0 && dataConteo.CountInscripcionesPorProyecto.abiertas === 0 ? (
+                  <>
+                    <h1 className="text-gray-900 text-2xl font-bold">
+                      ¿Está seguro de querer{" "}
+                      <span className="text-green-600">inscribirse</span> en el
+                      proyecto "{proyecto.nombre}"?
+                    </h1>
                     <button
                       onClick={() => inscribirseEnProyecto()}
                       className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
                     >
                       Sí
                     </button>
-                  )}
-                <button
-                  onClick={() => setOpenDialogInscribirse(false)}
-                  className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
-                >
-                  {proyecto.estado !== "INACTIVO" &&
-                  proyecto.fase !== "TERMINADO"
-                    ? "No"
-                    : "Cerrar"}
-                </button>
+                    <button
+                      onClick={() => setOpenDialogInscribirse(false)}
+                      className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                    >
+                      No
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setOpenDialogInscribirse(false)}
+                      className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                    >
+                      Cerrar
+                    </button>
+                  </>
+                )}
               </div>
             </>
           </div>
@@ -765,7 +803,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 
 //==================================FORMULARIO==================================
 const FormularioCreacionProyectos = ({ setMostrarTabla, datosUsuario }) => {
-  const lidera=datosUsuario.nombre + " " + datosUsuario.apellido;
+  const lidera = datosUsuario.nombre + " " + datosUsuario.apellido;
   // const form = useRef(null);
   const { form, formData, updateFormData } = useFormData();
 
@@ -854,12 +892,12 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, datosUsuario }) => {
   }, [mutationDataCreate]);
 
   if (loadLideres)
-  return (
-    <div>
-      <h1 className="text-3xl font-extrabold">Construyendo formulario...</h1>
-      <ReactLoading type="bars" color="#11172d" height={467} width={175} />
-    </div>
-  );
+    return (
+      <div>
+        <h1 className="text-3xl font-extrabold">Construyendo formulario...</h1>
+        <ReactLoading type="bars" color="#11172d" height={467} width={175} />
+      </div>
+    );
 
 
   return (
