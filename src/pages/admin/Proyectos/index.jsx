@@ -51,7 +51,7 @@ const Proyectos = () => {
   useEffect(() => {
     if (ejecutarConsulta && dataProyectos) {
       setProyectos(dataProyectos);
-      console.log(JSON.stringify(setProyectos));
+      //console.log(JSON.stringify(setProyectos));
       setEjecutarConsulta(false);
     }
     if (errorProyectos) {
@@ -69,18 +69,18 @@ const Proyectos = () => {
   }, [mostrarTabla]);
 
   useEffect(() => {
-    console.log("Datos Proyectos Servidor", dataProyectos);
+    //console.log("Datos Proyectos Servidor", dataProyectos);
     refetch()
   }, [dataProyectos]);
 
   useEffect(() => {
-    console.log("Datos Lideres Servidor", dataLideres);
+    console.log("Se cargaron los lideres");//, dataLideres);
   }, [dataLideres]);
 
   useEffect(() => {
     if (errorProyectos) {
       toast.error("Error Consultando Proyectos");
-      console.log("Error", errorProyectos);
+      //console.log("Error", errorProyectos);
     }
   }, [errorProyectos]);
 
@@ -159,10 +159,10 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
   }, [busqueda, proyectosFiltrados, listaProyectos]);
 
   return (
-    <div>
+    <div className="container mx-auto antialiased font-sans bg-white">
       {datosUsuario.estado === "AUTORIZADO" ? (
-        <body className="antialiased font-sans bg-white">
-          <div className="container mx-auto px-4 sm:px-8">
+        //<body className="antialiased font-sans bg-white"> 
+          <div className="px-4 sm:px-8">
             <div className="py-8">
               {/* BUSCADOR */}
               <div className="my-2 mx-2 flex sm:flex-row flex-col">
@@ -190,10 +190,10 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
                     <table className="min-w-full leading-normal">
                       <thead>
                         <tr>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-20">
+                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-lg font-extrabold text-gray-600 uppercase tracking-wider w-10">
                             <i className="fas fa-passport"></i>
                           </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
                             Proyecto
                           </th>
                           <th
@@ -208,7 +208,7 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
                           <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
                             Fin
                           </th>
-                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                          <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider">
                             Líder
                           </th>
                           <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
@@ -257,7 +257,7 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
               </div>
             </div>
           </div>
-        </body>
+        //</body>
       ) : (
         <ComponenteNoAutorizado></ComponenteNoAutorizado>
       )}
@@ -303,7 +303,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
     deleteProyecto({
       variables: { _id: infoNuevoProyecto._id },
     });
-    console.log("id", infoNuevoProyecto._id);
+    //console.log("id", infoNuevoProyecto._id);
     if (mutationErrorDelete) {
       toast.error("Proyecto no se pudo eliminar");
     } else {
@@ -337,10 +337,10 @@ const FilaProyectos = ({ proyecto, usuario }) => {
     let fechaInicial = infoNuevoProyecto.fechaInicio; //fechaActual.toISOString().substr(0, 10);
     let fechaFinal = infoNuevoProyecto.fechaFin;
     if (proyecto.estado === "ACTIVO") {
-      console.log("Estamos en inactivar proyecto", infoNuevoProyecto);
+      //console.log("Estamos en inactivar proyecto", infoNuevoProyecto);
       estadito = "INACTIVO";
     } else {
-      console.log("Estamos en activar proyecto", infoNuevoProyecto);
+      //console.log("Estamos en activar proyecto", infoNuevoProyecto);
       estadito = "ACTIVO";
       if (proyecto.fase === "NULO" || proyecto.fase === "") {
         faseactual = "INICIADO";
@@ -379,7 +379,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 
     if (mutationErrorEdit) {
       toast.error("Proyecto no se pudo editar");
-      console.log("error,", mutationErrorEdit);
+      //console.log("error,", mutationErrorEdit);
     } else {
       toast.success("Proyecto editado con éxito");
     }
@@ -388,7 +388,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 
   //EDITAR FASE/terminar
   const editarFaseProyecto = () => {
-    console.log("Estamos en cambio de fase del proyecto", infoNuevoProyecto);
+    //console.log("Estamos en cambio de fase del proyecto", infoNuevoProyecto);
     let lidera = infoNuevoProyecto.lider._id;
     let estadito = infoNuevoProyecto.estado;
     let lafase = infoNuevoProyecto.fase;
@@ -426,7 +426,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
 
     if (mutationErrorEdit) {
       toast.error("Proyecto no se pudo editar");
-      console.log("error,", mutationErrorEdit);
+      //console.log("error,", mutationErrorEdit);
     } else {
       toast.success("Proyecto editado con éxito");
     }
@@ -451,7 +451,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
         estado: "PENDIENTE",
       },
     });
-    console.log("id", infoNuevoProyecto._id);
+    //console.log("id", infoNuevoProyecto._id);
     if (mutationErrorInscripcion) {
       toast.error("No se pudo enviar la inscripción");
     } else {
@@ -465,7 +465,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-24">
         {proyecto._id.slice(20)}
       </td>
-      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-justify w-32">
+      <td className="px-3 py-3 uppercase border-b border-gray-300 rounded-lg bg-white text-sm text-justify">
         {proyecto.nombre}
       </td>
       <td
@@ -480,7 +480,7 @@ const FilaProyectos = ({ proyecto, usuario }) => {
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
         {proyecto.fechaFin.split("T")[0]}
       </td>
-      <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-justify w-32">
+      <td className="px-3 py-3 uppercase border-b border-gray-300 rounded-lg bg-white text-sm text-justify">
         {proyecto.lider.nombre} {proyecto.lider.apellido}
       </td>
       <td className="px-3 py-3 border-b border-gray-300 rounded-lg bg-white text-sm text-center w-32">
@@ -798,7 +798,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
 
   //no se esta usando
   useEffect(() => {
-    console.log(dataLideres);
+    //console.log(dataLideres);
     if (dataLideres) {
       const lu = {};
       dataLideres.Usuarios.forEach((elemento) => {
@@ -860,7 +860,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, lidera }) => {
   };
 
   useEffect(() => {
-    console.log("Mutación creacion", mutationDataCreate);
+    //console.log("Mutación creacion", mutationDataCreate);
     if (mutationDataCreate) {
       toast.success("El proyecto fue creado");
       refetch()
@@ -1095,7 +1095,7 @@ const TablaObjetivos = ({ setObjEspecificosTabla }) => {
 
   const agregarNuevoObjEspecificos = (objetivo) => {
     setFilasTabla([...filasTabla, objetivo]);
-    console.log("Tabla Objetivos Especificos", filasTabla);
+    //console.log("Tabla Objetivos Especificos", filasTabla);
   };
 
   const eliminarObjEspecificos = (objEspecificosAEliminar) => {
@@ -1124,7 +1124,7 @@ const TablaObjetivos = ({ setObjEspecificosTabla }) => {
   }) => {
     const [objetivo, setObjetivo] = useState(obj);
     useEffect(() => {
-      console.log("Fila objetivo ...objetivo", objetivo);
+      console.log("Fila objetivo ...objetivo");//, objetivo);
     }, [objetivo]);
 
     return (
@@ -1187,7 +1187,7 @@ const TablaObjetivos = ({ setObjEspecificosTabla }) => {
               document.getElementById("objetivoEspecífico").value &&
               document.getElementById("objetivoEspecífico").value.length > 5
             ) {
-              console.log(document.getElementById("objetivoEspecífico").value);
+              //console.log(document.getElementById("objetivoEspecífico").value);
               var myObjetivo = {
                 descripcion:
                   document.getElementById("objetivoEspecífico").value,
