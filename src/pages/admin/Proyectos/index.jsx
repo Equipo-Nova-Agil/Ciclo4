@@ -565,11 +565,11 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                 title="Eliminar"
                 onClick={() => setOpenDialogEliminar(true)}
               >
-                {proyecto.fase === "TERMINADO" ||
-                proyecto.fase === "DESARROLLO" ? (
-                  <i className="fas fa-trash-alt text-yellow-500 hover:text-red-700"></i>
-                ) : (
+                {proyecto.fase === "NULO" ||
+                proyecto.fase === "" ? (
                   <i className="fas fa-trash-alt text-red-500 hover:text-green-700"></i>
+                ) : (
+                  <i className="fas fa-trash-alt text-yellow-500 hover:text-red-700"></i>
                 )}
               </button>
             </PrivateComponent>
@@ -630,24 +630,9 @@ const FilaProyectos = ({ proyecto, usuario }) => {
         </Dialog>
         <Dialog open={openDialogEliminar}>
           <div className="p-8 flex flex-col">
-            {proyecto.fase === "TERMINADO" || proyecto.fase === "DESARROLLO" ? (
+            {proyecto.fase === "NULO" || proyecto.fase === "" ? (
               <>
                 <h1 className="text-gray-900 text-2xl font-bold">
-                  El proyecto "{proyecto.nombre}"{" "}
-                  <span className="text-red-600">no puede ser eliminado.<br /><br /></span><span className="text-green-600">NOTA:</span> Se encuentra en fase {proyecto.fase.toLowerCase()}.
-                </h1>
-                <div className="flex w-full items-center justify-center my-4">
-                  <button
-                    onClick={() => setOpenDialogEliminar(false)}
-                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
-                  >
-                    Cerrar
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-              <h1 className="text-gray-900 text-2xl font-bold">
                   ¿Está seguro de querer{" "}
                   <span className="text-red-600">eliminar</span> el proyecto "
                   {proyecto.nombre}
@@ -665,6 +650,22 @@ const FilaProyectos = ({ proyecto, usuario }) => {
                     className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
                   >
                     No
+                  </button>
+                </div>
+              </>
+
+            ) : (
+              <>
+                <h1 className="text-gray-900 text-2xl font-bold">
+                  El proyecto "{proyecto.nombre}"{" "}
+                  <span className="text-red-600">no puede ser eliminado.<br /><br /></span><span className="text-green-600">NOTA:</span> Se encuentra en fase {proyecto.fase.toLowerCase()}.
+                </h1>
+                <div className="flex w-full items-center justify-center my-4">
+                  <button
+                    onClick={() => setOpenDialogEliminar(false)}
+                    className="mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md"
+                  >
+                    Cerrar
                   </button>
                 </div>
               </>
