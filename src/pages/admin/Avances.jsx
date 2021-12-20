@@ -546,7 +546,7 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
 
 };
 
-const Observacion = ({ index, _id, idAvance, tipo, descripcion }) => {
+const Observacion = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [eliminarObservacion, { data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, {
     refetchQueries: [{ query: obtenerAvances }],
@@ -558,7 +558,8 @@ const Observacion = ({ index, _id, idAvance, tipo, descripcion }) => {
     }
   }, [dataMutationEliminar]);
 
-  const ejecutarEliminacion = () => {
+  const ejecutarEliminacion = (idAvance) => {
+
     eliminarObservacion({ variables: { idAvance, idObservacion: _id } });
   };
 
@@ -580,7 +581,7 @@ const Observacion = ({ index, _id, idAvance, tipo, descripcion }) => {
           <button type='button' onClick={() => setShowEditDialog(true)}>
             <i className='fas fa-pen mx-2 text-yellow-500 hover:text-yellow-200 cursor-pointer' />
           </button>
-          <button type='button' onClick={ejecutarEliminacion}>
+          <button type='button' onClick={ejecutarEliminacion(avance._id)}>
             <i className='fas fa-trash mx-2 text-red-500 hover:text-red-200 cursor-pointer' />
           </button>
         </div>
@@ -663,13 +664,13 @@ const EditarObservacion = ({descripcion, tipo, index, idAvance, setShowEditDialo
   );
 };
 
-const ListaObservaciones = ({ index, _id, idAvance, tipo, descripcion }) => {
+const ListaObservaciones = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [borrarObservacion,{ data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, 
     {
     refetchQueries: [{ query: obtenerAvances }],
     });
-
+    console.log('listaObsera',idAvance)
 
     useEffect(() => {
       if (dataMutationEliminar) {

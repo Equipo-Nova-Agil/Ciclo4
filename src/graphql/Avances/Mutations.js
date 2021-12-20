@@ -118,10 +118,10 @@ const editarObservacion = gql`
 
 const eliminarObservacion = gql`
   mutation EliminarObservacion(
-      $idProyecto: String!, 
-      $idObjetivo: String!
+      $idAvance: String!, 
+      $idObservacion: String!
       ){
-        eliminarObjetivo(
+        eliminarObservacion(
             idAvance: $idAvance, 
             idObservacion: $idObservacion) {
       _id
