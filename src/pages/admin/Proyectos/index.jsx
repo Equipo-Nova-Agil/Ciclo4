@@ -764,11 +764,11 @@ const FilaProyectos = ({ proyecto, usuario }) => {
               <div className="flex w-full items-center justify-center my-4">
                 {proyecto.estado !== "INACTIVO" && proyecto.fase !== "TERMINADO" && dataConteo && dataConteo.CountInscripcionesPorProyecto.pendientes === 0 && dataConteo.CountInscripcionesPorProyecto.abiertas === 0 ? (
                   <>
-                    <h1 className="text-gray-900 text-2xl font-bold">
+                    {/* <h1 className="text-gray-900 text-2xl font-bold">
                       ¿Está seguro de querer{" "}
                       <span className="text-green-600">inscribirse</span> en el
                       proyecto "{proyecto.nombre}"?
-                    </h1>
+                    </h1> */}
                     <button
                       onClick={() => inscribirseEnProyecto()}
                       className="mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md"
