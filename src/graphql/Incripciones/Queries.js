@@ -44,4 +44,15 @@ const obtenerIncripcionesPorProyecto = gql `
   }
     `;
 
-  export {obtenerIncripciones, obtenerIncripcionesPorProyecto};
+    const obtenerConteoInscripcionesPorProyecto = gql `
+    query CountInscripcionesPorProyecto($proyecto: String!, $estudiante: String!) {
+      CountInscripcionesPorProyecto(proyecto: $proyecto, estudiante: $estudiante) {
+        total
+        pendientes
+        abiertas
+        cerradas
+      }
+    }
+    `;
+
+  export {obtenerIncripciones, obtenerIncripcionesPorProyecto, obtenerConteoInscripcionesPorProyecto};

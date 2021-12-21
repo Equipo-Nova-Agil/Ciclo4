@@ -93,8 +93,8 @@ query Proyecto($_id: String!) {
 `;
 
 const obtenerProyectos = gql`
-  query Proyectos {
-    Proyectos {
+  query Proyectos ($filtro: FiltroProyectos) {
+    Proyectos (filtro: $filtro) {
     _id
     nombre
     presupuesto
