@@ -89,56 +89,54 @@ const FormularioCreacionObservaciones = () => {
     return(
       <div className='flex flex-col items-center justify-center'>
         <Link to="/admin/Avances">
-            <button
+          <button
             className='fondo1 rounded-lg ml-6 mb-4 p-1 text-sm text-gray-200 hover:text-blue-900'
             type="button"
-            title="Agregar Observaciones"
-            
-            //   onClick={() => setAgregarObservaciones (!agregarObservaciones)}
-            >
+            title="Agregar Observaciones">
             <i className="fa fa-arrow-left "></i> Regresar
-            </button>
+          </button>
         </Link>
+
+        <h2 className='text-2xl font-extrabold pb-4 mb-4 mt-4 text-gray-800'>Nueva Observación</h2>
   
         <div className='flex justify-center items-center'>
           <h1 className='py-2 px-2 text-gray-800 font-bold'>ID: </h1>
-          <h2>{_id}</h2>
+          <h2>{_id.slice(20)}</h2>
         </div>
         <div className='flex justify-center items-center'>
           <h1 className='py-2 px-2 text-gray-800 font-bold'>Proyecto: </h1>
           <h2>{dataAvances.Avances[0].proyecto.nombre}</h2>
         </div>
   
-        <div className='flex m-4 pt-6 justify-center items-center'>
+        <div className='flex m-4 pt-2 justify-center items-center'>
   
           <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
-            <div className='pt-4 pb-2'>
-                <DropDown
+            <div>
+              <DropDown
                 name='tipo'
                 options={Enum_TipoObservacion}
                 className='hidden'
                 label=''
                 defaultValue='Observacion'
-                required={true}
-                />
+                required={true}/>
             </div>
   
-            <div className='-ml-12'>
-            <TextArea
+            <div className='flex justify-center items-center'>
+              <TextArea
                 name='descripcion'
-                label='Descripción: '
+                label=''
                 type='text'
-                className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-48'
-                required={true}
-          />
+                rows="8"
+                cols="40"
+                className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
+                required={true}/>
+            </div>
   
-        </div>
-            {/* <Observaciones /> */}
 
             <div className='flex m-4 justify-center items-center'>
             
               <ButtonLoading 
-                text='Agregar Observaciones' 
+                text='Agregar Observación' 
                 loading={mutationLoading} 
                 disabled={Object.keys(formData).length === 0}
                 className='fondo1 text-white active:bg-gray-700 text-md font-bold mt-5 px-6 py-4 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-60 transform hover:translate-y-1 transition-transform ease-in duration-200' />

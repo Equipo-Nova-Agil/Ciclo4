@@ -266,16 +266,17 @@ const actualizarAvance = (descripcion) => {
         <>
         <AccordionStyled>
           <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
-            {/* <div className='flex w-full  items-center'>
+            <div className='flex w-full  items-center'>
 
               <span className='font-bold text-gray-600 pr-1'>ID: </span>
               <span className=' text-gray-600 pr-8'>{avance._id.slice(20)}</span>
 
               <div className='font-extrabold text-gray-600 uppercase justify-center items-center'>
-                {avance.proyecto.nombre}
+                {/* {avance.proyecto.nombre} */}
+                {avance.descripcion}
               </div>
-            </div> */}
-            <table>
+            </div>
+            {/* <table>
                 <thead>
                 <th hidden>ID</th>
                 <th hidden>Avance</th>
@@ -287,7 +288,7 @@ const actualizarAvance = (descripcion) => {
                   </tr>
                   <tr><td colSpan={2}><small>Por {avance.creadoPor.nombre} {avance.creadoPor.apellido} en {avance.proyecto.nombre}, {avance.fecha.split("T")[0]}</small></td></tr>
                 </tbody>
-              </table>
+              </table> */}
 
           </AccordionSummaryStyled>
           <AccordionDetailsStyled>
@@ -300,6 +301,12 @@ const actualizarAvance = (descripcion) => {
             </PrivateComponent>
   
             {/* DATOS AVANCES */}
+            <div className='flex justify-center px-2 py-4 text-gray-600'>
+              <div>
+                <span className='font-extrabold'>Proyecto: </span>
+                {avance.proyecto.nombre}
+              </div>
+            </div>
             <div className='flex justify-between px-2 py-4 text-gray-600'>
   
               <div>
@@ -315,6 +322,7 @@ const actualizarAvance = (descripcion) => {
                 {avance.proyecto.lider.nombre} {avance.proyecto.lider.apellido}
               </div>
             </div>
+            
             <div className='flex justify-center px-2 py-4 text-gray-600'>
               <div>
                 <span className='font-extrabold'>Descripción: </span>
@@ -337,7 +345,7 @@ const actualizarAvance = (descripcion) => {
             {/* OBSERVACIONES AVANCES */}
             <div className='flex'>
               {avance.observaciones.length === 0 ? (
-                <span className='text-center font-bold text-gray-600'>Avance Sin Observaciones</span>
+                <span className='text-center font-bold text-gray-600 pt-4'>Avance Sin Observaciones</span>
               ) : (
               <>
               {avance.observaciones.map((observacion, index) => {
