@@ -9,6 +9,7 @@ import ReactLoading from "react-loading";
 import InscriptionRow from "./InscriptionRow";
 import { rechazarInscripcion } from "../../../graphql/Incripciones/Mutations";
 import PrivateComponent from "componets/PrivateComponent";
+import ComponenteNoAutorizado from "componets/ComponenteNoAutorizado.jsx";
 
 const HEADERS = [
   "Id",
@@ -176,84 +177,97 @@ if (data) {
   }
 
   return (
-    <div className='h-full w-full'>
+    <div className="h-full w-full">
       <div className="flex h-full w-full flex-col items-center justify-start p-8">
         <div className="flex flex-col">
           <h2 className="text-3xl pt-8 pb-10 font-extrabold text-gray-800">
             Administración Inscripciones
           </h2>
         </div>
-        {
-          arrData.length===0 ?
-          <div className="container mx-auto " role="alert">
-          <div className="bg-yellow-500 text-2xl text-white font-bold rounded-t px-4 py-2">
-            Notificación
-          </div>
-          <div className="border border-t-0 border-yellow-400 rounded-b bg-yellow-100 px-4 py-3 text-yellow-700">
-            <p className="text-2xl">Sin información para visualizar</p>
-          </div>
-        </div>
-        :
-        <div class="container mx-auto px-4 sm:px-8">
-          <div class="py-8">
-            {/* Cuadro busqueda */}
-            <div class="my-2 mx-2 flex sm:flex-row flex-col">
-              <div class="block relative">
-                <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
-                  <svg
-                    viewBox="0 0 24 24"
-                    class="h-4 w-4 fill-current text-gray-500"
-                  >
-                    <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
-                  </svg>
-                </span>
-                <input
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  placeholder="Buscar"
-                  class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
-                />
+        {userData.estado === "AUTORIZADO" ? (
+          <>
+            {arrData.length === 0 ? (
+              <div className="container mx-auto " role="alert">
+                <div className="bg-yellow-500 text-2xl text-white font-bold rounded-t px-4 py-2">
+                  Notificación
+                </div>
+                <div className="border border-t-0 border-yellow-400 rounded-b bg-yellow-100 px-4 py-3 text-yellow-700">
+                  <p className="text-2xl">Sin información para visualizar</p>
+                </div>
               </div>
-            </div>
-            {/* Tabla inscripciones */}
-            <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-              <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
-                <table className="">
-                  <thead>
-                    <tr>
-                      {HEADERS.map((headerName, index) => (
-                        <th
-                          key={`inscriptions-header-${index}`}
-                          className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44"
+            ) : (
+              <div class="container mx-auto px-4 sm:px-8">
+                <div class="py-8">
+                  {/* Cuadro busqueda */}
+                  <div class="my-2 mx-2 flex sm:flex-row flex-col">
+                    <div class="block relative">
+                      <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
+                        <svg
+                          viewBox="0 0 24 24"
+                          class="h-4 w-4 fill-current text-gray-500"
                         >
-                          {headerName}
-                        </th>
-                      ))}
-                      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
-                        <th  className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">Acciones</th>
-                      </PrivateComponent>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {copyData.map((item, index) => (
-                      <InscriptionRow
-                        key={`inscriptions-user-row-${item._id}`}
-                        isEditable={edit[index]}
-                        user={item}
-                        onEdit={handleEditChange(index, !edit[index])}
-                        onOk={handleEditInscription(index)}
-                        //onCancel={handleEditChange(index, false)}
-                        onCancel={handleEditChange(index, !edit[index])}
-                        onReject={onReject}
+                          <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z"></path>
+                        </svg>
+                      </span>
+                      <input
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        placeholder="Buscar"
+                        class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
                       />
-                    ))}
-                  </tbody>
-                </table>
+                    </div>
+                  </div>
+                  {/* Tabla inscripciones */}
+                  <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+                    <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                      <table className="">
+                        <thead>
+                          <tr>
+                            {HEADERS.map((headerName, index) => (
+                              <th
+                                key={`inscriptions-header-${index}`}
+                                className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44"
+                              >
+                                {headerName}
+                              </th>
+                            ))}
+                            <PrivateComponent
+                              roleList={["ADMINISTRADOR", "LIDER"]}
+                            >
+                              <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
+                                Acciones
+                              </th>
+                            </PrivateComponent>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {copyData.map((item, index) => (
+                            <InscriptionRow
+                              key={`inscriptions-user-row-${item._id}`}
+                              isEditable={edit[index]}
+                              user={item}
+                              onEdit={handleEditChange(index, !edit[index])}
+                              onOk={handleEditInscription(index)}
+                              //onCancel={handleEditChange(index, false)}
+                              onCancel={handleEditChange(index, !edit[index])}
+                              onReject={onReject}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+          </>
+        ) : (
+          <div className="container mx-auto antialiased font-sans bg-white">
+            <ComponenteNoAutorizado></ComponenteNoAutorizado>
           </div>
-        </div>}
+        )}
       </div>
+
       <Dialog open={openDialog}>
         <div className="p-8 flex flex-col">
           <h1 className="text-gray-900 text-2xl font-bold">

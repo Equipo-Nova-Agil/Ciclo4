@@ -26,7 +26,7 @@ import DropDown from "componets/Dropdown.jsx";
 import ButtonLoading from "componets/ButtonLoading.jsx";
 import PrivateComponent from '../../../componets/PrivateComponent';
 import {AccordionStyled, AccordionSummaryStyled, AccordionDetailsStyled} from '../../../componets/AccordionAvances';
-
+import ComponenteNoAutorizado from "componets/ComponenteNoAutorizado.jsx";
 
 const Avances = () => {
   const [mostrarAvances, setMostrarAvances] = useState(true);
@@ -87,48 +87,66 @@ const Avances = () => {
 
 
     return (
-      <div className='flex h-full w-full flex-col items-center justify-start p-8'>
-              <div className='flex flex-col'>
-                <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
-                Administración de Avances
-                </h2>
-                {agregarObservaciones & !mostrarAvances ? (
-                <></>
-                ) : (
-                <PrivateComponent roleList={['ESTUDIANTE']}>
-                  <button
-                    onClick={() => {setMostrarAvances(!mostrarAvances);}}
-                    className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}>
-                    {textoBoton}
-                  </button>
-                </PrivateComponent>
+      <div className="flex h-full w-full flex-col items-center justify-start p-8">
+        <div className="flex flex-col">
+          <h2 className="text-3xl pt-12 pb-10 font-extrabold text-gray-800">
+            Administración de Avances
+          </h2>
+          <>
+            {agregarObservaciones & !mostrarAvances ? (
+              <></>
+            ) : (
+              <>
+                {userData.estado === "AUTORIZADO" && (
+                  <PrivateComponent roleList={["ESTUDIANTE"]}>
+                    <button
+                      onClick={() => {
+                        setMostrarAvances(!mostrarAvances);
+                      }}
+                      className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}
+                    >
+                      {textoBoton}
+                    </button>
+                  </PrivateComponent>
                 )}
-              </div>
-
-              {agregarObservaciones & !mostrarAvances ? (
-                
-                <FormularioCreacionObservaciones
-                  setAgregarObservaciones={setAgregarObservaciones}
-                  agregarObservaciones={agregarObservaciones}
-                  avance={avance}
-                  _id = {avance._id}
-                  idAvance={avance._id}/>
-                  
-              ) : mostrarAvances ? (
-
-                <ListaAvances
-                  setAgregarObservaciones={setAgregarObservaciones}
-                  agregarObservaciones={agregarObservaciones}
-                  dataFiltrada={arrData} 
-                  />
-        
-              ) : (
-
-                <FormularioCreacionAvance
-                setMostrarAvances={setMostrarAvances}/>
+              </>
             )}
-            </div>
-          );
+          </>
+        </div>
+
+        {userData.estado === "AUTORIZADO" ? (
+          <>
+            {agregarObservaciones & !mostrarAvances ? (
+              <FormularioCreacionObservaciones
+                setAgregarObservaciones={setAgregarObservaciones}
+                agregarObservaciones={agregarObservaciones}
+                avance={avance}
+                _id={avance._id}
+                idAvance={avance._id}
+              />
+            ) : (
+              <>
+                {mostrarAvances ? (
+                  <ListaAvances
+                    setAgregarObservaciones={setAgregarObservaciones}
+                    agregarObservaciones={agregarObservaciones}
+                    dataFiltrada={arrData}
+                  />
+                ) : (
+                  <FormularioCreacionAvance
+                    setMostrarAvances={setMostrarAvances}
+                  />
+                )}
+              </>
+            )}
+          </>
+        ) : (
+          <div className="container mx-auto antialiased font-sans bg-white">
+            <ComponenteNoAutorizado></ComponenteNoAutorizado>
+          </div>
+        )}
+      </div>
+    );
 };
 
 const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones, dataFiltrada})=> {
