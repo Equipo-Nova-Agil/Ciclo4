@@ -6,7 +6,7 @@ const crearAvance = gql `
         $proyecto: String! 
         $descripcion: String! 
         $creadoPor: String!
-        $observaciones: [crearObservacion])
+        $observaciones: [crearObservacion]!)
         {
             crearAvance(
             fecha: $fecha, 
@@ -49,7 +49,7 @@ const editarAvance = gql `
             creadoPor {
                 _id
             }
-            observacion {
+            observaciones {
                 _id
                 tipo
                 descripcion
