@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import Profile from "../../media/profile.jpeg";
+import Profile from "../../media/profile.jpg";
 import useFormData from "hooks/useFormData";
 import { useUser } from "context/userContext";
 import { useQuery, useMutation } from "@apollo/client";

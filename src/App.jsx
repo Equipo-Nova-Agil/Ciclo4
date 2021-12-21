@@ -19,7 +19,8 @@ import Proyectos from './pages/admin/Proyectos/index';
 import VieditProyectos from './pages/admin/Proyectos/viedit';
 import Perfil from "pages/admin/Perfil";
 import Inscripciones from "pages/admin/Inscripciones/index";
-import Avances from "pages/admin/Avances";
+import Avances from "pages/admin/Avances/Avances";
+import Observaciones from "pages/admin/Avances/Observaciones";
 import Login from "./pages/auth/Login"
 import Registro from "./pages/auth/Registro"
 import ErrorAuth from './pages/auth/ErrorAuth';
@@ -27,8 +28,8 @@ import CambiarPassword from './pages/auth/CambiarPassword'
 
 
 const httpLink = createHttpLink({
-  //uri: 'http://localhost:4000/graphql',
-  uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
+  uri: 'http://localhost:4000/graphql',
+  // uri: 'https://servidor-proyectorio.herokuapp.com/graphql'
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -100,6 +101,7 @@ function App() {
                 <Route path='vieditproyectos/:_id' element={<VieditProyectos />} />
                 <Route path='inscripciones' element={<Inscripciones/>}/>
                 <Route path='avances' element={<Avances/>}/>
+                <Route path='observaciones/:_id' element={<Observaciones/>}/>
                 <Route path='cambiarpassword' element={<CambiarPassword/>}/>
               </Route>
 
