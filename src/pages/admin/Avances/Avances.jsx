@@ -95,7 +95,7 @@ const Avances = () => {
                 {agregarObservaciones & !mostrarAvances ? (
                 <></>
                 ) : (
-                <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
+                <PrivateComponent roleList={['ESTUDIANTE']}>
                   <button
                     onClick={() => {setMostrarAvances(!mostrarAvances);}}
                     className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}>
