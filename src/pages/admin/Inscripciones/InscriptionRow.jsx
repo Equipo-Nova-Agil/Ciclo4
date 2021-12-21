@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { aprobarInscripcion } from '../../../graphql/Incripciones/Mutations';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
+import PrivateComponent from "componets/PrivateComponent";
 
 
 function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
@@ -23,12 +24,13 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
           :'flex justify-center my-3 px-4 py-2 border-b border-gray-300 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{user.estado}
         </td>
 
-
+        {/* <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}> */}
       <td className="px-3 py-3 text-center bg-white text-sm w-44">
         <button type="button" title="Editar" onClick={onEdit}>
             <i className="fas fa-user-edit hover:text-yellow-600"></i>
         </button>
         </td>
+        {/* </PrivateComponent> */}
         {/* <ToastContainer /> */}
     </tr>
   );
@@ -99,15 +101,18 @@ function InscriptionRowForm(props) {
           ?('flex justify-center my-3 px-6 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
           :'flex justify-center my-3 px-1 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{user.estado}
         </td>
-      <td className="px-3 py-3 text-center bg-white text-sm w-44">
-          <button className="mr-5" type="button" title="Aceptar inscripción"  onClick={onSubmit}>
-            <i className="fas fa-check hover:text-green-600"></i>
-          </button>
-          <button className="ml-5" type="button" title="Rechazar inscripción" onClick={() => onReject(info)}>
-            <i className="fas fa-skull-crossbones hover:text-red-700"></i>
-          </button>
-          <ToastContainer />
-      </td>
+        <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+          <td className="px-3 py-3 text-center bg-white text-sm w-44">
+              <button className="mr-5" type="button" title="Aceptar inscripción"  onClick={onSubmit}>
+                <i className="fas fa-check hover:text-green-600"></i>
+              </button>
+              <button className="ml-5" type="button" title="Rechazar inscripción" onClick={() => onReject(info)}>
+                <i className="fas fa-skull-crossbones hover:text-red-700"></i>
+              </button>
+              <ToastContainer />
+          </td>
+        </PrivateComponent>
+
       {/* <td>
         <select
             className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
