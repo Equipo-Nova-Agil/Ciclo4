@@ -1,9 +1,9 @@
 import React, { useState, useEffect} from "react";
-import { useParams } from 'react-router-dom';
+import { useParams, Link} from 'react-router-dom';
 import { useUser } from 'context/userContext';
-import { ObservacionContext, useObservacion } from '../../context/observacionContext.js';
+import { ObservacionContext, useObservacion } from '../../../context/observacionContext.js';
 import { useQuery, useMutation } from '@apollo/client';
-import { Enum_TipoObservacion } from '../../utils/enum.js';
+import { Enum_TipoObservacion } from '../../../utils/enum.js';
 
 
 //DEPENDENCIAS & HOOKS
@@ -11,21 +11,21 @@ import { Dialog } from '@mui/material';
 import { toast } from 'react-toastify';
 import { nanoid } from 'nanoid';
 import ReactLoading from 'react-loading';
-import useFormData from '../../hooks/useFormData';
+import useFormData from '../../../hooks/useFormData';
 
 //QUERIES & MUTATUIONS
-import {obtenerAvances, filtrarAvance} from '../../graphql/Avances/Queries.js';
-import {obtenerUsuarios} from '../../graphql/Usuarios/Queries';
-import {obtenerProyectos} from '../../graphql/Proyectos/Queries';
-import {crearAvance, editarAvance, eliminarAvance, crearObservacion, editarObservacion, eliminarObservacion} from '../../graphql/Avances/Mutations'
+import {obtenerAvances, filtrarAvance} from '../../../graphql/Avances/Queries.js';
+import {obtenerUsuarios} from '../../../graphql/Usuarios/Queries';
+import {obtenerProyectos} from '../../../graphql/Proyectos/Queries';
+import {crearAvance, editarAvance, eliminarAvance, crearObservacion, editarObservacion, eliminarObservacion} from '../../../graphql/Avances/Mutations'
 
-//COMPONETS
-import Input from '../../componets/Input';
-import TextArea from '../../componets/textArea';
+//COMPONENTS
+import Input from '../../../componets/Input';
+import TextArea from '../../../componets/textArea';
 import DropDown from "componets/Dropdown.jsx";
 import ButtonLoading from "componets/ButtonLoading.jsx";
-import PrivateComponent from '../../componets/PrivateComponent';
-import {AccordionStyled, AccordionSummaryStyled, AccordionDetailsStyled} from '../../componets/AccordionAvances';
+import PrivateComponent from '../../../componets/PrivateComponent';
+import {AccordionStyled, AccordionSummaryStyled, AccordionDetailsStyled} from '../../../componets/AccordionAvances';
 
 
 const Avances = () => {
@@ -333,19 +333,25 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
             
               <h1 className='font-bold text-gray-600 text-center mt-8 mb-2'>Observaciones Del Líder:</h1>
               <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+                <Link to={`/admin/observaciones/${avance._id}`}>
                 <button
                   className='bg-yellow-300 rounded-lg ml-6 p-1 text-sm text-gray-600 hover:text-blue-900'
                   type="button"
                   title="Agregar Observaciones"
-                  onClick={() => nuevaObservacion(avance._id)}>
+                  // onClick={() => nuevaObservacion(avance._id)}
+                  >
                   <i className="fa fa-eye "></i> Agregar
                 </button>
+                </Link>
               </PrivateComponent>
 
             {/* OBSERVACIONES AVANCES */}
             <div className='flex'>
+              {avance.observaciones.length === 0 ? (
+                <span>Sin Observaciones</span>
+              ) : (
+              <>
               {avance.observaciones.map((observacion, index) => {
-                console.log('ID en Lista Observaciones Acordeón',avance._id)
                 return <Observaciones
                         key={nanoid()}
                         index={index}
@@ -354,6 +360,8 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
                         tipo={observacion.tipo} 
                         descripcion={observacion.descripcion} />;
               })}
+              </> 
+              )} 
             </div>
   
           </AccordionDetailsStyled>

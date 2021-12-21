@@ -9,6 +9,7 @@ const textArea = ({ label, name, rows, cols, required, placeholder, className, v
         rows={rows}
         cols={cols}
         name={name}
+        id={name}
         value={value}
         defaultValue={defaultValue}
         placeholder={placeholder}
