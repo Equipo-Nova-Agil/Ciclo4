@@ -71,48 +71,33 @@ const Avances = () => {
     <ReactLoading type='bars' color='#11172d' height={467} width={175} />
     </div>;
 
-
-    return (
-      <div className='flex h-full w-full flex-col items-center justify-start p-8'>
-              <div className='flex flex-col'>
-                <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
-                Administración de Avances
-                </h2>
-                {agregarObservaciones & !mostrarAvances ? (
-                <></>
-                ) : (
-                <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
-                  <button
-                    onClick={() => {setMostrarAvances(!mostrarAvances);}}
-                    className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}>
-                    {textoBoton}
-                  </button>
-                </PrivateComponent>
-                )}
-              </div>
-
-              {agregarObservaciones & !mostrarAvances ? (
-                
-                <FormularioCreacionObservaciones
-                  setAgregarObservaciones={setAgregarObservaciones}
-                  agregarObservaciones={agregarObservaciones}
-                  avance={avance}
-                  _id = {avance._id}
-                  idAvance={avance._id}/>
-                  
-              ) : mostrarAvances ? (
-
-                <ListaAvances
-                  setAgregarObservaciones={setAgregarObservaciones}
-                  agregarObservaciones={agregarObservaciones}/>
-        
-              ) : (
-
-                <FormularioCreacionAvance
-                setMostrarAvances={setMostrarAvances}/>
-            )}
-            </div>
-          );
+  return (
+    <div className='flex h-full w-full flex-col items-center justify-start p-8'>
+      {mostrarAvances ? (
+        <>
+          <div className='flex flex-col'>
+            <h2 className='text-3xl pt-12 pb-10 font-extrabold text-gray-800'>
+              Administración de Avances
+            </h2>
+            <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
+              <button
+                onClick={() => { setMostrarAvances(!mostrarAvances); }}
+                className={`shadow-md fondo1 text-gray-300 font-bold p-2 rounded m-6  self-center`}>
+                {textoBoton}
+              </button>
+            </PrivateComponent>
+          </div>
+          <ListaAvances setMostrarAvances={setMostrarAvances} />
+        </>
+      ) : (
+        <FormularioCreacionAvance
+          setMostrarAvances={setMostrarAvances}
+        />
+      )
+      }
+    </div>
+  );
+          
 };
 
 const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones})=> {
@@ -125,7 +110,7 @@ const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones})=> {
     return (
     <div className='p-4 flex w-10/12 flex-col'>
       {dataAvances && dataAvances.Avances.map((avance) => {
-        console.log('ID en Lista Avances', avance._id)
+        console.log('Lo que sea', avance._id)
         return <AcordionAvances
                 key={avance._id}  
                 avance={avance} 
@@ -138,6 +123,7 @@ const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones})=> {
     </div>
   );
   }
+
 
 };
 
@@ -167,20 +153,28 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
     }
   }, [errorEditarAvance]);
 
+  useEffect(() => {
+    if (mutacionEditarAvance) {
+      toast.success('Avance editado', 
+      {
+        position: toast.POSITION.BOTTOM_CENTER,
+        theme: "colored",
+        autoClose: 3000
+      })
+    }
+  }, [mutacionEditarAvance]);
+
   if (loadingEditarAvance) return <div>
     <h1 className='text-3xl font-extrabold'>Cargando...</h1>
     <ReactLoading type='bars' color='#11172d' height={467} width={175} />
     </div>;
 
-  
-
-  const actualizarAvance = () => {
-    console.log("Editar Proyecto:", infoNuevoAvance)
+  const actualizarAvance = (descripcion) => {
+    console.log("Editar Proyecto:", infoNuevoAvance,"la Nueva descripcion",descripcion)
     modificarAvance({ 
       variables: {
         _id: avance._id,
-        campos: infoNuevoAvance,
-
+        campos: {descripcion:descripcion}
         // ...infoNuevoAvance 
       }
     })
@@ -188,11 +182,11 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
   };
 
   const nuevaObservacion = (idAv)=> {
-    console.log('idAv en el boton nueva observa', idAv);
+    console.log('idAv', idAv);
     setIdAv (idAv);
     setAgregarObservaciones (!agregarObservaciones);
     if (setAgregarObservaciones){
-      <FormularioCreacionObservaciones
+      <AgregarObservaciones
       idAv={idAv}
       />
     }
@@ -215,28 +209,26 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
           </AccordionSummaryStyled>
 
           <AccordionDetailsStyled>
-            {/* <PrivateComponent roleList={['ADMINISTRADOR']}> */}
+            {/* <PrivateComponent roleList={['ESTUDIANTE']}> */}
             {edit? (
                 <>
                   <i
-                    onClick={() => actualizarAvance()} 
-                    className="fas fa-check hover:text-green-600 pr-2"/>
+                    onClick={() => actualizarAvance(document.getElementById("descripcion").value)} 
+                    className="fas fa-check hover:text-green-600 pr-2"
+                    title="Confirmar edicion"/>
                   <i
                     onClick={() => setEdit(!edit)}
-                    className='fas fa-ban hover:text-red-700 pl-2'/>
+                    className='fas fa-ban hover:text-red-700 pl-2'
+                    title="Cancelar edicion"/>
                 </>
               ):(
                 <>
                   <i
                     onClick={() => setEdit(!edit)}
                     className="fas fa-edit hover:text-yellow-600"/>
-                
                 </>
               )}
-              
             {/* </PrivateComponent> */}
-            
-  
             {/* EDICION DATOS AVANCES */}
             <div className='flex justify-between items-center px-2 py-4 text-gray-600'>
   
@@ -253,31 +245,23 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
                 {avance.proyecto.lider.nombre} {avance.proyecto.lider.apellido}
               </div>
             </div>
-            <div className='flex justify-center items-center px-2 py-4 text-gray-600'>
-              <div className='px-8'>
+            <div className='flex  px-2 py-4 text-gray-600'>
+              <div>
                 <span className='font-extrabold'>Descripcion: </span>
                 <TextArea
                 name='descripcion'
                 rows="4"
-                cols="25"
+                cols="100"
                 defaultValue={avance.descripcion}
                 className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm shadow-md focus:outline-none focus:ring w-full'
                 onChange={(e) => setInfoNuevoAvance({ ...infoNuevoAvance, descripcion: e.target.value })}
                 />
-                
               </div>
-  
-              
+
             </div>
-  
-  
+          
           </AccordionDetailsStyled>
         </AccordionStyled>
-        {/* <Dialog
-          open={showDialog}
-          onClose={() => {setShowDialog(false);}}>
-          EditarAvance _id = {avance._id} />
-        </Dialog> */}
         </>
 
       ):(
@@ -285,54 +269,54 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
         <>
         <AccordionStyled>
           <AccordionSummaryStyled expandIcon={<i className='fas fa-chevron-down' />}>
-            <div className='flex w-full  items-center'>
-
-              <span className='font-bold text-gray-600 pr-1'>ID: </span>
-              <span className=' text-gray-600 pr-8'>{avance._id.slice(20)}</span>
-
-              <div className='font-extrabold text-gray-600 uppercase justify-center items-center'>
-                {avance.proyecto.nombre}
-              </div>
-            </div>
+              <table>
+                <thead>
+                <th hidden>ID</th>
+                <th hidden>Avance</th>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="pr-3"><span className='font-bold text-gray-600'>ID: </span>{avance._id.slice(20)}</td>
+                    <td><span className='font-extrabold text-gray-600 text-justify'>{avance.descripcion}</span></td>
+                  </tr>
+                  <tr><td colSpan={2}><small>Por {avance.creadoPor.nombre} {avance.creadoPor.apellido} en {avance.proyecto.nombre}, {avance.fecha.split("T")[0]}</small></td></tr>
+                </tbody>
+              </table>
 
           </AccordionSummaryStyled>
           <AccordionDetailsStyled>
-            <PrivateComponent roleList={['ADMINISTRADOR', 'ESTUDIANTE']}>
+            <PrivateComponent roleList={['ESTUDIANTE']}>
               <i
                 className='mx-4 fas fa-edit text-gray-600 hover:text-yellow-600'
                 onClick={() => setEdit(!edit)}
-              />
-              <i
-                // className='mx-4 fas fa-edit text-gray-600 hover:text-yellow-600'
-                // onClick={() => {setShowDialog(true);}}
-              />
+              > Editar</i>
             </PrivateComponent>
   
             {/* DATOS AVANCES */}
             <div className='flex justify-between px-2 py-4 text-gray-600'>
   
-              <div>
+              {/* <div>
                 <span className='font-extrabold'>Fecha: </span>
                 {avance.fecha.slice(0, -14)}
               </div>
               <div>
                 <span className='font-extrabold'>Creado Por: </span>
                 {avance.creadoPor.nombre} {avance.creadoPor.apellido}
-              </div>
-              <div className='px-8'>
+              </div> */}
+              <div>
                 <span className='font-extrabold'>Líder: </span>
-                {avance.proyecto.lider.nombre} {avance.proyecto.lider.apellido}
+                <span className="uppercase">{avance.proyecto.lider.nombre} {avance.proyecto.lider.apellido}</span>
               </div>
             </div>
-            <div className='flex justify-center px-2 py-4 text-gray-600'>
+            {/* <div className='flex justify-center px-2 py-4 text-gray-600'>
               <div>
                 <span className='font-extrabold'>Descripción: </span>
                 {avance.descripcion}
               </div>
-            </div>
+            </div> */}
             
-              <h1 className='font-bold text-gray-600 text-center mt-8 mb-2'>Observaciones Del Líder:</h1>
-              <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+              <h1 className='font-bold text-gray-600 text-center mt-2 mb-2 uppercase'>Observaciones Del Líder</h1>
+              <PrivateComponent roleList={['LIDER']}>
                 <button
                   className='bg-yellow-300 rounded-lg ml-6 p-1 text-sm text-gray-600 hover:text-blue-900'
                   type="button"
@@ -345,8 +329,8 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
             {/* OBSERVACIONES AVANCES */}
             <div className='flex'>
               {avance.observaciones.map((observacion, index) => {
-                console.log('ID en Lista Observaciones Acordeón',avance._id)
-                return <Observaciones
+                console.log('datos obervacion',observacion)
+                return <ListaObservaciones
                         key={nanoid()}
                         index={index}
                         _id={observacion._id}
@@ -432,9 +416,7 @@ const EditarAvance = ({ _id}) => {
 
 const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
   const { form, formData, updateFormData } = useFormData();
-  const [listaLideres, setListaLideres] = useState({});
   const [listaProyectos, setListaProyectos] = useState({});
-  const {data: dataProyectos, loading: loadingProyectos} = useQuery (obtenerProyectos);
   const { userData} = useUser();
   const { data: dataUsuarios, loading: loadingUsuarios, error: errorUsuarios } = useQuery(obtenerUsuarios
     , 
@@ -450,58 +432,53 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
   const [nuevoAvance, { data: mutationData, loading: mutationLoading, error: mutationError }] = useMutation(crearAvance, {refetchQueries:[{ query: obtenerAvances }]});
 
   useEffect(() => {
-    if (loadingUsuarios) return <div>
-        <h1 className='text-3xl font-extrabold'>Cargando...</h1>
-        <ReactLoading type='bars' color='#11172d' height={467} width={175} />
-      </div>;
-  });
-
-  useEffect(() => {
     if (dataUsuarios) {
       const py = {};
       proyectosInscritos.forEach((p) => {
         py[p.proyecto._id] = p.proyecto.nombre;
       });
       setListaProyectos(py);
-      mostrarAvances = false ;
     }
   }, [dataUsuarios]);
 
   const submitForm = (e) => {
     e.preventDefault();
-    formData.observaciones = Object.values(formData.observaciones);
-    formData.proyecto = formData.toString(formData.proyecto);
-    formData.creadoPor = userData._id;
-
+    const fd = new FormData(form.current);
+    const infoNuevoAvance = {};
+    fd.forEach((value, key) => {
+        infoNuevoAvance[key] = value;
+    });
     nuevoAvance({
-      variables: formData,
+      variables: {...infoNuevoAvance,creadoPor: userData._id,fecha: Date.now()}
     });
-    toast.success('Avance Creado Exitosamente', 
-    {
-      position: toast.POSITION.BOTTOM_CENTER,
-      theme: "colored",
-      autoClose: 3000
-    });
-    setMostrarAvances(true);
   };
+
+  useEffect(() => {
+    console.log("Mutación creacion", mutationData);
+    if (mutationData) {
+      toast.success('Avance Creado Exitosamente',
+        {
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "colored",
+          autoClose: 3000
+        });
+      setMostrarAvances(true);
+    }
+  }, [mutationData]);
+
+  useEffect(() => {
+    if (loadingUsuarios) return <div>
+        <h1 className='text-3xl font-extrabold'>Cargando...</h1>
+        <ReactLoading type='bars' color='#11172d' height={467} width={175} />
+      </div>;
+  });
 
   return(
     <div className='flex flex-col items-center justify-center'>
       <h2 className='text-2xl font-extrabold pb-4 mb-4 mt-4 text-gray-800'>Nuevo Avance</h2>
     
       <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
-        
         <div className='flex flex-col m-4 justify-center items-center'>
-
-          <label className='flex flex-col py-2 text-gray-800 font-bold text-center' htmlFor='fecha'>
-            Fecha: 
-          </label>
-          <Input 
-            name='fecha'
-            className='border-0 m-1 px-3 py-3 placeholder-gray-400 text-gray-700 border-gray-800 bg-gray-200  rounded text-sm text-center shadow-md focus:outline-none focus:ring w-48' 
-            required={true} 
-            type='date'/>
-
           <label className='flex flex-col mr-2 py-2 text-gray-800 font-bold text-center' htmlFor='proyecto'>
             Proyecto: 
           </label>
@@ -524,16 +501,10 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
           required={true}/>
         </div>
 
-
-
-        <div className='flex m-4 pt-6 justify-center items-center'>
-          <Observaciones />
-        </div>
-
         <div className='flex m-4 justify-center items-center'>
           <ButtonLoading 
             text='Crear Avance' 
-            loading={false} 
+            loading={mutationLoading} //mutationLoadingCreate
             disabled={false}
             className='fondo1 text-white active:bg-gray-700 text-md font-bold mt-5 px-6 py-4 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1  m-2 w-60 transform hover:translate-y-1 transition-transform ease-in duration-200' />
         </div>
@@ -544,6 +515,59 @@ const FormularioCreacionAvance = ({mostrarAvances, setMostrarAvances}) => {
   );
 
 
+};
+
+const Observacion = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [eliminarObservacion, { data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, {
+    refetchQueries: [{ query: obtenerAvances }],
+  });
+
+  useEffect(() => {
+    if (dataMutationEliminar) {
+      toast.success('Observación Eliminada Existósamente');
+    }
+  }, [dataMutationEliminar]);
+
+  const ejecutarEliminacion = (idAvance) => {
+
+    eliminarObservacion({ variables: { idAvance, idObservacion: _id } });
+  };
+
+  if (eliminarLoading)
+    return (
+      <ReactLoading
+        data-testid='loading-in-button'
+        type='spin'
+        height={100}
+        width={100}
+      />
+    );
+  return (
+    <div className='mx-5 my-4 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
+      <div className='text-lg font-bold'>{tipo}</div>
+      <div>{descripcion}</div>
+      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+        <div className='flex my-2'>
+          <button type='button' onClick={() => setShowEditDialog(true)}>
+            <i className='fas fa-pen mx-2 text-yellow-500 hover:text-yellow-200 cursor-pointer' />
+          </button>
+          <button type='button' onClick={ejecutarEliminacion(avance._id)}>
+            <i className='fas fa-trash mx-2 text-red-500 hover:text-red-200 cursor-pointer' />
+          </button>
+        </div>
+        <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)}>
+          <EditarObservacion
+            descripcion={descripcion}
+            tipo={tipo}
+            index={index}
+            idAvance={idAvance}
+            setShowEditDialog={setShowEditDialog}
+          />
+        </Dialog>
+      </PrivateComponent>
+    </div>
+  );
 };
 
 const EditarObservacion = ({descripcion, tipo, index, idAvance, setShowEditDialog,}) => {
@@ -611,15 +635,121 @@ const EditarObservacion = ({descripcion, tipo, index, idAvance, setShowEditDialo
   );
 };
 
-const FormularioCreacionObservaciones = ({setMostrarObservaciones, setAgregarObservaciones, agregarObservaciones, avance, idAv, setIdAv}) => {
+const ListaObservaciones = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [borrarObservacion,{ data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, 
+    {
+    refetchQueries: [{ query: obtenerAvances }],
+    });
+    console.log('listaObsera',idAvance)
+
+    useEffect(() => {
+      if (dataMutationEliminar) {
+        toast.success('Observacion Eliminada Satisfactoriamente', 
+        {
+          position: toast.POSITION.BOTTOM_CENTER,
+          theme: "colored",
+          autoClose: 3000
+        })
+      }
+    }, [dataMutationEliminar]);
+  
+    const ejecutarEliminacion = () => {
+      console.log("idAvance eliminar",idAvance, "observacion",_id )
+      borrarObservacion({ variables: { idAvance:idAvance, idObservacion: _id } });
+    };
+  
+    if (eliminarLoading)
+      return (
+        <ReactLoading
+          data-testid='loading-in-button'
+          type='spin'
+          height={100}
+          width={100}
+        />
+      );
+  return (
+    <div className='mx-5 my-4 text-gray-600 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
+      <div className='text-md font-bold'>
+        Observación: 
+      </div>
+      <div className='text-center justify-center'>{descripcion}</div>
+      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+        <div className='flex  mt-4 mb-0'>
+          <button type='button' onClick={() => setShowEditDialog(true)}>
+            <i className='fas fa-edit mx-2  hover:text-yellow-600 cursor-pointer' />
+          </button>
+          <button type='button' onClick={ejecutarEliminacion}>
+            <i className='fas fa-trash mx-2 hover:text-red-600 cursor-pointer' />
+          </button>
+        </div>
+        <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)}>
+          <EditarObservacion
+            descripcion={descripcion}
+            tipo={tipo}
+            index={index}
+            idAvance={idAvance}
+            setShowEditDialog={setShowEditDialog}
+          />
+        </Dialog>
+      </PrivateComponent>
+    </div>
+  );
+};
+
+const Observaciones = ({idAvance, avance}) => {
+  const [listaObservaciones, setListaObservaciones] = useState([]);
+  const [maxObservaciones, setMaxObservaciones] = useState(false);
+
+  const eliminarObservacion = (id) => {
+    setListaObservaciones(listaObservaciones.filter((ob) => ob.props.id !== id));
+  };
+
+  const componenteObservacionAgregada = () => {
+    const id = nanoid();
+    return <FormularioObservacion 
+              key={id} 
+              id={id} />;
+  };
+
+  useEffect(() => {
+    if (listaObservaciones.length > 4) {
+      setMaxObservaciones(true);
+    } else {
+      setMaxObservaciones(false);
+    }
+  }, [listaObservaciones]);
+
+  return (
+    <ObservacionContext.Provider value={{ eliminarObservacion }}>
+      <div>
+      <h2 className='text-2xl text-center font-extrabold pb-4 mb-4 mt-4 text-gray-800'>Observaciones</h2>
+        {!maxObservaciones && (
+          <i
+            onClick={() => setListaObservaciones([...listaObservaciones, componenteObservacionAgregada()])}
+            className='fas fa-plus rounded-full bg-green-500 hover:bg-green-400 text-white p-1 mx-2 cursor-pointer'
+          />
+        )}
+        {listaObservaciones.map((observacion) => {
+          return observacion;
+        })}
+      </div>
+    </ObservacionContext.Provider>
+  );
+};
+
+const AgregarObservaciones = ({setMostrarObservaciones, setAgregarObservaciones, agregarObservaciones, avance, idAv, setIdAv}) => {
   const { form, formData, updateFormData } = useFormData();
   
-  const idAvance = idAv;
-  const { data: dataAvances, loading: loadingAvances} = useQuery(obtenerAvances, {
-    variables: {
-      filtro: { _id: idAvance },
-    },
-  });
+  const idAvance = idAv
+  // const { data: dataAvances, loading: loadingAvances} = useQuery(obtenerAvances, {
+  //   variables: {
+  //     filtro: { _id: idAv },
+  //   },
+  // });
+
+
+  
 
   console.log('idAv en Agregar observaciones', idAv);
   
@@ -666,7 +796,7 @@ const FormularioCreacionObservaciones = ({setMostrarObservaciones, setAgregarObs
 
         <form ref={form} onChange={updateFormData} onSubmit={submitForm}>
 
-          <MenuObservaciones idAvance={avance._id}/>
+          <Observaciones idAvance={avance._id}/>
 
           <div className='flex m-4 justify-center items-center'>
             <ButtonLoading 
@@ -681,108 +811,6 @@ const FormularioCreacionObservaciones = ({setMostrarObservaciones, setAgregarObs
     </div>
 
   )
-};
-
-const Observaciones = ({ index, _id, idAvance, tipo, descripcion, avance }) => {
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [borrarObservacion,{ data: dataMutationEliminar, loading: eliminarLoading },] = useMutation(eliminarObservacion, 
-    {
-    refetchQueries: [{ query: obtenerAvances }],
-    });
-    console.log('listaObsera',idAvance)
-
-    useEffect(() => {
-      if (dataMutationEliminar) {
-        toast.success('Observacion Eliminada Satisfactoriamente', 
-        {
-          position: toast.POSITION.BOTTOM_CENTER,
-          theme: "colored",
-          autoClose: 3000
-        })
-      }
-    }, [dataMutationEliminar]);
-  
-    const ejecutarEliminacion = () => {
-      borrarObservacion({ variables: { idAvance, idObservacion: _id } });
-    };
-  
-    if (eliminarLoading)
-      return (
-        <ReactLoading
-          data-testid='loading-in-button'
-          type='spin'
-          height={100}
-          width={100}
-        />
-      );
-  return (
-    <div className='mx-5 my-4 text-gray-600 bg-gray-50 p-8 rounded-lg flex flex-col items-center justify-center shadow-xl'>
-      <div className='text-md font-bold'>
-        Observación: 
-      </div>
-      <div className='text-center justify-center'>{descripcion}</div>
-      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
-        <div className='flex  mt-4 mb-0'>
-          <button type='button' onClick={() => setShowEditDialog(true)}>
-            <i className='fas fa-edit mx-2  hover:text-yellow-600 cursor-pointer' />
-          </button>
-          <button type='button' onClick={ejecutarEliminacion}>
-            <i className='fas fa-trash mx-2 hover:text-red-600 cursor-pointer' />
-          </button>
-        </div>
-        <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)}>
-          <EditarObservacion
-            descripcion={descripcion}
-            tipo={tipo}
-            index={index}
-            idAvance={idAvance}
-            setShowEditDialog={setShowEditDialog}
-          />
-        </Dialog>
-      </PrivateComponent>
-    </div>
-  );
-};
-
-const MenuObservaciones = ({idAvance, avance}) => {
-  const [listaObservaciones, setListaObservaciones] = useState([]);
-  const [maxObservaciones, setMaxObservaciones] = useState(false);
-
-  const eliminarObservacion = (id) => {
-    setListaObservaciones(listaObservaciones.filter((ob) => ob.props.id !== id));
-  };
-
-  const componenteObservacionAgregada = () => {
-    const id = nanoid();
-    return <FormularioObservacion 
-              key={id} 
-              id={id} />;
-  };
-
-  useEffect(() => {
-    if (listaObservaciones.length > 4) {
-      setMaxObservaciones(true);
-    } else {
-      setMaxObservaciones(false);
-    }
-  }, [listaObservaciones]);
-
-  return (
-    <ObservacionContext.Provider value={{ eliminarObservacion }}>
-      <div>
-      <h2 className='text-2xl text-center font-extrabold pb-4 mb-4 mt-4 text-gray-800'>Observaciones</h2>
-        {!maxObservaciones && (
-          <i
-            onClick={() => setListaObservaciones([...listaObservaciones, componenteObservacionAgregada()])}
-            className='fas fa-plus rounded-full bg-green-500 hover:bg-green-400 text-white p-1 mx-2 cursor-pointer'
-          />
-        )}
-        {listaObservaciones.map((observacion) => {
-          return observacion;
-        })}
-      </div>
-    </ObservacionContext.Provider>
-  );
 };
 
 const FormularioObservacion = ({ id }) => {
