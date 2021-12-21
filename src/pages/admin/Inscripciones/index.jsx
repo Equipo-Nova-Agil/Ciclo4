@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ReactLoading from "react-loading";
 import InscriptionRow from "./InscriptionRow";
 import { rechazarInscripcion } from "../../../graphql/Incripciones/Mutations";
+import PrivateComponent from "componets/PrivateComponent";
 
 const HEADERS = [
   "Id",
@@ -16,20 +17,17 @@ const HEADERS = [
   "Fecha Ingreso",
   "Fecha Egreso",
   "Estado",
-  "Acciones",
+  // "Acciones",
 ];
-
-
 
 const Inscripciones = () => {
   const { data, loading, error } = useQuery(obtenerIncripciones);
   const arrData = Array();
 const { userData } = useUser();
 
-console.log("DATOS FILTRO")
 if (data) {
   data.Inscripciones.filter(
-    (datos) => userData.rol==="ESTUDIANTE" ? (datos.estudiante._id === userData._id):(datos.proyecto.lider._id === userData._id) //"61bd85abf851a8d5d159116a"
+    (datos) => userData.rol==="ESTUDIANTE" ? (datos.estudiante._id === userData._id):(datos.proyecto.lider._id === userData._id)
   ).map((datos) => 
 
   arrData.push( {
@@ -42,8 +40,8 @@ if (data) {
   })
   );
 }
-
-console.log(arrData);
+//console.log("DATOS FILTRO")
+//console.log(arrData);
 
   const [edit, setEdit] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -177,7 +175,6 @@ console.log(arrData);
     );
   }
 
-
   return (
     <div className='h-full w-full'>
       <div className="flex h-full w-full flex-col items-center justify-start p-8">
@@ -186,7 +183,17 @@ console.log(arrData);
             Administración Inscripciones
           </h2>
         </div>
-
+        {
+          arrData.length===0 ?
+          <div className="container mx-auto " role="alert">
+          <div className="bg-yellow-500 text-2xl text-white font-bold rounded-t px-4 py-2">
+            Notificación
+          </div>
+          <div className="border border-t-0 border-yellow-400 rounded-b bg-yellow-100 px-4 py-3 text-yellow-700">
+            <p className="text-2xl">Sin información para visualizar</p>
+          </div>
+        </div>
+        :
         <div class="container mx-auto px-4 sm:px-8">
           <div class="py-8">
             {/* Cuadro busqueda */}
@@ -222,6 +229,9 @@ console.log(arrData);
                           {headerName}
                         </th>
                       ))}
+                      <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
+                        <th  className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">Acciones</th>
+                      </PrivateComponent>
                     </tr>
                   </thead>
                   <tbody>
@@ -242,7 +252,7 @@ console.log(arrData);
               </div>
             </div>
           </div>
-        </div>
+        </div>}
       </div>
       <Dialog open={openDialog}>
         <div className="p-8 flex flex-col">

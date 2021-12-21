@@ -24,13 +24,13 @@ function ReadOnlyInscriptionRow({ user, onEdit, onCancel }) {
           :'flex justify-center my-3 px-4 py-2 border-b border-gray-300 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{user.estado}
         </td>
 
-        {/* <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}> */}
+        <PrivateComponent roleList={['ADMINISTRADOR', 'LIDER']}>
       <td className="px-3 py-3 text-center bg-white text-sm w-44">
         <button type="button" title="Editar" onClick={onEdit}>
             <i className="fas fa-user-edit hover:text-yellow-600"></i>
         </button>
         </td>
-        {/* </PrivateComponent> */}
+        </PrivateComponent>
         {/* <ToastContainer /> */}
     </tr>
   );
