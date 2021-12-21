@@ -49,7 +49,7 @@ const editarAvance = gql `
             creadoPor {
                 _id
             }
-            observacion {
+            observaciones {
                 _id
                 tipo
                 descripcion
@@ -100,4 +100,34 @@ const crearObservacion = gql `
     
 `;
 
-export {crearAvance, editarAvance, eliminarAvance, crearObservacion};
+const editarObservacion = gql`
+  mutation EditarObservacion(
+    $idAvance: String!
+    $indexObservacion: Int!
+    $campos: camposObservacion!
+  ) {
+    editarObservacion(
+      idAvance: $idAvance
+      indexObservacion: $indexObservacion
+      campos: $campos
+    ) {
+      _id
+    }
+  }
+`;
+
+const eliminarObservacion = gql`
+  mutation EliminarObservacion(
+      $idAvance: String!, 
+      $idObservacion: String!
+      ){
+        eliminarObservacion(
+            idAvance: $idAvance, 
+            idObservacion: $idObservacion) {
+      _id
+    }
+  }
+`;
+
+
+export {crearAvance, editarAvance, eliminarAvance, crearObservacion, editarObservacion, eliminarObservacion};
