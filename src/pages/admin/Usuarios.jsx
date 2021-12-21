@@ -10,8 +10,7 @@ import { useParams } from 'react-router-dom';
 import { obtenerUsuarios } from '../../graphql/Usuarios/Queries.js';
 import {editarUsuario, eliminarUsuario} from '../../graphql/Usuarios/Mutations.js';
 import { Enum_Rol, Enum_EstadoUsuario } from 'utils/enum';
-
-
+import { useUser } from "context/userContext";
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -49,7 +48,8 @@ const TablaUsuarios = () => {
   const listaUsuarios = dataUsuarios && dataUsuarios.Usuarios;
   const [busqueda, setBusqueda] = useState('');
   const [usuariosFiltrados, setUsuariosFiltrados] = useState(listaUsuarios);
-  console.log('listaUsuarios', dataUsuarios)
+  const { userData } = useUser();
+  //console.log('listaUsuarios', dataUsuarios)
 
   useEffect(() => {
     setUsuariosFiltrados(
@@ -114,18 +114,21 @@ const TablaUsuarios = () => {
                       <th class="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-36">
                         Estado
                       </th>
-
-                      <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
-                        Acciones
-                      </th>
-
+                      {userData.rol === "ADMINISTRADOR" && (
+                        <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
+                          Acciones
+                        </th>
+                      )
+                      }
                     </tr>
                   </thead>
                   <tbody>
                     {usuariosFiltrados.map((usuario) => {
                     return <FilaUsuarios 
                       key={nanoid()}
-                      usuario={usuario}/>;
+                      usuario={usuario}
+                      dataUsuarioConect={userData}
+                      />;
                       
                     })}
                   </tbody>
@@ -139,7 +142,7 @@ const TablaUsuarios = () => {
   );
 };
 
-const FilaUsuarios = ({usuario})  => {
+const FilaUsuarios = ({usuario,dataUsuarioConect})  => {
   const [openDialog, setOpenDialog] = useState(false);
   const [edit, setEdit] = useState(false);
   const { _id } = useParams();
@@ -275,64 +278,60 @@ const FilaUsuarios = ({usuario})  => {
           <td className={usuario.estado === 'AUTORIZADO' ? 'relative inline-block mx-0 my-3 px-4 py-2 leading-tight bg-green-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'
           :usuario.estado === 'PENDIENTE'?('relative inline-block mx-0 my-3 px-6 py-2 leading-tight bg-yellow-500 text-white text-center text-sm font-semibold opacity-80 rounded-full')
         :'relative inline-block m-1 px-1 py-2 leading-tight bg-red-500 text-white text-center text-sm font-semibold opacity-80 rounded-full'}>{usuario.estado}</td>
-          
         </>  
         )}
-        <td>
-          <div className="flex w-24 justify-around text-gray-800 ">
-            {edit? (
-              <>
-                <button type="button" title="Editar"  onClick={() => {setEdit(!edit); enviarDatosEditadosUsuario();}}>
-                  <i className="fas fa-check hover:text-green-600"></i>
-                </button>
-                <button type="button" title="Cancelar" onClick={() => {setEdit(!edit);}}>
-                  <i className="fas fa-ban hover:text-red-700"></i>
-                </button>
-              </>
-            ):(
-              <>
-                <button type="button" title="Editar"  onClick={() => setEdit(!edit)}>
-                  <i className="fas fa-user-edit hover:text-yellow-600"></i>
-                </button>
-                <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
-                  <i className="fas fa-trash-alt hover:text-red-700"></i>
-                </button>
-              </>
-            )} 
-            
-          </div>
-          <Dialog open={openDialog}>
-            <div className='p-8 flex flex-col'>
-              <h1 className='text-gray-900 text-2xl font-bold'>
-                ¿Está seguro de querer eliminar el usuario?
-              </h1>
-              <div className='flex w-full items-center justify-center my-4'>
-                <button
-                  onClick={() => eliminarUser()}
-                  className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
-                >
-                  Sí
-                </button>
-                <button
-                  onClick={() => setOpenDialog(false)}
-                  className='mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md'
-                >
-                  No
-                </button>
-              </div>
+      {dataUsuarioConect.rol === "ADMINISTRADOR" &&
+        (
+          <td>
+            <div className="flex w-24 justify-around text-gray-800 ">
+              {edit ? (
+                <>
+                  <button type="button" title="Editar" onClick={() => { setEdit(!edit); enviarDatosEditadosUsuario(); }}>
+                    <i className="fas fa-check hover:text-green-600"></i>
+                  </button>
+                  <button type="button" title="Cancelar" onClick={() => { setEdit(!edit); }}>
+                    <i className="fas fa-ban hover:text-red-700"></i>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" title="Editar" onClick={() => setEdit(!edit)}>
+                    <i className="fas fa-user-edit hover:text-yellow-600"></i>
+                  </button>
+                  <button type="button" title="Eliminar" onClick={() => setOpenDialog(true)}>
+                    <i className="fas fa-trash-alt hover:text-red-700"></i>
+                  </button>
+                </>
+              )}
+
             </div>
-          </Dialog>
-        </td>
-      
+            <Dialog open={openDialog}>
+              <div className='p-8 flex flex-col'>
+                <h1 className='text-gray-900 text-2xl font-bold'>
+                  ¿Está seguro de querer eliminar el usuario?
+                </h1>
+                <div className='flex w-full items-center justify-center my-4'>
+                  <button
+                    onClick={() => eliminarUser()}
+                    className='mx-2 px-4 py-2 bg-green-500 text-white hover:bg-green-700 rounded-md shadow-md'
+                  >
+                    Sí
+                  </button>
+                  <button
+                    onClick={() => setOpenDialog(false)}
+                    className='mx-2 px-4 py-2 bg-red-500 text-white hover:bg-red-700 rounded-md shadow-md'
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </Dialog>
+          </td>
+        )
+      }
     </tr>
 
   );
 };
 
-export default Usuarios;
-
-                              
-                                      
-                                              
-                                      
- 
+export default Usuarios;                    
