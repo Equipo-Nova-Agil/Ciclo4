@@ -230,7 +230,7 @@ const FilaUsuarios = ({usuario,dataUsuarioConect})  => {
           </td>
           
           <td className="px-3 py-3  bg-white text-sm text-center w-32">
-            <form>
+            {/* <form>
               <select
               className="px-3 py-1 w-full border border-gray-600 rounded-lg bg-white text-sm text-center"
               name='rol'
@@ -244,7 +244,8 @@ const FilaUsuarios = ({usuario,dataUsuarioConect})  => {
                 <option value="LIDER">Líder</option>
                 <option value="ESTUDIANTE">Estudiante</option>
               </select>
-            </form>
+            </form> */} 
+            {infoNuevaUsuario.rol}
           </td>
           <td className="px-3 py-3  bg-white text-sm text-center w-36">
             <form>
