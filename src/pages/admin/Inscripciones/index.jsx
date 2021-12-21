@@ -155,7 +155,7 @@ const Inscripciones = () => {
 
 
   return (
-    <div>
+    <div className="h-full w-full">
       <div className="flex h-full w-full flex-col items-center justify-start p-8">
         <div className="flex flex-col">
           <h2 className="text-3xl pt-8 pb-10 font-extrabold text-gray-800">
