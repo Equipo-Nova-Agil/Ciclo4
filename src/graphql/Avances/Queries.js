@@ -17,6 +17,7 @@ query Avances ($filtro: FiltroAvances){
     }
     descripcion
     observaciones {
+      _id
       tipo
       descripcion
     }

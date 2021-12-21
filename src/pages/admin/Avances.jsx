@@ -329,7 +329,7 @@ const AcordionAvances =({avance, agregarObservaciones, setAgregarObservaciones})
             {/* OBSERVACIONES AVANCES */}
             <div className='flex'>
               {avance.observaciones.map((observacion, index) => {
-                console.log('ObservacionesID',avance._id)
+                console.log('datos obervacion',observacion)
                 return <ListaObservaciones
                         key={nanoid()}
                         index={index}
@@ -655,7 +655,8 @@ const ListaObservaciones = ({ index, _id, idAvance, tipo, descripcion, avance })
     }, [dataMutationEliminar]);
   
     const ejecutarEliminacion = () => {
-      borrarObservacion({ variables: { idAvance, idObservacion: _id } });
+      console.log("idAvance eliminar",idAvance, "observacion",_id )
+      borrarObservacion({ variables: { idAvance:idAvance, idObservacion: _id } });
     };
   
     if (eliminarLoading)
