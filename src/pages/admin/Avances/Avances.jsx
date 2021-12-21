@@ -34,7 +34,21 @@ const Avances = () => {
   const [textoBoton, setTextoBoton] = useState('Nuevo Avance');
   const [avance, setAvance] = useState({})
   const {data: dataAvances, loading: loadingAvances, error:errorAvances} = useQuery (obtenerAvances);
+  const arrData = Array();
+  const { userData} = useUser();
+
+  if (dataAvances) {
+    dataAvances.Avances.filter(
+      (datos) => userData.rol==="ESTUDIANTE" ? (datos.creadoPor._id === userData._id):(datos.proyecto.lider._id === userData._id)
+    ).map((datos) => 
   
+    arrData.push(datos)
+    );
+  }
+
+// console.log("DATOS FILTRO")
+// console.log(arrData);
+
   useEffect(() => {
     if (agregarObservaciones) {
       setMostrarAvances(false);
@@ -52,7 +66,7 @@ const Avances = () => {
   }, [mostrarAvances]);
 
   useEffect(() => {
-    console.log('Datos Avances Desde El Backend', dataAvances);
+    console.log('Datos Avances Desde El Backend filtrados', arrData);
   }, [dataAvances]);
 
   useEffect(() => {
@@ -104,7 +118,9 @@ const Avances = () => {
 
                 <ListaAvances
                   setAgregarObservaciones={setAgregarObservaciones}
-                  agregarObservaciones={agregarObservaciones}/>
+                  agregarObservaciones={agregarObservaciones}
+                  dataFiltrada={arrData} 
+                  />
         
               ) : (
 
@@ -115,25 +131,42 @@ const Avances = () => {
           );
 };
 
-const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones})=> {
+const ListaAvances = ({ setAgregarObservaciones, agregarObservaciones, dataFiltrada})=> {
   const { data: dataAvances, loading: loadingAvances} = useQuery(obtenerAvances);
+//console.log("data filtrada",dataFiltrada)
+
   if (loadingAvances) return <div>
     <h1 className='text-3xl font-extrabold'>Cargando...</h1>
     <ReactLoading type='bars' color='#11172d' height={467} width={175} />
     </div>;
   if (dataAvances.Avances) {
     return (
-    <div className='p-4 flex w-10/12 flex-col'>
-      {dataAvances && dataAvances.Avances.map((avance) => {
-        return <AcordionAvances
-                key={avance._id}  
-                avance={avance} 
+      <div className="p-4 flex w-10/12 flex-col">
+        {/* {dataAvances && dataAvances.Avances.map((avance) => { */}
+        {dataFiltrada &&
+          dataFiltrada.map((avance) => {
+            return (
+              <AcordionAvances
+                key={avance._id}
+                avance={avance}
                 agregarObservaciones={agregarObservaciones}
                 setAgregarObservaciones={setAgregarObservaciones}
-                idAvance={avance._id}/>;
-      })}
-    </div>
-  );
+                idAvance={avance._id}
+              />
+            );
+          })}
+        {dataFiltrada.length === 0 && (
+          <div className="container mx-auto " role="alert">
+            <div className="bg-yellow-500 text-2xl text-white font-bold rounded-t px-4 py-2">
+              Notificación
+            </div>
+            <div className="border border-t-0 border-yellow-400 rounded-b bg-yellow-100 px-4 py-3 text-yellow-700">
+              <p className="text-2xl">Sin información para visualizar</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   }
 
 };
