@@ -10,6 +10,9 @@ query Inscripciones ($filtro: FiltroInscripciones)  {
     fechaEgreso
     proyecto {
       _id
+      lider {
+        _id
+      }
       nombre
       estado
       fase

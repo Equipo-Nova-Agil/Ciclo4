@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { useUser } from "context/userContext";
 import { obtenerIncripciones } from "../../../graphql/Incripciones/Queries";
 import { Dialog } from "@material-ui/core";
 import { ToastContainer, toast } from "react-toastify";
@@ -18,15 +19,39 @@ const HEADERS = [
   "Acciones",
 ];
 
+
+
 const Inscripciones = () => {
   const { data, loading, error } = useQuery(obtenerIncripciones);
+  const arrData = Array();
+const { userData } = useUser();
+
+console.log("DATOS FILTRO")
+if (data) {
+  data.Inscripciones.filter(
+    (datos) => userData.rol==="ESTUDIANTE" ? (datos.estudiante._id === userData._id):(datos.proyecto.lider._id === userData._id) //"61bd85abf851a8d5d159116a"
+  ).map((datos) => 
+
+  arrData.push( {
+    _id: datos._id,
+    estado: datos.estado,
+    nombreEstudiante: datos.estudiante.nombre + " "+ datos.estudiante.apellido,
+    fechaIngreso: datos.fechaIngreso,
+    fechaEgreso: datos.fechaEgreso,
+    nombreProyecto: datos.proyecto.nombre,
+  })
+  );
+}
+
+console.log(arrData);
+
   const [edit, setEdit] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [copyData, setCopyData] = useState([]);
   const [selectedInfo, setSelectedInfo] = useState(null);
 
   const [busqueda, setBusqueda] = useState("");
-  const [inscripcionesFiltradas, setInscripcionesFiltradas] = useState(data);
+  const [inscripcionesFiltradas, setInscripcionesFiltradas] = useState(arrData);
 
   const handleEditChange = (index, value) => () => {
     setEdit((currentEditList) =>
@@ -34,7 +59,6 @@ const Inscripciones = () => {
         if (index !== idx) {
           return item;
         }
-
         return value;
       })
     );
@@ -110,13 +134,13 @@ const Inscripciones = () => {
 
   useEffect(() => {
     if (data) {
-      const updatedCopyData = data.Inscripciones.map((i) => ({
+      const updatedCopyData = arrData.map((i) => ({
         _id: i._id,
         estado: i.estado,
-        nombreEstudiante: i.estudiante.nombre,
+        nombreEstudiante: i.nombreEstudiante,
         fechaIngreso: i.fechaIngreso,
         fechaEgreso: i.fechaEgreso,
-        nombreProyecto: i.proyecto.nombre,
+        nombreProyecto: i.nombreProyecto,
       }));
       setEdit(updatedCopyData.map(() => false));
       setCopyData(updatedCopyData);
@@ -126,7 +150,7 @@ const Inscripciones = () => {
  useEffect(() => {
     if (data)
     {
-      const filterCopyData = data.Inscripciones.filter((inscripciones) => {
+      const filterCopyData = arrData.filter((inscripciones) => {
         return JSON.stringify(inscripciones)
           .toLowerCase()
           .includes(busqueda.toLowerCase());
@@ -134,10 +158,10 @@ const Inscripciones = () => {
       const updatedCopyData = filterCopyData.map((i) => ({
         _id: i._id,
         estado: i.estado,
-        nombreEstudiante: i.estudiante.nombre,
+        nombreEstudiante: i.nombreEstudiante,
         fechaIngreso: i.fechaIngreso,
         fechaEgreso: i.fechaEgreso,
-        nombreProyecto: i.proyecto.nombre,
+        nombreProyecto: i.nombreProyecto,
       }));
       setEdit(updatedCopyData.map(() => false));
       setCopyData(updatedCopyData);
