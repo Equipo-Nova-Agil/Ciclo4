@@ -62,15 +62,15 @@ const TablaUsuarios = () => {
   return (
 
     <div>
-      <body class="antialiased font-sans bg-white">
-        <div class="container mx-auto px-4 sm:px-8">
-          <div class="py-8">
+      <div className="antialiased font-sans bg-white">
+        <div className="container mx-auto px-4 sm:px-8">
+          <div className="py-8">
 
             {/* BUSCADOR */}
-            <div class="my-2 mx-2 flex sm:flex-row flex-col">
-              <div class="block relative">
-                <span class="h-full absolute inset-y-0 left-0 flex items-center pl-2">
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current text-gray-500">
+            <div className="my-2 mx-2 flex sm:flex-row flex-col">
+              <div className="block relative">
+                <span className="h-full absolute inset-y-0 left-0 flex items-center pl-2">
+                  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-gray-500">
                     <path d="M10 4a6 6 0 100 12 6 6 0 000-12zm-8 6a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 012 10z">
                     </path>
                   </svg>
@@ -79,43 +79,43 @@ const TablaUsuarios = () => {
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar"
-                  class="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"/>
+                  className="appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-6 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"/>
               </div>
             </div>
 
             {/* HEADERS TABLA */}
-            <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-              <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+            <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
+              <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
                 
-                <table class="min-w-full leading-normal">
+                <table className="min-w-full leading-normal">
                   <thead>
                     <tr>
 
-                      <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
                         Nombre
                       </th>
 
-                      <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
                         Apellidos
                       </th>
 
-                      <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
                         Documento
                       </th>
 
-                      <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-44">
                         Email
                       </th>
 
-                      <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
+                      <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-32">
                         Rol
                       </th>
 
-                      <th class="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-36">
+                      <th className="px-5 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-36">
                         Estado
                       </th>
                       {userData.rol === "ADMINISTRADOR" && (
-                        <th class="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
+                        <th className="px-3 py-3 border-b-2 border-gray-400 bg-gray-200 text-center text-xs font-extrabold text-gray-600 uppercase tracking-wider w-24">
                           Acciones
                         </th>
                       )
@@ -137,7 +137,7 @@ const TablaUsuarios = () => {
             </div>
           </div>
         </div>
-      </body>
+      </div>
     </div>  
   );
 };

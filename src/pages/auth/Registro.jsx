@@ -57,7 +57,7 @@ const Registro = () => {
                     <form onSubmit={submitForm} onChange={updateFormData} ref={form} >
 
                       <div className="relative w-full mb-3">
-                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-2 " for="nombre">Nombre</label>
+                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-2 " htmlFor="nombre">Nombre</label>
                         <Input 
                           name='nombre' 
                           type='text'
@@ -66,7 +66,7 @@ const Registro = () => {
                           required />
                       </div>
                       <div className="relative w-full mb-3">
-                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" for="apellido">Apellido</label>
+                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" htmlFor="apellido">Apellido</label>
                         <Input  
                           name='apellido' 
                           type='text' 
@@ -75,7 +75,7 @@ const Registro = () => {
                           required />
                       </div>
                       <div className="relative w-full mb-3">
-                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" for="identificacion">Documento</label>
+                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" htmlFor="identificacion">Documento</label>
                         <Input 
                           name='identificacion' 
                           type='text' 
@@ -84,7 +84,7 @@ const Registro = () => {
                           required />
                       </div>
                       <div className="relative w-full mb-3">
-                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" for="rol">Rol Deseado</label>
+                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" htmlFor="rol">Rol Deseado</label>
                         <DropDown 
                           name='rol' 
                           required={true} 
@@ -92,7 +92,7 @@ const Registro = () => {
                           className='border-0 px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm text-centershadow focus:outline-none focus:ring w-full'/>
                       </div>
                       <div className="relative w-full mb-3">
-                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" for="correo">Correo Electrónico</label>
+                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" htmlFor="correo">Correo Electrónico</label>
                         <Input 
                           name='correo' 
                           type='text' 
@@ -101,7 +101,7 @@ const Registro = () => {
                           required />
                       </div>
                       <div className="relative w-full mb-3">
-                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" for="password">Contraseña</label>
+                        <label className="block uppercase text-gray-700 text-xs font-bold mb-1 mt-4" htmlFor="password">Contraseña</label>
                         <Input 
                           name='password' 
                           type='password' 

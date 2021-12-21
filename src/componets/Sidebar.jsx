@@ -3,6 +3,7 @@ import Logo from '../media/logo.png';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from 'context/authContext';
 import PrivateComponent from '../componets/PrivateComponent';
+import { nanoid } from "nanoid";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -21,66 +22,51 @@ const Sidebar = () => {
           <h1 className="fuente text-xl uppercase text-white text-bold shadow-md mb-40 ">PROYECTORIO</h1>
         </div>
         <ul className="flex flex-col py-10 mt-40 items-center content-center">
-          <li>
-            <Link to='/admin'>
-              <a href="#" className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
+          <li key="1a{nanoid()}">
+            <Link to='/admin' className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-200"><i className="fas fa-user"></i></span>
                 <span className="text-sm font-medium">Perfil</span>
-              </a>
             </Link> 
           </li>
-          <li>
+          <li  key="2a{nanoid()}">
             <PrivateComponent roleList={['ADMINISTRADOR','LIDER']}>
-              <Link to='/admin/Usuarios' >
-                <a href="#" className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
+              <Link to='/admin/Usuarios' className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
                   <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-200"><i className="fas fa-users"></i></span>
                   <span className="text-sm font-medium">Usuarios</span>
-                </a>
               </Link>
               </PrivateComponent>
           </li>
-          <li>
+          <li key="3a{nanoid()}">
           {/* <PrivateComponent roleList={['ADMINISTRADOR','LIDER','ESTUDIANTE']}>   */}
-            <Link to='/admin/Proyectos'>
-                <a href="#" className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
+            <Link to='/admin/Proyectos' className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
                   <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-200"><i className="fas fa-book"></i></span>
                   <span className="text-sm font-medium">Proyectos</span>
-                </a>
             </Link>
           {/* </PrivateComponent>     */}
           </li>
-          <li>
+          <li key="4a{nanoid()}">
             {/* <PrivateComponent roleList={['Administrador','Lider','Estudiante']}> */} 
-              <Link to='/admin/Inscripciones'>
-                <a href="#" className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
+              <Link to='/admin/Inscripciones' className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
                   <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-200"><i className="fas fa-user-plus"></i></span>
                   <span className="text-sm font-medium">Inscripciones</span>
-                </a>
               </Link>
               {/* </PrivateComponent> */}
           </li> 
-          <li>
+          <li key="{5ananoid()}">
             {/* <PrivateComponent roleList={['Administrador','Lider','Estudiante']}> */} 
-              <Link to='/admin/Avances'>
-                <a href="#" className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
+              <Link to='/admin/Avances' className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-gray-500">
                   <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-200"><i className="fas fa-tasks"></i></span>
                   <span className="text-sm font-medium">Avances</span>
-                </a>
               </Link>
               {/* </PrivateComponent> */}
           </li> 
           
-          
-          
-          <li>
-            <Link to='/'>
-              <a href="#" className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-red-500 mt-10">
+          <li key="6a{nanoid()}">
+            <Link to='/' className="flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-gray-300 hover:text-red-500 mt-10">
                 <span className="inline-flex items-center justify-center h-12 w-12 text-lg text-gray-200"><i className="bx bx-log-out"></i></span>
                 <span className="text-sm font-medium" onClick={() => cerrarSesion()}>Cerrar Sesión</span>
-              </a>
             </Link>
           </li>
-            
             
         </ul>
       </div>

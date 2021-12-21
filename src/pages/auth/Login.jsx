@@ -19,7 +19,7 @@ const Login = () => {
 
   return (
     <>
-      <body>
+      <div>
         <main className="bg-black">
           <section className="absolute w-full">
             <div className="absolute top-0 mb-1 pb-2 w-full h-full bg-black"></div>
@@ -43,7 +43,7 @@ const Login = () => {
             </div>
           </section>
         </main>
-      </body>
+      </div>
     </>
   );
 };
@@ -121,7 +121,7 @@ const FormularioLogin = ({ setMostrarResetForm }) => {
           <div className="relative w-full mb-3">
             <label
               className="block uppercase text-gray-700 text-xs font-bold mb-2"
-              for="grid-password"
+              htmlFor="grid-password"
             >
               Correo
             </label>
@@ -136,7 +136,7 @@ const FormularioLogin = ({ setMostrarResetForm }) => {
           <div className="relative w-full mb-3">
             <label
               className="block uppercase text-gray-700 text-xs font-bold mb-2"
-              for="grid-password"
+              htmlFor="grid-password"
             >
               Contraseña
             </label>

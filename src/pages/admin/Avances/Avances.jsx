@@ -127,7 +127,7 @@ const Avances = () => {
             ) : (
               <>
                 {mostrarAvances ? (
-                  <ListaAvances
+                  <ListaAvances 
                     setAgregarObservaciones={setAgregarObservaciones}
                     agregarObservaciones={agregarObservaciones}
                     dataFiltrada={arrData}

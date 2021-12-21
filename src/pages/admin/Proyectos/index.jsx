@@ -144,7 +144,7 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
   return (
     <div className="container mx-auto antialiased font-sans bg-white">
       {datosUsuario.estado === "AUTORIZADO" ? (
-        //<body className="antialiased font-sans bg-white"> 
+        //<div className="antialiased font-sans bg-white"> 
         <div className="px-4 sm:px-8">
           <div className="py-8">
             {/* BUSCADOR */}
@@ -240,7 +240,7 @@ const TablaProyectos = ({ datosUsuario, setMostrarTabla }) => {
             </div>
           </div>
         </div>
-        //</body>
+        //</div>
       ) : (
         <ComponenteNoAutorizado></ComponenteNoAutorizado>
       )}
@@ -913,7 +913,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, datosUsuario }) => {
           <div className="w-full px-3">
             <label
               className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
-              for="grid-password"
+              htmlFor="grid-password"
               style={{ backgroundColor: "#212D5B" }}
             >
               Nombre del Proyecto
@@ -1057,7 +1057,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, datosUsuario }) => {
           <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
             <label
               className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
-              for="grid-zip"
+              htmlFor="grid-zip"
             >
               Fase del proyecto
             </label>
@@ -1081,7 +1081,7 @@ const FormularioCreacionProyectos = ({ setMostrarTabla, datosUsuario }) => {
           <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
             <label
               className="block uppercase tracking-wide text-white font-bold pt-2 pb-2"
-              for="grid-zip"
+              htmlFor="grid-zip"
             >
               Estado del Proyecto
             </label>

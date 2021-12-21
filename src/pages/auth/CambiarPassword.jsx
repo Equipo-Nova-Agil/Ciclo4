@@ -92,7 +92,7 @@ useEffect(() => {
                 <div className="relative w-full mb-3">
                   <label
                     className="block uppercase text-gray-700 text-xs font-bold mb-2"
-                    for="passwordActual"
+                    htmlFor="passwordActual"
                   >
                     Contraseña Actual {" "}
                     {showPass1 ? (
@@ -124,7 +124,7 @@ useEffect(() => {
                 <div className="relative w-full mb-3">
                 <label
                     className="block uppercase text-gray-700 text-xs font-bold mb-2"
-                    for="passwordActual"
+                    htmlFor="passwordActual"
                   >
                     Contraseña Nueva {" "}
                     {showPass2 ? (

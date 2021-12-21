@@ -336,12 +336,12 @@ const VieditProyectos = (vistaProyecto) => {
 const VistaProyecto = ({ datosUsuario, setActiveVistaProyecto, proyecto }) => {
 
   return (
-    <div class="box-border h-full w-100 p-4 border-4 border-gray">
+    <div className="box-border h-full w-100 p-4 border-4 border-gray">
       <div className="-mx-3 md:flex mb-3">
         <div className="md:w-full px-3">
           <label
             className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-            for="application-link"
+            htmlFor="application-link"
           >
             Nombre del proyecto
             <span className="text-red-500 text-xs italic"> *</span>
@@ -368,7 +368,7 @@ const VistaProyecto = ({ datosUsuario, setActiveVistaProyecto, proyecto }) => {
         <div className="md:w-1/2 px-3 mb-6 md:mb-0">
           <label
             className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-            for="fase"
+            htmlFor="fase"
           >
             Fase del proyecto
             <span className="text-red-500 text-xs italic"> *</span>
@@ -382,7 +382,7 @@ const VistaProyecto = ({ datosUsuario, setActiveVistaProyecto, proyecto }) => {
         <div className="md:w-1/2 px-3">
           <label
             className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-            for="estado"
+            htmlFor="estado"
           >
             Estado del proyecto
             <span className="text-red-500 text-xs italic"> *</span>
@@ -399,7 +399,7 @@ const VistaProyecto = ({ datosUsuario, setActiveVistaProyecto, proyecto }) => {
         <div className="md:w-1/2 px-3 mb-6 md:mb-0">
           <label
             className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-            for="presupuesto"
+            htmlFor="presupuesto"
           >
             Presupuesto <span className="text-red-500 text-xs italic"> *</span>
           </label>
@@ -414,7 +414,7 @@ const VistaProyecto = ({ datosUsuario, setActiveVistaProyecto, proyecto }) => {
         <div className="md:w-1/2 px-3">
           <label
             className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-            for="fechaInicio"
+            htmlFor="fechaInicio"
           >
             Inicio <span className="text-red-500 text-xs italic"> *</span>
           </label>
@@ -427,7 +427,7 @@ const VistaProyecto = ({ datosUsuario, setActiveVistaProyecto, proyecto }) => {
         <div className="md:w-1/2 px-3">
           <label
             className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-            for="fechaFin"
+            htmlFor="fechaFin"
           >
             Finalización <span className="text-red-500 text-xs italic"> *</span>
           </label>
@@ -745,12 +745,12 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
   return (
     <div className="container mx-auto items-center justify-center">
       <form ref={form} onSubmit={submitForm}>
-        <div class="box-border h-full w-100 p-4 border-4 border-gray">
+        <div className="box-border h-full w-100 p-4 border-4 border-gray">
           <div className="-mx-3 md:flex mt-2">
             <div className="md:w-full px-3">
               <label
                 className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                for="application-link"
+                htmlFor="application-link"
               >
                 Nombre del proyecto
                 <span className="text-red-500 text-xs italic"> *</span>
@@ -779,7 +779,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
                 <div className="md:w-full px-3">
                   <label
                     className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                    for="application-link"
+                    htmlFor="application-link"
                   >
                     Objetivo general
                     <span className="text-red-500 text-xs italic"> *</span>
@@ -798,7 +798,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
                 <div className="md:w-full px-3">
                   <label
                     className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                    for="application-link"
+                    htmlFor="application-link"
                   >
                     Objetivos especificos
                     <span className="text-red-500 text-xs italic"> *</span>
@@ -830,7 +830,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
               <div className="md:w-full px-3">
                 <label
                   className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                  for="application-link"
+                  htmlFor="application-link"
                 >
                   Lider del proyecto
                   <span className="text-red-500 text-xs italic"> *</span>
@@ -872,7 +872,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
             <div className="md:w-1/2 px-3 mb-6 md:mb-0">
               <label
                 className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                for="fase"
+                htmlFor="fase"
               >
                 Fase del proyecto
                 <span className="text-red-500 text-xs italic"> *</span>
@@ -886,7 +886,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
             <div className="md:w-1/2 px-3">
               <label
                 className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                for="estado"
+                htmlFor="estado"
               >
                 Estado del proyecto
                 <span className="text-red-500 text-xs italic"> *</span>
@@ -903,7 +903,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
             <div className="md:w-1/2 px-3 mb-6 md:mb-0">
               <label
                 className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                for="presupuesto"
+                htmlFor="presupuesto"
               >
                 Presupuesto{" "}
                 <span className="text-red-500 text-xs italic"> *</span>
@@ -930,7 +930,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
             <div className="md:w-1/2 px-3">
               <label
                 className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                for="fechaInicio"
+                htmlFor="fechaInicio"
               >
                 Inicio <span className="text-red-500 text-xs italic"> *</span>
               </label>
@@ -943,7 +943,7 @@ const VistaFormulario = ({ setActiveVistaProyecto, proyecto, datosUsuario}) => {
             <div className="md:w-1/2 px-3">
               <label
                 className="uppercase tracking-wide text-black text-xs font-bold mb-2"
-                for="fechaFin"
+                htmlFor="fechaFin"
               >
                 Finalización{" "}
                 <span className="text-red-500 text-xs italic"> *</span>

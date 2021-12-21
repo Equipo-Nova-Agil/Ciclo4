@@ -15,8 +15,8 @@ const NavbarAuth = () => {
       <span className="text-xl p-2 m-2 tracking-tight">PROYECTORIO</span>
     </div>
         
-    <Link to='/'>
-      <a href="#" className="inline-block items-end transform hover:translate-y-1 transition-transform ease-in duration-200 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm font-mediump-2 m-2  ring-2 ring-gray-400"><i className="fas fa-arrow-left w-6"></i>Regresar</a>
+    <Link to='/' className="inline-block items-end transform hover:translate-y-1 transition-transform ease-in duration-200 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm font-mediump-2 m-2  ring-2 ring-gray-400">
+      <i className="fas fa-arrow-left w-6"></i>Regresar
     </Link>
                     
   </nav>
